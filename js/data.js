@@ -17,6 +17,16 @@ const PROFILE = {
     { school: "Suranaree University of Technology", years: "2024 – Present", degree: "B.Sc. Digital Technology — Institute of Digital Arts and Science" },
     { school: "Phraibung Wittayakom School", years: "2018 – 2023", degree: "High School Diploma (Science–Mathematics Program)" },
   ],
+  certificates: [
+    {
+      title: "Industrial Data Analytics with Data Mining",
+      issuer: "BOI-STEM++ · Institute of Digital Arts and Science, SUT",
+      detail: "Training course BOC690325 under the BOI-STEM++ programme for building high-skilled talent for future industries.",
+      date: "31 August 2026",
+      img: "assets/img/certificates/boi-stem-data-mining.jpg",
+      pdf: "assets/docs/boi-stem-data-mining-certificate.pdf",
+    },
+  ],
   coursework: [
     "Database Design and Development", "Advanced Database Design and Development", "Project in Database Administration",
     "Foundation in Information and Network Security", "Cryptographic Protocols", "Project in Cyber Security",
