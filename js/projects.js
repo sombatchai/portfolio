@@ -73,6 +73,7 @@ const PROJECTS = [
       "XP and level system with 4 quest goal types and boss battles",
     ],
     link: "https://github.com/sombatchai/Mission-Life",
+    demo: "demo/missionlife/",
   },
   {
     id: "retail",

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>MissionLife · Demo</title>
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  <link rel="icon" href="/portfolio/demo/missionlife/favicon.ico" /><style>
+  html, body { background: #0b0910 !important; }
+  @media (min-width: 520px) {
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    #root { width: 400px !important; height: min(860px, 96vh) !important; flex: none !important; border-radius: 34px; overflow: hidden;
+            box-shadow: 0 0 0 10px #1c1a24, 0 40px 90px rgba(0,0,0,.6); position: relative; }
+  }
+  #demo-ribbon { position: fixed; z-index: 99999; right: 12px; bottom: 12px; display: flex; gap: 8px; align-items: center;
+    font: 600 12px/1.3 system-ui, sans-serif; background: #4f46e5; color: #fff; padding: 8px 12px; border-radius: 999px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+  #demo-ribbon button { font: inherit; border: 0; border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+</style></head>
+
+  <body><div id="demo-ribbon">Demo · login demo / demo1234 · saved only in this browser <button type="button" onclick="localStorage.removeItem('missionlife-demo-v1');location.reload()">Reset</button></div>
+    <!-- Use static rendering with Expo Router to support running without JavaScript. -->
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+  <script src="/portfolio/demo/missionlife/_expo/static/js/web/demo-entry-4b1f7931cdf7c15b47382e5a18750c79.js" defer></script>
+</body>
+</html>
