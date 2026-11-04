@@ -92,7 +92,7 @@ const PROJECTS = [
       "Excel / CSV import and real-time data from Firebase Firestore",
     ],
     link: "https://github.com/sombatchai/retail-insight",
-    demo: "demo/retail/",
+    demo: "https://sombatchai.github.io/retail-insight/",
   },
   {
     id: "stockmb",

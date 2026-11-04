@@ -14,7 +14,7 @@
 | --- | --- | --- |
 | **AEC VERSE** – Smart Biogas Digital Twin | โปรเจคจบที่พัฒนาให้บริษัทจริง: Digital Twin และ Metaverse ของโรงงานไบโอแก๊สสำหรับฝึกอบรมความปลอดภัย (26 หน้า, 32 API endpoints, Real-time socket) | JavaScript, Three.js, Node.js, Express, Socket.IO, Supabase |
 | **MissionLife** – Gamified Habit Tracker | แอปมือถือที่เปลี่ยนเป้าหมายในชีวิตจริงให้เป็นเควส ได้ XP ถ้วยรางวัล และสู้บอส | React Native, Expo, Firebase, Figma |
-| **Retail Insight** – Retail Sales Analytics | เว็บแอปให้ทีม Data Analytics: นำเข้าไฟล์ยอดขายแล้วดู Dashboard แนวโน้ม พยากรณ์ด้วย Linear Regression และสินค้าค้างสต๊อก · [▶ ลองเดโม](https://sombatchai.github.io/portfolio/demo/retail/) | React 19, Vite, Tailwind CSS, Recharts, Firebase Firestore |
+| **Retail Insight** – Retail Sales Analytics | เว็บแอปให้ทีม Data Analytics: นำเข้าไฟล์ยอดขายแล้วดู Dashboard แนวโน้ม พยากรณ์ด้วย Linear Regression และสินค้าค้างสต๊อก · [▶ ลองเดโม](https://sombatchai.github.io/retail-insight/) | React 19, Vite, Tailwind CSS, Recharts, Firebase Firestore |
 | **StockMB** – Inventory Management System | โปรแกรมเดสก์ท็อปจัดการสต๊อกและขายหน้าร้านสำหรับร้านค้าขนาดเล็ก พร้อมเอกสาร SRS ครบ | Electron, JavaScript, SQLite |
 | **ChainPass** – Blockchain Ticketing (Hackathon) | ไอเดียและ Prototype จากการแข่งขัน Hackathon: ตั๋วบน Smart Contract, กระเป๋าเงินแบบ Escrow และขายต่อแบบล็อกเพดานราคา | Figma, แนวคิด Blockchain |
 | **Wi-Fi Security Pentest** | ทดลองในห้องแล็บว่าความซับซ้อนของรหัสผ่านมีผลต่อความปลอดภัยของ WEP / WPA / WPA2 อย่างไร | Kali Linux, Aircrack-ng, Wifite, Wireshark |
@@ -57,7 +57,6 @@
 │   ├── story.js           สร้างหน้าแรกและระบบแอนิเมชันตามการเลื่อน
 │   ├── main.js            ส่วนหัว ส่วนท้าย เอฟเฟกต์ และตัวขยายภาพที่ใช้ร่วมกัน
 │   └── project-page.js    สร้างหน้ารายละเอียดโปรเจค
-├── demo/retail/           เดโม Retail Insight ที่กดเล่นได้ (build จากโปรเจคจริง ใช้ข้อมูลตัวอย่าง)
 ├── assets/img/            รูปภาพและภาพหน้าจอของโปรเจค
 └── cv/                    ไฟล์ Resume (PDF)
 ```
