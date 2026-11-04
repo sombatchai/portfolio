@@ -6,3 +6,7 @@ node_modules/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# the MissionLife web export keeps its font assets under a node_modules folder
+!demo/missionlife/assets/node_modules/
+!demo/missionlife/assets/**/node_modules/
