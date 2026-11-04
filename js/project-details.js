@@ -330,7 +330,7 @@ const DETAILS = {
       { n: "Year 3", l: "Projected to turn a profit" },
     ],
     overview: [
-      "This project came from a hackathon. Our team picked the CP ALL research topic \"Designing a Blockchain-Based Thai Lottery System\". The paper shows that smart contracts can stop fraud, price gouging and disputes over who owns a ticket. We applied the same insight to a market with the same problems: concert and event tickets.",
+      "This project came from the SUT-Digital Hackathon, held 1–4 June 2026 at Suranaree University of Technology. Our team picked the CP ALL research topic \"Designing a Blockchain-Based Thai Lottery System\". The paper shows that smart contracts can stop fraud, price gouging and disputes over who owns a ticket. We applied the same insight to a market with the same problems: concert and event tickets.",
       "Today's tickets (paper or plain e-tickets) are hard to verify. A screenshot of a QR code can be sold again and again, scalpers hoard tickets and resell them at 2 to 3 times the price, and fans often pay a stranger on social media for a ticket that never arrives.",
       "ChainPass is our answer: one platform for both first-hand sales and resale, where every ticket is a blockchain record with exactly one owner, payment goes through an escrow wallet, and resale prices are capped. <b>It is an idea and a Figma prototype for the competition, not a working product.</b>",
     ],
@@ -339,6 +339,12 @@ const DETAILS = {
       { t: "Built-in Digital Wallet", d: "Payments and refunds run through an in-app wallet, so money and ticket change hands inside the system at the same moment (escrow)." },
       { t: "End-to-end control", d: "First-hand sales and the resale market sit on the same platform, so the rules (price cap, ownership) follow the ticket everywhere." },
     ],
+    certificate: {
+      src: `${IMG}chainpass/certificate.jpg`,
+      pdf: "assets/docs/sut-digital-hackathon-certificate.pdf",
+      t: "Certificate of Achievement",
+      d: "Awarded for successfully completing the SUT-Digital Hackathon, 1–4 June 2026, Suranaree University of Technology. Signed by the Dean of the Institute of Digital Arts and Science.",
+    },
     goalsTitle: "Who It's For",
     objectivesLabel: "Customer segments & impact",
     objectives: [

@@ -124,6 +124,16 @@
       </div>` : ""}
     </div>`);
 
+  if (d.certificate) {
+    const c = d.certificate;
+    html += section("Certificate", null, `
+    <div class="cs-two cert-row">
+      <figure class="shot" data-reveal><div class="frame cert"><img src="${c.src}" alt="${c.t}" loading="lazy"></div></figure>
+      <div class="card spot cs-pad" data-reveal style="--d:.1s"><h3>${ic("grad")}${c.t}</h3><p>${c.d}</p>
+        ${c.pdf ? `<a class="btn" href="${c.pdf}" target="_blank" rel="noopener">${ic("download")}View certificate (PDF)</a>` : ""}</div>
+    </div>`);
+  }
+
   if (d.concepts) html += section("Core Concepts", "The ideas the app is built on.", `
     <div class="values" data-stagger>${d.concepts.map((c, i) => `<div class="card spot value"><div class="icon-box"><b>0${i + 1}</b></div><h4>${c.t}</h4><p>${c.d}</p></div>`).join("")}</div>`);
 
