@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="../demo-runtime/sql-wasm.js"></script>
+    <script src="../demo-runtime/runtime.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMB - ข้อมูลพนักงาน</title>
+    <link rel="stylesheet" href="../style/EmpSave.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="content-panel">
+        <h2 class="panel-title">คุณวุฒิการศึกษา</h2>
+        <div class="employee-data-box">
+            <p class="data-heading">รายละเอียดพนักงานที่กำลังดูคุณวุฒิ</p>
+            
+            <div class="data-item">
+                <span class="label">รหัสพนักงาน:</span>
+                <span class="value" id="view-id">-</span>
+            </div>
+            <div class="data-item">
+                <span class="label">ชื่อพนักงาน:</span>
+                <span class="value" id="view-name">-</span>
+            </div>
+            <div class="data-item">
+                <span class="label">สถานะพนักงาน:</span>
+                <span class="value" id="view-role" style="font-weight: bold;">-</span>
+            </div>
+            <div class="data-item">
+                <span class="label">อายุ:</span>
+                <span class="value" id="view-age">-</span>
+            </div>
+            <div class="data-item">
+                <span class="label">เบอร์โทรศัพท์:</span>
+                <span class="value" id="view-phone">-</span>
+            </div>
+            <div class="data-item">
+                <span class="label">ตำแหน่ง:</span>
+                <span class="value" id="view-pos">-</span>
+            </div>
+            <div class="data-item">
+                <span class="label">เงินเดือน:</span>
+                <span class="value" id="view-salary">-</span>
+            </div>
+            <div class="data-item">
+                <span class="label">วุฒิการศึกษา:</span>
+                <span class="value" id="view-qual">-</span>
+            </div>
+            <div class="data-item">
+                <span class="label">อีเมล (Email):</span>
+                <span class="value" id="view-email">-</span>
+            </div>
+            <div class="data-item last-item">
+                <span class="label">Username:</span>
+                <span class="value" id="view-username">-</span>
+            </div>
+        </div>
+
+        <div style="margin-top: 20px; text-align: right;">
+            <button onclick="confirmAndGoBack()" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                ยืนยันและไปหน้าตารางพนักงาน
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem('lastEmployee');
+
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                document.getElementById('view-id').innerText = data.emp_id || '-';
+                document.getElementById('view-name').innerText = data.emp_name || '-';
+                
+                // แสดงผลสถานะพนักงาน (พร้อมแยกสีเพื่อความชัดเจน)
+                const roleElem = document.getElementById('view-role');
+                if (data.role === 'Admin') {
+                    roleElem.innerHTML = '<span style="color: red;">ผู้ดูแลระบบ (Admin)</span>';
+                } else {
+                    roleElem.innerHTML = '<span style="color: #007bff;">พนักงานทั่วไป (Staff)</span>';
+                }
+
+                document.getElementById('view-age').innerText = data.age || '-';
+                document.getElementById('view-phone').innerText = data.phone || '-';
+                document.getElementById('view-pos').innerText = data.position || '-';
+                
+                const salary = Number(data.salary);
+                document.getElementById('view-salary').innerText = !isNaN(salary) ? salary.toLocaleString() : (data.salary || '0');
+                
+                document.getElementById('view-qual').innerText = data.qualification || '-';
+                document.getElementById('view-email').innerText = data.email || '-';
+                document.getElementById('view-username').innerText = data.username || '-';
+            }
+            
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+    const role = localStorage.getItem('employeeRole');
+    const sidebar = document.querySelector('.sidebar ul');
+
+    if (role === 'Staff') {
+        //  สำหรับพนักงานทั่วไป: ซ่อนเมนูที่ไม่เกี่ยวข้อง
+        const adminMenus = document.querySelectorAll('.admin-only');
+        adminMenus.forEach(menu => menu.style.display = 'none');
+        
+        // หากพนักงานพยายามเข้าหน้า index.html (Dashboard) ให้ดีดไปหน้าขายสินค้าทันที
+        if (window.location.pathname.includes('index.html')) {
+            window.location.href = 'ProductSales.html';
+        }
+    }
+});
+
+        function confirmAndGoBack() {
+            window.location.href = 'Employee.html';
+        }
+
+        
+function loadData() {
+    //  1. ล้างตัวดักฟังเก่าออกให้หมดก่อน 
+    ipcRenderer.removeAllListeners('render-employees');
+    ipcRenderer.removeAllListeners('render-products');
+
+    //  2. ส่งคำสั่งดึงข้อมูล
+    ipcRenderer.send('load-data-request');
+}
+
+// เรียกใช้งานเมื่อโหลดหน้า
+document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body> 
+</html>

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="../demo-runtime/sql-wasm.js"></script>
+    <script src="../demo-runtime/runtime.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMB | Product Management</title>
+    <link rel="stylesheet" href="../style/Productmanagement.css"> 
+    <link rel="stylesheet" href="../style/Modal.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            flex-grow: 1;
+            max-width: 600px;
+        }
+        .search-wrapper input { border: none; outline: none; flex-grow: 1; padding: 5px; }
+        .filter-select { border: none; outline: none; background: #f8f9fa; padding: 5px; border-radius: 5px; cursor: pointer; }
+        .clear-btn { background: none; border: none; color: #999; cursor: pointer; }
+        .product-img-cell img {
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: #f9f9f9;
+        }
+        .stock-in-btn { background: #28a745; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; margin-right: 5px; }
+        .edit-btn { background: #007bff; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <header class="header">
+    <div class="header-logo">StockMB</div> 
+    <div class="header-user">
+        <span id="display-staff-name" style="color: white; font-weight: bold; margin-right: 10px; font-size: 0.9rem;"></span>
+        <i class="fa-solid fa-user-circle"></i>
+        <button onclick="logout()" style="background: none; border: none; color: white; cursor: pointer; margin-left: 15px;">
+            <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+        </button>
+    </div>
+</header>
+
+
+    <div class="app-container">
+        <nav class="sidebar">
+    <ul>
+        <li class="admin-only"><a href="Index.html"><i class="fas fa-th-large"></i> dashboard</a></li>
+        <li><a href="ProductSales.html"><i class="fas fa-shopping-cart"></i> Product Sales</a></li>
+        <li><a href="Productmanagement.html"><i class="fas fa-box-open"></i> Product Management</a></li>
+        <li class="admin-only"><a href="Employee.html"><i class="fas fa-users"></i> Employee Data</a></li>
+    </ul>
+</nav>
+
+        <main class="main-content" id="mainContent">
+            <h1 class="date-header" id="current-date">กำลังโหลดวันที่...</h1>
+            <div class="management-header-area">
+                <h1 class="management-title">ระบบการจัดการสินค้า</h1>
+            </div>
+
+            <div class="management-controls">
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="product-search" placeholder="ค้นหารหัสหรือชื่อสินค้า..." onkeyup="filterProductTable()">
+                    <select id="category-filter" class="filter-select" onchange="filterProductTable()">
+                        <option value="">หมวดหมู่ทั้งหมด</option>
+                    </select>
+                    <button onclick="clearSearch()" class="clear-btn"><i class="fas fa-times"></i></button>
+                </div>
+                <button class="add-product-btn"><i class="fas fa-plus-circle"></i> เพิ่มสินค้า</button>
+            </div>
+
+            <div id="drop-zone" ondblclick="triggerFileInput()" style="border: 2px dashed #28a745; padding: 20px; text-align: center; margin-bottom: 20px; border-radius: 10px; background: #f9f9f9; cursor: pointer;">
+    <i class="fas fa-file-excel" style="font-size: 2rem; color: #28a745;"></i>
+    <p><b>"ดับเบิลคลิก"</b> เพื่อเลือกไฟล์ Excel</p>
+    
+    <input type="file" id="file-input" accept=".xlsx, .xls" style="display: none;" onchange="handleFileSelect(event)">
+</div>
+
+            <div class="product-table-container">
+                <table class="product-management-table">
+                    <thead>
+                        <tr>
+                            <th>ลำดับ</th>
+                            <th>รหัส</th>
+                            <th>ชื่อสินค้า</th>
+                            <th>สินค้า</th>
+                            <th>ประเภท</th>
+                            <th>จำนวนสินค้า</th>
+                            <th>ราคาต่อชิ้น</th> 
+                            <th>จัดการ</th> 
+                        </tr>
+                    </thead>
+                    <tbody id="product-table-body"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="stockInModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center; border-radius: 20px;">
+            <span class="close-btn" onclick="closeStockInModal()">&times;</span>
+            <div id="stock-in-image-preview" style="width: 150px; height: 150px; margin: 0 auto 15px; border-radius: 15px; overflow: hidden; background: #f0f0f0;">
+                <img id="si-img" src="" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <h2 id="si-name" style="margin-bottom: 20px; font-size: 1.2rem;">ชื่อสินค้า</h2>
+            <div class="form-container" style="display: block;">
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>จำนวนสินค้าที่จะเพิ่ม</label>
+                    <input type="number" id="si-qty" placeholder="0" oninput="calculateTotalCost()" style="text-align: center; font-size: 1.2rem;">
+                </div>
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>ราคาต้นทุนที่สั่งซื้อมา (ต่อชิ้น)</label>
+                    <input type="number" id="si-cost" placeholder="0.00" oninput="calculateTotalCost()" style="text-align: center; font-size: 1.2rem; color: #28a745; font-weight: bold;">
+                </div>
+                <div class="total-display" style="background: #f8f9fa; padding: 10px; border-radius: 10px; margin-bottom: 20px;">
+                    <span style="font-size: 0.9rem; color: #666;">ราคาสินค้าทั้งหมด</span><br>
+                    <span id="si-total-display" style="font-size: 1.5rem; font-weight: bold; color: #007bff;">0.00</span>
+                </div>
+                <button class="confirm-btn" onclick="confirmStockIn()" style="width: 100%; height: 50px; border-radius: 25px;">ยืนยันการเพิ่มสต็อก</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="image-upload-container">
+                <input type="file" id="product-image-input" accept="image/*" style="display: none;">
+                <div id="image-preview-box" onclick="document.getElementById('product-image-input').click()">
+                    <i class="fas fa-plus-circle"></i>
+                    <p>เลือกรูปภาพ</p>
+                </div>
+            </div>
+            <div class="form-container">
+                <div class="input-group"><label>รหัสสินค้า</label><input type="text" id="p-id"></div>
+                <div class="input-group"><label>ชื่อสินค้า</label><input type="text" id="p-name"></div>
+                <div class="input-group"><label>ประเภทสินค้า</label><input type="text" id="p-type"></div>
+                <div class="input-group"><label>จำนวนสินค้า</label><input type="number" id="p-qty"></div>
+                <div class="input-group"><label>ราคาต่อชิ้น</label><input type="number" id="p-price"></div>
+                <div class="modal-footer" style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                    <button id="delete-btn" class="delete-btn" onclick="deleteProduct()" style="display: none; background-color: #ff4d4d; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">ลบสินค้า</button>
+                    <button class="confirm-btn" onclick="saveProduct()">ยืนยัน</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allProducts = [];
+        const { ipcRenderer } = require('electron');
+        const modal = document.getElementById('productModal');
+        const stockInModal = document.getElementById('stockInModal');
+        let selectedImageBase64 = ''; 
+        let isEditMode = false; 
+        let oldProductId = ''; 
+        let currentStockInId = '';
+
+        //  1. เรียกข้อมูลเมื่อโหลดหน้าจอสำเร็จ (ส่
+       document.addEventListener('DOMContentLoaded', () => {
+    // ดึงชื่อพนักงานมาแสดง (ถ้าไม่มีให้เด้งไปหน้า Login)
+    const name = localStorage.getItem('employeeName');
+    if (name) {
+        if (document.getElementById('display-staff-name')) 
+            document.getElementById('display-staff-name').innerText = name;
+    } else {
+        window.location.href = 'Login.html';
+    }
+
+    // สั่งโหลดข้อมูลทันที
+    ipcRenderer.send('load-products');    
+    ipcRenderer.send('get-categories');   
+});
+
+        //  2. รับข้อมูลหมวดหมู่มาแสดงใน Dropdown
+        ipcRenderer.on('render-categories', (event, categories) => {
+            const categorySelect = document.getElementById('category-filter');
+            if (!categorySelect) return;
+            categorySelect.innerHTML = '<option value="">หมวดหมู่ทั้งหมด</option>';
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.pro_category;
+                option.textContent = cat.pro_category;
+                categorySelect.appendChild(option);
+            });
+        });
+
+function loadData() {
+    //  1. ล้างตัวดักฟังเก่าออกให้หมดก่อน 
+    ipcRenderer.removeAllListeners('render-employees');
+    ipcRenderer.removeAllListeners('render-products');
+
+    //  2. ส่งคำสั่งดึงข้อมูล
+    ipcRenderer.send('load-data-request');
+}
+
+
+
+ipcRenderer.on('render-products', (event, products) => {
+    allProducts = products; 
+    allProducts.sort((a, b) => 
+        String(a.product_id).localeCompare(String(b.product_id), undefined, { numeric: true })
+    );
+    renderProductTable(allProducts);
+});
+
+function renderProductTable(products) {
+    const tableBody = document.getElementById('product-table-body');
+    if (!tableBody) return;
+    tableBody.innerHTML = ''; 
+    products.forEach((item, index) => {
+        const row = `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${item.product_id || '-'}</td> 
+                <td>${item.product_name || '-'}</td>
+                <td class="product-img-cell"><img src="${item.image || ''}" style="width:60px; height:60px; object-fit:cover;"></td>
+                <td>${item.pro_category || '-'}</td> 
+                <td>${item.quantity || '0'}</td>
+                <td>${item.price || '0'}</td>
+                <td class="action-cell">
+                    <button class="stock-in-btn" onclick="openStockInModal('${item.product_id}')"><i class="fas fa-plus-circle"></i></button>
+                    <button class="edit-btn" onclick="openEditModal('${item.product_id}')"><i class="fas fa-pen"></i></button>
+                </td>
+            </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
+        
+        //  4. ฟังก์ชันจัดการปุ่มกดในตาราง 
+        function openStockInModal(productId) {
+            currentStockInId = productId;
+            ipcRenderer.send('get-product-by-id', productId);
+        }
+
+        function openEditModal(productId) {
+            isEditMode = true;
+            document.getElementById('delete-btn').style.display = "block"; 
+            ipcRenderer.send('get-product-by-id', productId);
+        }
+
+        // รับข้อมูลรายชิ้นมาแสดงใน Modals
+        ipcRenderer.on('product-data-response', (event, data) => {
+    if (!data) return;
+
+    if (currentStockInId === data.product_id) {
+        // --- ส่วนที่แก้ไข: สำหรับโหมดเพิ่มสต็อก ---
+        document.getElementById('si-img').src = data.image || '';
+        document.getElementById('si-name').innerText = data.product_name;
+        stockInModal.style.display = 'block';
+    } else {
+        // --- ส่วนที่แก้ไข: สำหรับโหมดแก้ไขข้อมูลสินค้า ---
+        oldProductId = data.product_id; 
+        document.getElementById('p-id').value = data.product_id;
+        document.getElementById('p-name').value = data.product_name;
+        document.getElementById('p-type').value = data.pro_category;
+        document.getElementById('p-qty').value = data.quantity;
+        document.getElementById('p-price').value = data.price;
+        modal.style.display = "block";
+    }
+});
+
+        // จัดการเปิด Modal เพิ่มสินค้าใหม่
+        document.querySelector('.add-product-btn').onclick = function() {
+            isEditMode = false;
+            oldProductId = '';
+            closeModal();
+            modal.style.display = "block";
+        };
+
+        // ฟังก์ชันบันทึกข้อมูล (เพิ่ม/แก้ไข)
+        function saveProduct() {
+            const data = {
+                old_id: oldProductId, 
+                product_id: document.getElementById('p-id').value, 
+                product_name: document.getElementById('p-name').value,
+                pro_category: document.getElementById('p-type').value,
+                quantity: document.getElementById('p-qty').value || 0,
+                price: document.getElementById('p-price').value || 0,
+                image: selectedImageBase64
+            };
+            if(!data.product_id || !data.product_name) {
+                alert("กรุณากรอกรหัสและชื่อสินค้า"); return;
+            }
+            ipcRenderer.send(isEditMode ? 'update-product' : 'add-product', data);
+            closeModal();
+        }
+
+        // ฟังก์ชันลบสินค้า
+        function deleteProduct() {
+            if(confirm("ยืนยันการลบสินค้าชิ้นนี้?")) {
+                ipcRenderer.send('delete-product', oldProductId);
+                closeModal();
+            }
+        }
+
+        // ฟังก์ชัน Stock-In
+        function confirmStockIn() {
+    const qtyToAdd = parseInt(document.getElementById('si-qty').value);
+    const costPerUnit = parseFloat(document.getElementById('si-cost').value);
+    
+    //  ดึงชื่อพนักงานที่ Login อยู่จาก localStorage
+    const currentEmployee = localStorage.getItem('employeeName');
+
+    if (!qtyToAdd || qtyToAdd <= 0 || !costPerUnit || costPerUnit <= 0) {
+        alert("กรุณากรอกจำนวนและต้นทุนให้ถูกต้อง"); 
+        return;
+    }
+
+    // สร้างก้อนข้อมูลที่รวมชื่อผู้ทำรายการ (recordedBy) ไปด้วย
+    const data = { 
+        product_id: currentStockInId, 
+        add_quantity: qtyToAdd, 
+        buy_cost: costPerUnit,
+        recordedBy: currentEmployee //  ชื่อนี้จะถูกนำไปบันทึกลงคอลัมน์ recorded_by ใน DB
+    };
+
+    ipcRenderer.send('update-stock-quantity', data);
+    closeStockInModal();
+}
+
+        function calculateTotalCost() {
+            const qty = parseFloat(document.getElementById('si-qty').value) || 0;
+            const cost = parseFloat(document.getElementById('si-cost').value) || 0;
+            const total = qty * cost;
+            document.getElementById('si-total-display').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2});
+        }
+
+        // จัดการรูปภาพ
+        document.getElementById('product-image-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    selectedImageBase64 = event.target.result;
+                    document.getElementById('image-preview-box').innerHTML = `<img src="${selectedImageBase64}" style="width:100%; height:100%; object-fit:cover; border-radius:15px;">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+        
+
+        // ฟังก์ชันช่วยจัดการ UI
+        function closeModal() {
+            modal.style.display = "none";
+            document.getElementById('delete-btn').style.display = "none"; 
+            ['p-id', 'p-name', 'p-type', 'p-qty', 'p-price'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('image-preview-box').innerHTML = '<i class="fas fa-plus-circle"></i><p>เลือกรูปภาพ</p>';
+            selectedImageBase64 = '';
+        }
+
+        function closeStockInModal() { stockInModal.style.display = 'none'; currentStockInId = ''; }
+
+       function filterProductTable() {
+    const searchText = document.getElementById("product-search").value.toLowerCase();
+    const selectedCat = document.getElementById("category-filter").value;
+
+    // 1. กรองข้อมูลตามคำค้นหาและหมวดหมู่
+    let filtered = allProducts.filter(item => {
+        const idMatch = (item.product_id || '').toLowerCase().includes(searchText);
+        const nameMatch = (item.product_name || '').toLowerCase().includes(searchText);
+        const catMatch = selectedCat === "" || item.pro_category === selectedCat;
+        return (idMatch || nameMatch) && catMatch;
+    });
+
+    // 2. เงื่อนไขการเรียงลำดับ
+    if (searchText !== "") {
+        //  ถ้ามีการพิมพ์ค้นหา ให้เรียงตามราคา จากน้อยไปมาก
+        filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    } else {
+        //  ถ้าช่องค้นหาว่าง ให้กลับไปเรียงตาม ID เหมือนเดิม
+        filtered.sort((a, b) => String(a.product_id).localeCompare(String(b.product_id), undefined, {numeric: true}));
+    }
+
+    // 3. วาดตารางใหม่
+    renderProductTable(filtered);
+}
+        // ตัวอย่างโค้ดที่ควรมีในหน้าจัดการสินค้า
+        function saveImportData() {
+        const data = {
+        product_id: document.getElementById('import-product-id').value,
+        add_quantity: parseInt(document.getElementById('import-quantity').value),
+        buy_cost: parseFloat(document.getElementById('import-cost').value),
+        recordedBy: localStorage.getItem('employeeName') //  ดึงชื่อจากหน้า Login มาส่ง
+    };
+    ipcRenderer.send('update-stock-quantity', data);
+}
+
+        function clearSearch() {
+            document.getElementById("product-search").value = "";
+            document.getElementById("category-filter").value = "";
+            filterProductTable();
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) closeModal();
+            if (event.target == stockInModal) closeStockInModal();
+        }
+        function logout() {
+    localStorage.clear();
+    window.location.href = 'Login.html'; 
+}
+
+
+
+function logout() {
+            localStorage.removeItem('employeeName');
+            localStorage.removeItem('employeeRole'); // เคลียร์ Role ออกด้วยเพื่อความปลอดภัย
+            window.location.href = 'Login.html';
+        }
+
+      // ส่วนจัดการไฟล์ Excel
+const dropZone = document.getElementById('drop-zone');
+
+// ป้องกัน Browser เปิดไฟล์เองเมื่อลากไฟล์มาวาง
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, e => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, false);
+});
+
+// เมื่อมีการปล่อยไฟล์ (Drop)
+dropZone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    if (files.length > 0) processExcelFile(files[0]);
+});
+
+function triggerFileInput() { document.getElementById('file-input').click(); }
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) processExcelFile(file);
+}
+
+// ฟังก์ชันประมวลผลไฟล์ Excel
+function processExcelFile(file) {
+    //  ตรวจสอบว่า Library โหลดมาจริงไหม
+    if (typeof XLSX === 'undefined') {
+        alert(" ข้อผิดพลาด: ไม่พบ Library XLSX (โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตหรือการเรียก Script)");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const firstSheet = workbook.Sheets[firstSheetName];
+            
+            //  แปลงเป็น JSON โดยลบช่องว่างหัวตารางอัตโนมัติ
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
+    defval: "", 
+    raw: false, // บังคับให้อ่านค่าเป็น string ทั้งหมดเพื่อป้องกันเลข ID เพี้ยน
+    header: 0   // ใช้แถวแรกเป็นชื่อหัวตาราง
+});
+
+            if (jsonData.length === 0) {
+                alert(" ไม่พบข้อมูลในไฟล์ Excel");
+                return;
+            }
+
+            // ส่งข้อมูลไปที่ main.js
+            ipcRenderer.send('import-products-bulk', jsonData);
+
+            ipcRenderer.once('import-success', (event, count) => {
+                alert(` นำเข้าข้อมูลสำเร็จทั้งหมด ${count} รายการ`);
+                ipcRenderer.send('load-products'); 
+            });
+
+        } catch (err) {
+            console.error("Excel Error:", err);
+            alert("เกิดข้อผิดพลาดทางเทคนิค: " + err.message);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+const XLSX = require('xlsx');
+
+
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="../js/TimeDisplay.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+</html>

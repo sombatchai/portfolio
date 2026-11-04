@@ -112,6 +112,7 @@ const PROJECTS = [
       "Bulk product import from Excel and role-based access for Owner and Staff",
     ],
     link: "https://github.com/sombatchai/StockMB",
+    demo: "demo/stockmb/",
   },
   {
     id: "chainpass",

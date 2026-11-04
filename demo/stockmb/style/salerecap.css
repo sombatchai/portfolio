@@ -1,0 +1,289 @@
+/* --- 1. BASE STYLES & VARIABLES --- */
+:root {
+    --primary-blue: #007bff;
+    --stockmb-blue: #007bff; /* สีฟ้าหลักของ StockMB */
+    --dark-blue: #01579b;
+    --background-grey: #f4f7f6;
+    --sidebar-width: 260px;
+    --sidebar-bg: #ffffff; /* สีพื้นหลัง Sidebar */
+    --border-color: #dee2e6; /* สีเส้นขอบ */
+    --header-height: 60px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Tahoma', sans-serif;
+}
+
+body {
+    background-color: var(--background-grey);
+    color: #333;
+    min-height: 100vh;
+}
+
+/* --- 2. HEADER STYLES --- */
+/* ค้นหาคลาส .header ในไฟล์ CSS ของคุณ */
+.header {
+    background-color: var(--stockmb-blue);
+    color: white;
+    padding: 0 20px; /* ปรับค่า padding ฝั่งซ้ายตามต้องการ */
+    display: flex;
+    justify-content: flex-start; /* เปลี่ยนจาก space-between เป็น flex-start */
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    z-index: 1000;
+}
+
+/* หรือถ้าใช้โครงสร้างเดิม ให้ปรับที่ตัวโลโก้โดยตรง */
+.header-logo {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-left: 0; /* มั่นใจว่าไม่มี margin ฝั่งซ้ายค้างอยู่ */
+    margin-right: auto; /* ดันทุกอย่างที่อยู่ฝั่งขวาออกไป */
+}
+
+.header-user i {
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+/* --- 3. LAYOUT CONTAINER --- */
+.app-container {
+    display: flex;
+    padding-top: var(--header-height); /* ชดเชยความสูง Header */
+}
+
+/* --- 4. SIDEBAR STYLES --- */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    padding: 20px 0;
+    position: fixed; /* ให้ Sidebar อยู่กับที่ */
+    height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: 0 20px 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-text {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--primary-blue);
+}
+
+.logo-text span {
+    color: #555;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li {
+    margin: 5px 10px;
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: #666;
+    transition: 0.3s;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+/* เมื่อเมนูนั้นถูกเลือก (Active) หรือเอาเมาส์ไปชี้ (Hover) */
+.sidebar ul li.active a {
+    background-color: var(--primary-blue) !important;
+    color: white !important;
+}
+
+.sidebar ul li.active a i {
+    color: white !important;
+}
+
+.sidebar ul li a:hover:not(.active) {
+    background-color: #f0f4f8;
+    color: var(--primary-blue);
+}
+
+/* --- 5. MAIN CONTENT STYLES --- */
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width); /* เว้นที่ให้ Sidebar ที่เป็น Fixed */
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+.date-header {
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 1.1rem;       /* ปรับขนาดตัวอักษรให้เล็กลงเล็กน้อย */
+}
+
+/* ซ่อน Header ด้านในที่เป็นพื้นฟ้าซ้ำซ้อน (ถ้ามีใน HTML) */
+.top-header {
+    display: none; 
+}
+
+.content-body {
+    padding: 10px 0;
+}
+
+.date-display {
+    font-weight: bold;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    color: #444;
+}
+
+.data-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.page-title {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+/* --- 6. TOOLBAR & SEARCH --- */
+.toolbar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 40px 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #fcfcfc;
+    outline: none;
+}
+
+.search-box input:focus {
+    border-color: var(--primary-blue);
+}
+
+.search-box i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+}
+
+.category-select {
+    width: 250px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: #666;
+    outline: none;
+}
+
+.btn-stats {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-stats:hover {
+    background-color: #218838;
+}
+
+/* --- 7. TABLE STYLES --- */
+.import-group {
+    margin-bottom: 35px;
+}
+
+.group-date-label {
+    background: white;
+    border: 1px solid var(--border-color);
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.03);
+}
+
+.table-container {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.product-table th {
+    background-color: #f8f9fa;
+    padding: 15px;
+    font-size: 14px;
+    color: #777;
+    border-bottom: 2px solid var(--border-color);
+    text-align: center;
+}
+
+.product-table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #f1f1f1;
+    color: #555;
+    vertical-align: middle;
+}
+
+.product-table tbody tr:hover {
+    background-color: #fcfcfc;
+}
+
+.product-table img {
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.fa-eye {
+    color: #bbb;
+    cursor: pointer;
+    font-size: 18px;
+    transition: 0.2s;
+}
+
+.fa-eye:hover {
+    color: var(--primary-blue);
+}

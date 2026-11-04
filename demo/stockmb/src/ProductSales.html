@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="../demo-runtime/sql-wasm.js"></script>
+    <script src="../demo-runtime/runtime.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMB | Product Sales</title>
+    <link rel="stylesheet" href="../style/ProductSales.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-logo">StockMB</div> 
+        <div class="header-user">
+            <span id="display-staff-name" style="color: white; font-weight: bold; margin-right: 10px; font-size: 0.9rem;"></span>
+            <i class="fa-solid fa-user-circle"></i>
+            <button onclick="logout()" style="background: none; border: none; color: white; cursor: pointer; margin-left: 15px;">
+                <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+            </button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="app-container">
+            <nav class="sidebar" id="sidebar">
+                <ul>
+                    <li class="admin-only"><a href="Index.html"><i class="fas fa-th-large"></i> dashboard</a></li>
+                    <li class="active"><a href="ProductSales.html"><i class="fas fa-shopping-cart"></i> Product Sales</a></li>
+                    <li><a href="Productmanagement.html"><i class="fas fa-box-open"></i> Product Management</a></li>
+                    <li class="admin-only"><a href="Employee.html"><i class="fas fa-users"></i> Employee Data</a></li>
+                </ul>
+            </nav>
+
+            <div class="sales-grid">
+                <div class="product-entry-form">
+                    <div class="sales-form-container">
+                        <div class="form-group">
+                            <label>รหัสสินค้า</label>
+                            <input type="text" id="sales-p-id" placeholder="พิมพ์รหัสสินค้า...">
+                        </div>
+                        <div class="form-group">
+                            <label>ชื่อสินค้า</label>
+                            <input type="text" id="sales-p-name" placeholder="ชื่อสินค้า..." readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>ประเภทสินค้า</label>
+                            <input type="text" id="sales-p-type" placeholder="ประเภท..." readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>ราคาต่อชิ้น</label>
+                            <input type="number" id="sales-p-price" placeholder="0" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>จำนวนชิ้น</label>
+                            <input type="number" id="sales-p-qty" value="1" min="1">
+                        </div>
+                        
+                        <button class="checkout-button" onclick="confirmAddToCart()">เพิ่มลงตะกร้า</button>
+                    </div>
+                </div>
+
+                <section class="product-catalog-section">
+                    <h2 class="section-title">สินค้าหน้าร้าน</h2>
+                    
+
+                    <div class="product-display-area"></div>
+                </section>
+
+                <aside class="right-panel">
+                    <div class="cart-and-checkout">
+                        <div class="cart-container">
+                            <div class="cart-header">
+                                <span class="cart-item-label">รายการ</span>
+                                <span class="cart-qty-label">จำนวน</span>
+                                <span class="cart-price-label">ราคา</span>
+                            </div>
+                            
+                            <div class="cart-items" id="cart-items-list">
+                                <div class="empty-cart-message">ยังไม่มีรายการสินค้า</div>
+                            </div>
+                            
+                            <div class="cart-summary">
+                                <p>รวมเป็นเงิน: <span id="summary-subtotal">0</span></p>
+                                <p>ส่วนลด: <span id="summary-discount">0</span></p>
+                                <hr>
+                                <p class="total-amount">รวมทั้งหมด: <span id="summary-total">0</span> บาท</p>
+                            </div>
+                            
+                            <div class="checkout-actions">
+                                <p class="payment-due">รับเงินสด: <span id="cash-received">0</span></p>
+                                <p class="payment-change">เงินทอน: <span id="cash-change">0</span></p>
+                                <p class="thanks-message">ขอบคุณที่ใช้บริการ StockMB</p>
+                            </div>
+                        </div>
+
+                        <button class="checkout-button" onclick="handleCheckout()">ชำระเงิน</button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/auth.js"></script> 
+    <script src="../js/productsales.js"></script> 
+    <script src="../js/TimeDisplay.js"></script>
+ </body>
+</html>
+
