@@ -1,0 +1,33 @@
+[
+ {
+  "id": "demo-n1",
+  "userId": "demo-engineer",
+  "kind": "work_order",
+  "title": "ได้รับมอบหมายงานใหม่ — WO-2026-00006",
+  "body": "ตรวจวัดก๊าซ H2S ก่อนเข้าพื้นที่บ่อหมัก",
+  "link": "WorkOrder.html",
+  "createdAt": "2026-11-04T06:54:46.156Z",
+  "readAt": null
+ },
+ {
+  "id": "demo-n2",
+  "userId": "demo-engineer",
+  "kind": "work_order",
+  "title": "ได้รับมอบหมายงานใหม่ — WO-2026-00005",
+  "body": "ทำ LOTO ก่อนซ่อมมอเตอร์ปั๊มป้อน",
+  "link": "WorkOrder.html",
+  "createdAt": "2026-11-03T06:54:46.156Z",
+  "readAt": "2026-11-03T06:54:46.156Z"
+ },
+ {
+  "id": "demo-n3",
+  "userId": "*",
+  "kind": "info",
+  "title": "ยินดีต้อนรับสู่ AEC VERSE (เดโม)",
+  "body": "ลองเดินชมโรงงานใน Digital Twin ทำแบบทดสอบความปลอดภัย และสร้างใบสั่งงาน",
+  "link": "Dashboard.html",
+  "createdAt": "2026-11-02T06:54:46.156Z",
+  "readAt": null,
+  "readBy": []
+ }
+]
