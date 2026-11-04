@@ -159,3 +159,8 @@
 .cs-cover.fit { aspect-ratio: 16 / 10; background: #0f1b3a; }
 .cs-cover.fit > img { object-fit: contain; scale: 1 !important; animation: none; transform: none; }
 
+
+/* certificate: show the whole page, not a cropped frame */
+.cert-row { align-items: center; }
+.shot .frame.cert { aspect-ratio: 2000 / 1414; }
+.shot .frame.cert img { object-fit: contain; }
