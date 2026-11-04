@@ -334,3 +334,6 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 @media (max-width: 900px) { .v-phones .ml-logo { width: 26vw; opacity: 1; transform: rotate(-6deg); } }
 /* the logo shares .v-cover img rules; keep its own proportions */
 .v-cover .logo { height: auto; object-fit: contain; top: auto; right: auto; left: 24px; bottom: 24px; }
+
+/* chapter buttons: case study + live demo */
+.ch-cta { display: flex; flex-wrap: wrap; gap: 10px; }

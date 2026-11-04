@@ -91,7 +91,8 @@
         <div class="cs-role" data-reveal style="--d:.35s">${ic("user")}<span><small>My role</small><b>${p.role}</b></span></div>
         <div class="tags" data-reveal style="--d:.4s;margin:18px 0 26px">${p.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>
         <div class="hero-actions" data-reveal style="--d:.45s">
-          ${isGithub ? `<a class="btn btn-primary" href="${p.link}" target="_blank" rel="noopener">${ic("github")}View on GitHub</a>` : ""}
+          ${p.demo ? `<a class="btn btn-primary" href="${p.demo}" target="_blank" rel="noopener">${ic("external")}Try live demo</a>` : ""}
+          ${isGithub ? `<a class="btn ${p.demo ? "" : "btn-primary"}" href="${p.link}" target="_blank" rel="noopener">${ic("github")}View on GitHub</a>` : ""}
           ${/figma\.com/.test(p.link) ? `<a class="btn btn-primary" href="${p.link}" target="_blank" rel="noopener">${ic("external")}View Figma prototype</a>` : ""}
           <a class="btn" href="index.html#work">${ic("folder")}All projects</a>
         </div>
