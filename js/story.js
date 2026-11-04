@@ -97,7 +97,7 @@
   $("#softGrid").innerHTML = PROFILE.softSkills.map((s, i) => `<div class="rv" style="--d:${i * 0.08}s"><b>${s.t}</b><span>${s.d}</span></div>`).join("");
   $("#summary").textContent = PROFILE.summary;
   $("#edu").innerHTML = PROFILE.education.map((e) => `<li><small>${e.years}</small><b>${e.school}</b><span>${e.degree}</span></li>`).join("");
-  $("#courses").innerHTML = PROFILE.coursework.map((c) => `<span>${c}</span>`).join("");
+  $("#courses").innerHTML = PROFILE.coursework.map((c) => `<div class="course-group"><small>${c.g}</small><div>${c.items.map((i) => `<span>${i}</span>`).join("")}</div></div>`).join("");
   $("#certs").innerHTML = (PROFILE.certificates || []).map((c) => `
     <a class="cert" href="${c.pdf}" target="_blank" rel="noopener" title="Open certificate (PDF)">
       <img src="${c.img}" alt="Certificate: ${c.title}" loading="lazy">
