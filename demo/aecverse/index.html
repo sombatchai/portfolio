@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEC VERSE — Digital Twin 3D Viewer</title>
+    <link rel="icon" type="image/png" href="Logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Three.js Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/fflate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- Supabase JS — อ่าน session ของบัญชีที่ล็อกอิน เพื่อผูกตัวละครกับบัญชีจริง -->
+    <script src="demo-runtime/runtime.js"></script>
+
+    <!-- Socket.IO Client — CDN first, fallback to local server -->
+    
+    <!-- เชื่อมกลับไปที่โดเมนเดียวกับที่เปิดหน้านี้อยู่เสมอ — ย้าย/เปลี่ยนโดเมนแล้วไม่ต้องแก้โค้ด
+         (ตั้ง window.AEC_SERVER_URL ไว้ก่อนได้ ถ้าจะชี้ไปเซิร์ฟเวอร์คนละที่) -->
+    <script>window.RAILWAY_SERVER_URL = window.AEC_SERVER_URL || location.origin;</script>
+<link rel="stylesheet" href="ui-polish.css">
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
+
+<!-- ล็อบบี้ก่อนเข้าโลก — โลโก้ + ตั้งชื่อเล่น + ปุ่ม Start
+     ระหว่างอยู่หน้านี้กล้องจะหมุนชมแผนที่ไปเรื่อยๆ (เบลอเป็นฉากหลัง) -->
+<div id="world-lobby">
+  <div class="lobby-blur"></div>
+  <div class="lobby-inner">
+    <img src="Logo.png" alt="" class="lobby-logo">
+    <div class="lobby-title">AEC <span>VERSE</span></div>
+    <div class="lobby-sub">SMART BIOGAS DIGITAL TWIN</div>
+
+    <label class="lobby-label" for="lobby-nickname">ชื่อเล่นของคุณในโลกนี้</label>
+    <input id="lobby-nickname" class="lobby-input" type="text" maxlength="20" placeholder="ตั้งชื่อเล่น..." autocomplete="off">
+
+    <button id="lobby-start" class="lobby-start">▶ เริ่มสำรวจ</button>
+    <div id="lobby-progress" class="lobby-progress" hidden><i></i></div>
+    <button id="lobby-action" class="lobby-action" type="button" hidden></button>
+    <div id="lobby-status" class="lobby-status" role="status" aria-live="polite">กำลังเชื่อมต่อเซิร์ฟเวอร์…</div>
+  </div>
+</div>
+
+<div id="viewer-shell">
+
+  <!-- LEFT COLUMN: model upload + transform tools -->
+  <div id="left-col" class="side-col">
+    <!-- แถบแท็บ: สลับดูทีละแผง แทนการกองซ้อนกันทั้งหมดพร้อมกัน -->
+    <div class="side-tabs" id="left-tabs">
+        <div class="side-tab" id="tab-dashboard" data-target="dashboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>
+            โมเดล
+        </div>
+        <div class="side-tab" data-target="transform-panel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+            ปรับแต่ง
+        </div>
+        <div class="side-tab" data-target="safety-panel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            เลเยอร์
+        </div>
+    </div>
+
+    <!-- แผงซ้าย: อัปโหลดโมเดลโรงงานหลัก -->
+    <div id="dashboard" class="panel">
+        <div class="panel-head">
+            <h3><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>โมเดลโรงงาน</h3>
+            <span class="panel-sub">Biogas Digital Twin</span>
+        </div>
+
+        <div class="upload-section" id="model-upload-section">
+            <label class="section-label">อัปโหลดโมเดล 3D</label>
+            <div class="upload-btn-wrapper">
+                <button class="btn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
+                    เลือกไฟล์ .gltf / .glb / .fbx
+                </button>
+                <input type="file" id="factory-input" class="file-input" multiple accept=".gltf,.glb,.fbx,.jpg,.png" />
+            </div>
+            <div id="factory-status" class="status-msg">สถานะ: รอการอัปโหลดโมเดล...</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="upload-section">
+            <label class="section-label">คลังโมเดลที่เคยอัปโหลด (เลือกแล้วโหลดได้เลย ไม่ต้องอัปโหลดซ้ำ)</label>
+            <div id="model-library-list" class="model-library-list">
+                <div class="hint-text">กำลังโหลดรายการ...</div>
+            </div>
+            <button class="panel-action-btn action-block" style="margin-top:8px;" onclick="refreshModelLibrary()">🔄 รีเฟรชรายการ</button>
+        </div>
+
+        <div class="hr"></div>
+
+        <div id="scene-io-section">
+        <label class="section-label">เซฟ / โหลดฉาก</label>
+        <button class="panel-action-btn btn-save action-block" style="margin-bottom: 8px;" onclick="saveScene()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+            บันทึกฉากทั้งหมด (.zip)
+        </button>
+        <div class="upload-btn-wrapper">
+            <button class="panel-action-btn btn-load action-block">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+                โหลดฉากที่บันทึกไว้ (.zip)
+            </button>
+            <input type="file" id="scene-load-input" accept=".zip" class="file-input" style="cursor:pointer;" />
+        </div>
+        <div id="scene-save-status" class="status-msg"></div>
+        <div class="hint-text">ไฟล์เซฟเก็บทั้งตัวโมเดลและข้อมูลความปลอดภัยของทุกชิ้นส่วน</div>
+        </div>
+    </div>
+
+    <!-- แผงปรับตำแหน่งโมเดลโรงงาน -->
+    <div id="transform-panel" class="panel" style="display: none;">
+        <div class="panel-head">
+            <h3><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>เครื่องมือปรับตำแหน่ง</h3>
+            <span class="panel-sub">Transform Tools</span>
+        </div>
+
+        <!-- REQ 1&2: สิทธิ์ Admin ตรวจจากบัญชีที่ล็อกอินอัตโนมัติ (ไม่มีรหัสผ่านแยก)
+             จัดการว่าใครเป็น Admin ได้ที่หน้า Settings → User Management -->
+        <!-- ทุกอย่างในบล็อกนี้คือการ "ปรับ" โมเดล (ย้าย/หมุน/สเกล/ล็อก) — เฉพาะ admin -->
+        <div id="model-transform-section">
+        <div id="admin-auth-section" style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-soft);">
+            <label class="section-label">สิทธิ์การแก้ไข</label>
+            <div id="admin-status-row" style="display:none; align-items:center; gap:8px;">
+                <span style="color:var(--green); font-size:12px; font-weight:600;">✓ บัญชีของคุณเป็น Admin — ปรับตำแหน่งโมเดลได้</span>
+            </div>
+            <div id="lock-status-badge" style="margin-top:8px; font-size:11px; padding:7px 10px; border-radius:7px; text-align:center; font-weight:600;"></div>
+            <button id="btn-toggle-lock" class="panel-action-btn action-block" onclick="toggleModelLock()" style="margin-top:8px; display:none;"></button>
+            <div class="hint-text">ระบบตรวจสิทธิ์จากบัญชีที่ล็อกอินให้อัตโนมัติ — กำหนดใครเป็น Admin ได้ที่ Settings → User Management การปรับตำแหน่งจะแสดงให้ทุกคนเห็นแบบเรียลไทม์</div>
+        </div>
+
+        <div class="control-group">
+            <label class="section-label" style="margin-bottom:7px;">Gizmo (ลากในฉาก 3D)</label>
+            <div class="mode-container">
+                <button id="gizmo-mode-translate" class="mode-btn active" onclick="setGizmoMode('translate')">↔ Move</button>
+                <button id="gizmo-mode-rotate" class="mode-btn" onclick="setGizmoMode('rotate')">⟳ Rotate</button>
+                <button id="gizmo-mode-scale" class="mode-btn" onclick="setGizmoMode('scale')">⤢ Scale</button>
+            </div>
+            <div class="hint-text">ลากแกนสี (แดง/เขียว/น้ำเงิน) ในฉาก 3D เพื่อปรับตำแหน่ง/หมุน/ขนาดโดยตรง — ตัวเลขด้านล่างจะอัปเดตตาม หรือพิมพ์ค่าที่ต้องการเองได้เลย ไม่จำกัดช่วงตัวเลข</div>
+        </div>
+
+        <div class="control-group">
+            <label>ตำแหน่งแกน X (ซ้าย - ขวา)</label>
+            <div class="slider-row">
+                <input type="range" id="param-posX" min="-200" max="200" step="0.1" value="0" disabled>
+                <input type="number" id="num-posX" step="0.1" value="0" disabled>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>ตำแหน่งแกน Y (ขึ้น - ลง)</label>
+            <div class="slider-row">
+                <input type="range" id="param-posY" min="-100" max="100" step="0.05" value="0" disabled>
+                <input type="number" id="num-posY" step="0.05" value="0" disabled>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>ตำแหน่งแกน Z (หน้า - หลัง)</label>
+            <div class="slider-row">
+                <input type="range" id="param-posZ" min="-200" max="200" step="0.1" value="0" disabled>
+                <input type="number" id="num-posZ" step="0.1" value="0" disabled>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>หมุนโมเดล (แนวราบ Y, องศา)</label>
+            <div class="slider-row">
+                <input type="range" id="param-rotY" min="-360" max="360" step="1" value="0" disabled>
+                <input type="number" id="num-rotY" step="1" value="0" disabled>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>ขนาดโมเดล (Scale)</label>
+            <div class="slider-row">
+                <input type="range" id="param-scale" min="0.01" max="20" step="0.05" value="1" disabled>
+                <input type="number" id="num-scale" step="0.05" value="1" disabled>
+            </div>
+        </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="control-group">
+            <label class="section-label" style="margin-bottom:7px;">โหมดโครงสร้างพื้นผิว</label>
+            <div class="mode-container">
+                <button id="mode-solid" class="mode-btn active" onclick="setFactoryMaterialMode('solid')">Solid</button>
+                <button id="mode-wireframe" class="mode-btn" onclick="setFactoryMaterialMode('wireframe')">Wireframe</button>
+                <button id="mode-xray" class="mode-btn" onclick="setFactoryMaterialMode('xray')">X-Ray</button>
+            </div>
+        </div>
+
+        <div class="control-group" style="margin-top: 12px;">
+            <button id="btn-delete-model" class="panel-action-btn btn-danger-outline action-block" onclick="deleteCurrentModel()" style="display:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
+                ลบโมเดลออกจากฉาก
+            </button>
+        </div>
+    </div>
+
+    <!-- SAFETY LAYERS PANEL — ชั้นแสดงผลความปลอดภัยตามแบบประเมิน IOC -->
+    <div id="safety-panel" class="panel" style="display: none;">
+        <div class="panel-head">
+            <h3><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>เลเยอร์ความปลอดภัย</h3>
+            <span class="panel-sub">Safety Visualization Layers</span>
+        </div>
+
+        <label class="layer-row">
+            <input type="checkbox" id="layer-exzone" checked onchange="setSafetyLayer('exzone', this.checked)">
+            <span>พื้นที่อันตราย Ex-Zone 0/1/2</span>
+        </label>
+        <div class="exzone-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span>Zone 0</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#f97316;"></span>Zone 1</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#facc15;"></span>Zone 2</span>
+        </div>
+        <label class="layer-row">
+            <input type="checkbox" id="layer-setback" checked onchange="setSafetyLayer('setback', this.checked)">
+            <span>ระยะปลอดภัย / ระยะร่น (Setback)</span>
+        </label>
+        <label class="layer-row">
+            <input type="checkbox" id="layer-lightning" checked onchange="setSafetyLayer('lightning', this.checked)">
+            <span>รัศมีป้องกันฟ้าผ่า (Rolling Sphere)</span>
+        </label>
+        <label class="layer-row">
+            <input type="checkbox" id="layer-ppe" checked onchange="setSafetyLayer('ppe', this.checked)">
+            <span>วงเตือนสวม PPE (15 ม.)</span>
+        </label>
+        <label class="layer-row">
+            <input type="checkbox" id="layer-tags" checked onchange="setSafetyLayer('tags', this.checked)">
+            <span>ป้ายเตือนลอยเหนืออุปกรณ์</span>
+        </label>
+
+        <div class="hr"></div>
+        <label class="section-label">เอฟเฟกต์ความอันตราย (ทดสอบความปลอดภัย)</label>
+        <label class="layer-row">
+            <input type="checkbox" id="layer-danger" checked onchange="window.AecDanger && AecDanger.setEnabled(this.checked)">
+            <span>แสดงเอฟเฟกต์อันตราย (กะพริบแดง / ก๊าซรั่ว)</span>
+        </label>
+        <button id="btn-danger-clear" class="panel-action-btn action-block" onclick="window.AecDanger && AecDanger.clearAll()" style="margin-top:6px;">ล้างเครื่องหมายอันตรายทั้งหมด</button>
+        <p style="font-size:11px; color:var(--text-2); line-height:1.5; margin:6px 0 0;">เลือกชิ้นส่วน แล้วกดปุ่มในแผงข้อมูลด้านล่าง · เห็นเฉพาะในเครื่องคุณ ไม่ส่งให้คนอื่นและไม่ถูกบันทึก</p>
+
+        <div class="hr"></div>
+        <label class="section-label">เครื่องมือตรวจสอบ</label>
+        <button id="btn-measure-panel" class="panel-action-btn action-block" onclick="toggleMeasureMode()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.3 8.7L15.3 2.7a1 1 0 00-1.4 0L2.7 13.9a1 1 0 000 1.4l6 6a1 1 0 001.4 0L21.3 10a1 1 0 000-1.3zM7.5 10.5l2 2M10.5 7.5l2 2M13.5 4.5l2 2"/></svg>
+            วัดระยะ (คลิก 2 จุด)
+        </button>
+        <!-- REQ 7: ปักจุดโดยคลิกในฉากตรงๆ ไม่ต้องเลือกชิ้นส่วนก่อน -->
+        <button id="btn-place-marker" class="panel-action-btn action-block btn-place-point" style="margin-top:8px;"
+                onclick="toggleMarkerPlaceMode()" title="คลิกในฉากเพื่อวางจุดตรงตำแหน่งที่คลิกพอดี">
+            📍 ปักจุด (คลิกในฉาก)
+        </button>
+        <!-- REQ 9: ปุ่มระยะปลอดภัย — สไตล์เฉพาะตัว (ขอบเรืองแสง + แถบลาย) ให้แยกออกจากปุ่มอื่นทันที -->
+        <button id="btn-place-zone" class="panel-action-btn action-block btn-safety-zone" style="margin-top:8px;"
+                onclick="toggleZonePlaceMode()" title="คลิกในฉากเพื่อวางจุดศูนย์กลางของเขตระยะปลอดภัย แล้วตั้งรัศมี/รูปทรง">
+            🛟 ตั้งจุดระยะปลอดภัย
+        </button>
+        <!-- REQ 3: จุดรวมพลฉุกเฉิน — ปักไว้แล้วเรียกให้ทุกคนเดินมาพร้อมกันได้ -->
+        <button id="btn-place-sos" class="panel-action-btn action-block btn-emergency" style="margin-top:8px;"
+                onclick="toggleSosPlaceMode()" title="คลิกในฉากเพื่อวางจุดรวมพลฉุกเฉิน">
+            🚨 ปักจุดฉุกเฉิน
+        </button>
+        <button id="btn-clear-markers" class="panel-action-btn btn-danger-outline action-block" style="margin-top:8px;"
+                onclick="clearAllMarkers()" title="ลบจุดที่ปักไว้ทั้งหมดในโลกนี้">
+            📍 ลบจุดที่ปักไว้ทั้งหมด
+        </button>
+        <div class="hint-text" style="margin-top:6px;">จุดที่ปักไว้ผูกกับตำแหน่งในโลก ไม่ได้ผูกกับตัวโมเดล — เปลี่ยนโมเดลใหม่แล้วจุดเดิมจะยังค้างอยู่ กดปุ่มนี้เพื่อล้างทีเดียว (ทุกคนกดได้ และทุกคนจะเห็นผลพร้อมกัน)</div>
+        <div class="hint-text">เลเยอร์อ้างอิงข้อกำหนดมาตรฐานความปลอดภัยโรงไฟฟ้าก๊าซชีวภาพ: ระยะร่นแนวเขต ≥30 ม., หอเผา ≥7.5 ม., เครื่องยนต์ ≥15 ม., Rolling Sphere ป้องกันฟ้าผ่า ≈20 ม. — วงจะแสดงรอบอุปกรณ์ที่ถูกกำหนด Type ไว้</div>
+    </div>
+
+    <!-- MULTIPLAYER PANEL (ซ่อนด้วย CSS — คง element ไว้ให้ app.js อ้างอิง) -->
+    <div id="multiplayer-panel" class="panel">
+        <h3 style="margin-bottom: 10px;">Multiplayer</h3>
+
+        <div id="mp-status" style="display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:12px; color:var(--text-2);">
+            <span id="mp-dot" style="width:8px;height:8px;border-radius:50%;background:var(--text-2);display:inline-block;"></span>
+            <span id="mp-status-text">กำลังเชื่อมต่อ...</span>
+            <span style="margin-left:auto;">👑 Admin: <span id="mp-admin-count">0</span></span>
+        </div>
+
+        <!-- ชื่อผู้เล่นล็อกตามบัญชีที่ล็อกอิน — ไม่มีช่องตั้งชื่อเองอีกต่อไป -->
+        <div>
+            <label class="section-label">ผู้เล่นออนไลน์ (<span id="mp-player-count">1</span>)</label>
+            <div id="mp-player-list" style="max-height:100px;overflow-y:auto;"></div>
+        </div>
+
+        <div style="margin-top:10px;">
+            <label class="section-label">แชท</label>
+            <div id="mp-chat-log" style="max-height:100px;overflow-y:auto;background:var(--panel-2);border-radius:6px;padding:6px;margin-bottom:6px;font-size:11px;font-family:monospace;"></div>
+            <div style="display:flex;gap:6px;">
+                <input type="text" id="mp-chat-input" class="ui-edit-input" placeholder="พิมพ์ข้อความ..." style="flex:1;" maxlength="200">
+                <button class="panel-action-btn" onclick="sendChat()" style="white-space:nowrap;">ส่ง</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- CENTER COLUMN: pure 3D viewport + HUD strip underneath -->
+  <div id="center-col">
+    <div id="canvas-container">
+
+
+        <!-- สลับมุมกล้อง — ลอยมุมขวาบนของจอ 3D เอาเมาส์ชี้แล้วมีคำอธิบายขึ้น
+             เดิมอยู่บนหน้าแม่นอก iframe ต้องละสายตาออกจากฉากไปหา -->
+        <!-- แถบเลื่อนซูมของมุมมองจากด้านบน — ล้อเมาส์อย่างเดียวช้าเกินไปกับโรงงานสเกลนี้
+             ขึ้นเฉพาะตอนอยู่มุมมองบนเท่านั้น มุมอื่นไม่ได้ใช้ -->
+        <div id="top-zoom" aria-hidden="true">
+            <button type="button" id="top-zoom-in" aria-label="ซูมเข้า">+</button>
+            <input type="range" id="top-zoom-range" min="0" max="1000" value="300"
+                   orient="vertical" aria-label="ระดับการซูมมุมมองจากด้านบน">
+            <button type="button" id="top-zoom-out" aria-label="ซูมออก">−</button>
+            <button type="button" id="top-zoom-fit" aria-label="ให้เห็นทั้งโรงงาน">⤢</button>
+            <span id="top-zoom-val">26 ม.</span>
+        </div>
+
+        <div id="view-dock" role="group" aria-label="สลับมุมกล้อง">
+            <button class="view-dock-btn active" data-view="third" data-tip="มุมมอง 3D — กล้องลอยตามหลังตัวละคร ลากเมาส์หมุนดูรอบตัวได้" aria-label="มุมมอง 3D">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>
+            </button>
+            <button class="view-dock-btn" data-view="top" data-tip="มุมมองจากด้านบน — มองลงมาเห็นผังทั้งโรงงาน เลื่อนล้อเมาส์เพื่อซูม (วงเขตปลอดภัยแสดงเฉพาะมุมนี้)" aria-label="มุมมองจากด้านบน">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+            </button>
+            <button class="view-dock-btn" data-view="first" data-tip="มุมมองบุคคลที่หนึ่ง — มองผ่านสายตาตัวละครเอง เหมือนยืนอยู่ในโรงงานจริง" aria-label="มุมมองบุคคลที่หนึ่ง">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M1.7 12S5 5.5 12 5.5 22.3 12 22.3 12 19 18.5 12 18.5 1.7 12 1.7 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+        </div>
+
+        <!-- ออกจากโหมดเต็มจอ — โผล่เฉพาะตอนอยู่เต็มจอ กดแล้วไปทำแบบทดสอบหลังเยี่ยมชม -->
+        <button id="tour-exit" type="button" onclick="exitTourToQuiz()" aria-label="จบการเยี่ยมชมและไปทำแบบทดสอบ">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            <span>จบการเยี่ยมชม</span>
+        </button>
+
+        <!-- ผู้ใช้กด Esc / F11 ออกจากเต็มจอเอง — เบราว์เซอร์ห้ามเว็บบล็อกปุ่มพวกนี้
+             จึงถามต่อว่าจะกลับเข้าไปดูต่อ หรือไปทำแบบทดสอบเลย -->
+        <div id="tour-left-fs" role="dialog" aria-live="polite">
+            <span class="tlf-text">ออกจากโหมดเต็มจอแล้ว — จบการเยี่ยมชมหรือยัง</span>
+            <button type="button" class="tlf-btn tlf-ghost" onclick="resumeTourFullscreen()">กลับไปดูต่อ</button>
+            <button type="button" class="tlf-btn tlf-go" onclick="exitTourToQuiz()">ไปทำแบบทดสอบ</button>
+            <button type="button" class="tlf-x" onclick="dismissTourPrompt()" aria-label="ปิด">✕</button>
+        </div>
+
+        <!-- ปุ่มเก็บ/ดึงแผงข้าง — กดซ่อนแผงซ้าย/ขวาเพื่อให้จอ 3D โล่งเต็มที่ -->
+        <button id="toggle-left-col" class="col-toggle col-toggle-left" onclick="toggleSideCol('left')" title="ซ่อน/แสดงแผงเครื่องมือซ้าย">◂</button>
+        <button id="toggle-right-col" class="col-toggle col-toggle-right" onclick="toggleSideCol('right')" title="ซ่อน/แสดงรายการชิ้นส่วน">▸</button>
+
+        <!-- empty state — ซ่อนอัตโนมัติเมื่อโหลดโมเดล (สคริปต์ด้านล่างเฝ้าดู #factory-status) -->
+        <div id="canvas-empty-hint">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>
+            <div class="ce-title">ยังไม่มีโมเดลในฉาก</div>
+            <div class="ce-sub">อัปโหลดไฟล์ .gltf / .glb / .fbx จากแผง "โมเดล" ด้านซ้าย หรือโหลดฉากที่บันทึกไว้ (.zip) เพื่อเริ่มใช้งาน Digital Twin</div>
+        </div>
+
+        <!-- โมเดลใหญ่เกินเกณฑ์ปลอดภัย — ไม่โหลดอัตโนมัติ รอผู้ใช้กดยืนยันเองก่อนเสี่ยง parse -->
+        <div id="canvas-large-model-prompt" style="display:none;">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            <div class="ce-title">โมเดลนี้ใหญ่เกินกว่าจะโหลดอัตโนมัติ</div>
+            <div class="ce-sub">
+                <span id="large-model-name">—</span> (<span id="large-model-size">—</span>)<br>
+                การเปิดดูอาจทำให้เบราว์เซอร์ค้างหรือแครช (Out of Memory) — แนะนำให้ลดขนาดโมเดลก่อน แต่ถ้าต้องการดูจริงๆ กดยืนยันด้านล่าง
+            </div>
+            <button class="panel-action-btn action-block" style="margin-top:14px;max-width:220px;" onclick="confirmLoadLargeModel()">🚀 โหลดเลย (เสี่ยงเบราว์เซอร์ค้าง)</button>
+        </div>
+
+        <div id="mobile-controls-container">
+            <div id="mobile-joystick-zone"></div>
+            <div id="mobile-action-zone">
+                <button id="btn-mobile-interact" class="mobile-action-btn">🔍 Interact</button>
+                <button id="btn-mobile-jump" class="mobile-action-btn" style="background: rgba(59,130,246,0.25); border-color: #3b82f6;">🦘 Jump</button>
+            </div>
+        </div>
+
+        <!-- ลูกศรบอกทิศ + ระยะทาง ตอนกำลังเดินอัตโนมัติไปหาชิ้นส่วนที่เลือก (ปุ่ม "เดินไปที่นี่") -->
+        <div id="walk-arrow-hud" style="display:none; position:fixed; left:50%; bottom:130px; transform:translateX(-50%); z-index:60; flex-direction:column; align-items:center; gap:6px; pointer-events:none;">
+            <div id="walk-arrow-icon" style="width:38px; height:38px; transition: transform .15s ease; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v16M12 3l-6 6M12 3l6 6"/></svg>
+            </div>
+            <div style="background:rgba(8,11,17,0.85); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:5px 12px; font-size:11.5px; color:#fff; font-weight:700; white-space:nowrap; pointer-events:auto; display:flex; align-items:center; gap:8px;">
+                <span>🚶 กำลังเดินไป... <span id="walk-arrow-dist">—</span></span>
+                <span onclick="cancelAutoWalk()" style="cursor:pointer; color:#ef4444; font-weight:800;" title="ยกเลิก">✕</span>
+            </div>
+        </div>
+
+        <!-- แจ้งเหตุฉุกเฉินที่ส่งเข้าระบบ Emergency — ของจริง ไม่ใช่การซ้อม
+             ใช้ตัวหนังสือแบบพิเศษ (ตัวใหญ่ ระยะห่างตัวอักษรกว้าง) ให้แยกออกจากข้อความอื่นทันที -->
+        <div id="alert-banner" style="display:none;">
+            <span class="ab-dot"></span>
+            <span class="ab-tag">ALERT</span>
+            <span id="alert-banner-text"></span>
+            <button onclick="document.getElementById('alert-banner').style.display='none'" title="ปิด">✕</button>
+        </div>
+
+
+        <!-- REQ 3: แถบเตือนค้างไว้ระหว่างที่มีการเรียกรวมพลฉุกเฉิน — ทุกคนเห็นตรงกัน -->
+        <div id="emergency-banner" style="display:none;">
+            <span class="eb-dot"></span>
+            <span id="emergency-banner-text">เรียกรวมพลฉุกเฉิน</span>
+            <button onclick="cancelEmergency()" title="ยกเลิกการเรียกรวมพล">✕</button>
+        </div>
+
+        <!-- LIVE DATA DOCK — แถบข้อมูลโปร่งแสงลอยขอบล่างฉาก ไม่บังมุมมอง 3D
+             ปกติย่อเหลือบรรทัดเดียว กดลูกศรเพื่อขยายดู TANK-01 + Alerts เต็มรายการ -->
+        <div id="plant-dock" class="collapsed">
+            <div class="dock-compact" onclick="toggleDock()" title="คลิกเพื่อขยาย/ย่อข้อมูลโรงงาน">
+                <span class="dock-chip">CH4 <b id="strip-ch4">—</b><span id="strip-ch4-delta" class="strip-delta"></span></span>
+                <span class="dock-chip">FLOW <b id="strip-flow">—</b><span id="strip-flow-delta" class="strip-delta"></span></span>
+                <span class="dock-chip">EFF <b id="strip-eff">—</b><span id="strip-eff-delta" class="strip-delta"></span></span>
+                <span class="dock-chip">TANK-01 <span id="dock-tank-badge" class="dock-badge ok">—</span></span>
+                <span class="dock-chip dock-chip-alert"><span id="dock-alert-count" class="dock-badge ok">✓</span><span id="dock-alert-top">กำลังเชื่อมต่อ...</span></span>
+                <span id="dock-toggle-arrow" class="dock-toggle-arrow">▴</span>
+            </div>
+            <div class="dock-expanded">
+                <div class="dock-exp-section">
+                    <div class="dock-label">Selected Equipment: TANK-01 (ถังหมักที่ 1)</div>
+                    <div class="dock-tank-grid">
+                        <div><span class="dock-mini-label">Pressure</span><span id="dock-tank-pressure" class="dock-mini-val">—</span></div>
+                        <div><span class="dock-mini-label">Temp</span><span id="dock-tank-temp" class="dock-mini-val">—</span></div>
+                        <div><span class="dock-mini-label">pH</span><span id="dock-tank-ph" class="dock-mini-val">—</span></div>
+                        <div><span class="dock-mini-label">Level</span><span id="dock-tank-level" class="dock-mini-val">—</span></div>
+                    </div>
+                </div>
+                <div class="dock-exp-section">
+                    <div class="dock-label">Active Alerts</div>
+                    <div id="dock-alerts-list" class="dock-alerts-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAT OVERLAY — แชทของโลก 3D (เปิดพิมพ์: กด / — เปิด/ปิดหน้าต่าง: ปุ่มแชทใน HUD)
+             ปิดเป็นค่าเริ่มต้น ไม่บังฉาก — ข้อความใหม่จะเด้งเป็นตัวเลขบนปุ่มแชทแทน -->
+        <div id="chat-overlay" style="display:none;">
+            <div class="chat-head">
+                <span class="chat-title">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                    แชท
+                </span>
+                <span id="chat-voice-indicator" class="chat-voice-ind"></span>
+                <button class="chat-close-btn" onclick="toggleVoiceMixer()" title="ปรับเสียงรายคน / ปิดเสียงคนที่ไม่อยากได้ยิน">🎧</button>
+                <button class="chat-close-btn" onclick="toggleChatPanel(false)" title="ปิดหน้าต่างแชท">✕</button>
+            </div>
+
+            <!-- แผงปรับเสียงรายคน — ปิดเสียง/เร่ง-ลดเสียงเป็นรายบุคคล และสลับโหมดเสียงตามตำแหน่ง -->
+            <div id="voice-mixer" style="display:none;">
+                <div class="vm-head">
+                    <span>🎧 เสียงผู้เล่น</span>
+                    <button id="vm-spatial-btn" class="vm-spatial on" onclick="toggleSpatialVoice()"
+                            title="เปิด/ปิดเสียงตามตำแหน่งในโลก">เสียงตามตำแหน่ง</button>
+                </div>
+                <div id="voice-mixer-list"></div>
+                <div class="vm-hint">ค่าที่ตั้งไว้จำเป็นรายบุคคล เข้ามาใหม่ก็ยังเป็นค่าเดิม · เร่งได้ถึง 200% สำหรับคนที่ไมค์เบา</div>
+            </div>
+
+            <div id="chat-log"></div>
+            <div class="chat-input-row">
+                <input id="chat-input" placeholder="พิมพ์ข้อความ... (Enter ส่ง)" maxlength="200" autocomplete="off">
+                <button class="chat-send-btn" onclick="sendChat()" title="ส่งข้อความ">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- แผงข้อมูลความปลอดภัย — ลอยทับ canvas กว้างขึ้น และหายเองเมื่อเดินออกห่างหรือ deselect -->
+        <div id="process-panel" class="panel floating-safety-panel" style="display: none;">
+            <div class="process-header" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                <div id="title-container" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <span id="process-title" style="font-weight: bold; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ชิ้นส่วน: รอตรวจจับ...</span>
+                    <span id="detection-method" class="method-tag" style="flex-shrink: 0;">ระบบตรวจจับ</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <button id="btn-walk-to" class="panel-action-btn" onclick="walkToSelected()" style="display:none;background:var(--green-soft);border-color:rgba(34,197,94,0.35);color:var(--green); font-size:11.5px; padding:6px 10px;">🚶 เดินไปที่นี่</button>
+                    <button id="btn-warp-to" class="panel-action-btn" onclick="warpToSelected()" style="display:none;background:rgba(168,85,247,0.14);border-color:rgba(168,85,247,0.4);color:#a855f7; font-size:11.5px; padding:6px 10px;">⚡ วาร์ปไปที่นี่</button>
+                    <button id="btn-set-marker" class="panel-action-btn" onclick="openMarkerEditorForActive()" style="background:rgba(34,211,238,0.14);border-color:rgba(34,211,238,0.35);color:#22d3ee; font-size:11.5px; padding:6px 10px;">📍 กำหนดจุด</button>
+                    <button id="btn-try-type" class="panel-action-btn" onclick="openTypeInteraction()" style="background:rgba(34,211,238,0.14);border-color:rgba(34,211,238,0.4);color:#22d3ee; font-size:11.5px; padding:6px 10px;">🎮 ลองใช้งาน</button>
+                    <button id="btn-assign-type" class="panel-action-btn" onclick="openTypeSelectorForActive()" style="background:var(--purple-soft);border-color:rgba(168,85,247,0.35);color:var(--purple); font-size:11.5px; padding:6px 10px;">กำหนด Type</button>
+                    <button id="btn-danger-mark" class="panel-action-btn" onclick="window.AecDanger && AecDanger.toggleSelected()" style="background:rgba(239,68,68,0.14);border-color:rgba(239,68,68,0.4);color:#ef4444; font-size:11.5px; padding:6px 10px;">⚠️ ทำเครื่องหมายอันตราย</button>
+                    <button id="btn-danger-leak" class="panel-action-btn" onclick="window.AecDanger && AecDanger.leakSelected()" style="background:rgba(245,158,11,0.14);border-color:rgba(245,158,11,0.4);color:#f59e0b; font-size:11.5px; padding:6px 10px;">💨 จำลองก๊าซรั่ว</button>
+                    <button id="btn-edit-mode" class="panel-action-btn btn-edit-trigger" onclick="enableLiveEdit()" style="font-size:11.5px; padding:6px 10px;">แก้ไขข้อมูล</button>
+                    <div id="edit-actions-group" style="display: none; gap: 6px;">
+                        <button class="panel-action-btn btn-save" onclick="saveLiveEdit()" style="font-size:11.5px; padding:6px 10px;">บันทึก</button>
+                        <button class="panel-action-btn" onclick="cancelLiveEdit()" style="font-size:11.5px; padding:6px 10px;">ยกเลิก</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="process-grid">
+                <div>
+                    <p style="margin-top:0; font-weight:700; font-size:12px; color:var(--text-0);">มาตรฐานความปลอดภัย</p>
+                    <div id="desc-view-area" style="color: var(--text-1); font-size: 12.5px; min-height: 40px; line-height:1.6;">คำอธิบาย...</div>
+                    <div id="desc-edit-area" style="display: none;">
+                        <textarea id="input-edit-desc" class="ui-edit-textarea"></textarea>
+                    </div>
+
+                    <div class="telemetry-box">
+                        <div class="telemetry-title">สัญญาณเซนเซอร์จำลอง (IoT Telemetry)</div>
+                        <div class="telemetry-row"><span>สถานะอุปกรณ์:</span><span class="telemetry-val" style="color:var(--green);">ONLINE</span></div>
+                        <div class="telemetry-row"><span>แรงดันก๊าซ (Pressure):</span><span id="iot-pressure" class="telemetry-val">0 mbar</span></div>
+                        <div class="telemetry-row"><span>อุณหภูมิ (Temperature):</span><span id="iot-temp" class="telemetry-val">0.0 °C</span></div>
+                    </div>
+                </div>
+                <div>
+                    <p style="margin-top:0; font-weight:700; font-size:12px; color:var(--text-0);">ข้อกำหนดวิศวกรรม & PPE</p>
+                    <div id="steps-view-area"></div>
+                    <div id="steps-edit-area" style="display: none;">
+                        <textarea id="input-edit-steps" class="ui-edit-textarea" style="height: 120px;" placeholder="แยกขั้นตอนด้วยเครื่องหมายจุลภาค (,)"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- แผงควบคุมด่วน HUD -->
+    <div id="keybind-hud">
+        <div class="key-btn-item" onclick="togglePanelElement('dashboard')"><span class="key-badge">H</span> เมนูหลัก</div>
+        <div class="key-btn-item" onclick="togglePanelElement('transform-panel')"><span class="key-badge">T</span> ปรับตำแหน่ง</div>
+        <div class="key-btn-item" onclick="togglePanelElement('details-panel')"><span class="key-badge">M</span> รายชื่อชิ้นส่วน</div>
+        <!-- ปุ่ม "บอร์ดความปลอดภัย" ถูกตัดออก — ป็อปอัพนี้แสดงอัตโนมัติเมื่อคลิก/เดินชนชิ้นส่วนเท่านั้น -->
+        <div id="hud-reset-camera" class="key-btn-item" onclick="resetCameraToAvatar()"><span class="key-badge">R</span> รีเซ็ตมุมกล้อง</div>
+        <div id="freelook-btn" class="key-btn-item" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'f'}))"><span class="key-badge">F</span> Free Look</div>
+        <div id="hud-jump" class="key-btn-item" onclick="triggerAvatarJump()"><span class="key-badge">Space</span> กระโดด</div>
+        <div id="hud-measure" class="key-btn-item" onclick="toggleMeasureMode()" title="วัดระยะระหว่าง 2 จุดในแบบจำลอง (หน่วยเมตร)"><span class="key-badge">📏</span> วัดระยะ</div>
+        <div id="hud-place-marker" class="key-btn-item" onclick="toggleMarkerPlaceMode()" title="คลิกในฉากเพื่อวางจุดตรงตำแหน่งที่คลิก"><span class="key-badge">📍</span> ปักจุด</div>
+        <div id="hud-place-zone" class="key-btn-item hud-safety-zone" onclick="toggleZonePlaceMode()" title="วางจุดศูนย์กลางของเขตระยะปลอดภัย"><span class="key-badge">🛟</span> ระยะปลอดภัย</div>
+        <div id="hud-place-sos" class="key-btn-item hud-emergency" onclick="toggleSosPlaceMode()" title="วางจุดรวมพลฉุกเฉิน"><span class="key-badge">🚨</span> จุดฉุกเฉิน</div>
+        <div id="hud-fullscreen" class="key-btn-item" onclick="toggleFullscreen()" title="ขยายโลก 3D เต็มหน้าจอ"><span class="key-badge">⛶</span> เต็มจอ</div>
+        <!-- แถบล่างปุ่มคือระดับเสียงที่ไมค์รับได้จริง — ใช้แยกให้ออกว่า "ไมค์ไม่ทำงาน"
+             หรือ "ไมค์ทำงานแต่ปลายทางไม่ได้ยิน" ซึ่งแก้คนละทางกัน -->
+        <div id="hud-voice" class="key-btn-item" onclick="toggleMic()" title="เปิด/ปิดไมค์คุยกับผู้เล่นในโลก"><span class="key-badge">V</span> <span id="hud-voice-label">ไมค์</span><span id="hud-voice-level"></span></div>
+        <div id="hud-chat" class="key-btn-item" onclick="toggleChatPanel()" title="เปิด/ปิดหน้าต่างแชท (กด / เพื่อพิมพ์)">
+            <span class="key-badge">/</span> แชท
+            <span id="chat-unread-badge" class="chat-unread-badge" style="display:none;">0</span>
+        </div>
+        <div id="hud-multiplayer" class="key-btn-item" onclick="togglePanelElement('multiplayer-panel')" style="display:none;"><span class="key-badge">U</span> Multiplayer</div>
+        <div id="hud-guide" class="key-btn-item" onclick="AecGuide.open()" title="คู่มือการใช้งาน — แต่ละปุ่มทำอะไรได้บ้าง"><span class="key-badge">❓</span> วิธีใช้</div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: structure list only (process-panel moved to floating overlay) -->
+  <div id="right-col" class="side-col">
+    <!-- แถบแท็บ: สลับระหว่างรายชื่อชิ้นส่วนของโมเดล กับรายการจุดที่ปักไว้เอง -->
+    <div class="side-tabs" id="right-tabs">
+        <div class="side-tab" data-target="details-panel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            ชิ้นส่วน
+        </div>
+        <div class="side-tab" data-target="marker-list-panel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            จุดที่ปัก <span id="marker-list-count"></span>
+        </div>
+    </div>
+
+    <!-- แผงรายชื่อชิ้นส่วนโครงสร้าง -->
+    <div id="details-panel" class="panel">
+        <div class="panel-head">
+            <h3><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>รายการชิ้นส่วน</h3>
+            <span class="panel-sub">Structure Parts</span>
+        </div>
+        <div class="mesh-filter-box">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="mesh-filter" placeholder="ค้นหาชิ้นส่วน..." autocomplete="off">
+        </div>
+        <div id="model-meta"></div>
+        <div id="mesh-container">
+            <div class="mesh-empty-state">ยังไม่มีชิ้นส่วน<br>รายการจะแสดงเมื่อโหลดโมเดลแล้ว</div>
+        </div>
+    </div>
+
+    <!-- รายการจุดที่ปักไว้ — ค้นหาชื่อจุด เดินไปหา แก้ไข หรือลบทีละจุดได้ -->
+    <div id="marker-list-panel" class="panel" style="display:none;">
+        <div class="panel-head">
+            <h3><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>จุดที่ปักไว้</h3>
+            <span class="panel-sub">Marked Points</span>
+        </div>
+        <div class="mesh-filter-box">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input id="marker-filter" placeholder="ค้นหาชื่อจุด..." autocomplete="off">
+        </div>
+        <!-- REQ 3: ปุ่มเรียกรวมพล — กดแล้วตัวละครของทุกคนในโลกเดินไปที่จุดฉุกเฉินพร้อมกัน -->
+        <button id="btn-call-emergency" class="panel-action-btn action-block btn-emergency" onclick="callEmergency()"
+                title="สั่งให้ตัวละครของทุกคนในโลกเดินไปที่จุดฉุกเฉิน">
+            🚨 เรียกรวมพลฉุกเฉิน
+        </button>
+        <div id="marker-list-container">
+            <div class="mesh-empty-state">ยังไม่มีจุดที่ปักไว้</div>
+        </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- TYPE SELECTOR MODAL — เลือกประเภทอุปกรณ์ -->
+<div id="type-selector-overlay" style="display:none;">
+    <div class="type-modal">
+        <div class="type-modal-head">
+            <h3>กำหนดประเภทอุปกรณ์</h3>
+            <button class="type-modal-close" onclick="closeTypeSelector()">✕</button>
+        </div>
+        <p id="type-selector-mesh-name"></p>
+        <div id="type-selector-grid"></div>
+        <div class="type-modal-footer">
+            <button class="panel-action-btn btn-danger-outline action-block" onclick="clearMeshType()">ล้างการกำหนดประเภท</button>
+        </div>
+    </div>
+</div>
+
+<!-- กำหนดจุด (marker) — ตั้งชื่อ + เลือกสีได้อิสระ ไม่ต้องผูกกับประเภทอุปกรณ์ -->
+<div id="marker-editor-overlay" style="display:none;">
+    <div class="type-modal">
+        <div class="type-modal-head">
+            <h3>📍 กำหนดจุด</h3>
+            <button class="type-modal-close" onclick="closeMarkerEditor()">✕</button>
+        </div>
+        <p id="marker-editor-target"></p>
+        <label class="marker-field-label">ชื่อจุด (เดินเข้าใกล้แล้วจะเห็นชื่อนี้)</label>
+        <input id="marker-name-input" type="text" maxlength="80" placeholder="เช่น จุดรวมพล, ถังหมักที่ 1" class="marker-input">
+        <label class="marker-field-label">สีของจุด — กดสีด่วน หรือลากเลือกเองในจานสี</label>
+        <div id="marker-color-row" class="marker-color-row" style="margin-bottom:12px;"></div>
+        <div id="marker-color-wheel"></div>
+
+        <!-- REQ 3: ทำจุดนี้ให้เป็นจุดรวมพลฉุกเฉิน -->
+        <button id="marker-emergency-toggle" class="marker-sos-toggle" onclick="toggleMarkerEmergency()">
+            <span class="mst-check">✓</span>
+            <span>🚨 ตั้งเป็นจุดรวมพลฉุกเฉิน<small>เรียกให้ทุกคนเดินมาที่จุดนี้พร้อมกันได้</small></span>
+        </button>
+
+        <!-- REQ 7: รูปทรงของจุด/เขต — ป้ายลอยกับเขตบนพื้นใช้ทรงเดียวกัน จะได้จำคู่กันได้ -->
+        <label class="marker-field-label" style="margin-top:14px;">รูปทรงของจุด</label>
+        <div id="marker-shape-row" class="marker-shape-row">
+            <button class="marker-shape-btn" data-shape="circle" onclick="pickMarkerShape('circle')">⬤ วงกลม</button>
+            <button class="marker-shape-btn" data-shape="square" onclick="pickMarkerShape('square')">■ สี่เหลี่ยม</button>
+            <button class="marker-shape-btn" data-shape="triangle" onclick="pickMarkerShape('triangle')">▲ สามเหลี่ยม</button>
+        </div>
+
+        <!-- REQ 7: ขนาดป้ายตั้งเอง ไม่ใช่โตตามขนาดวัตถุ/โมเดลอีกต่อไป -->
+        <label class="marker-field-label" style="margin-top:14px;">
+            ขนาดป้าย <span id="marker-size-value" class="marker-slider-value">1.0×</span>
+        </label>
+        <input type="range" id="marker-size-slider" class="marker-slider" min="0.2" max="20" step="0.1" value="1">
+
+        <!-- REQ 8 & 9: รัศมีเขตปลอดภัย + ระยะเส้นรอบรูป -->
+        <label class="marker-field-label" style="margin-top:14px;">
+            รัศมีเขตปลอดภัย <span id="marker-radius-value" class="marker-slider-value">ไม่มีเขต</span>
+        </label>
+        <input type="range" id="marker-radius-slider" class="marker-slider" min="0" max="1000" step="1" value="0">
+        <div class="marker-zone-foot">
+            <button class="marker-pick-radius" onclick="startRadiusPick()">🎯 คลิกกำหนดรัศมีในฉาก</button>
+            <span id="marker-perimeter-out" class="marker-perimeter">ตั้งรัศมีมากกว่า 0 เพื่อสร้างเขตปลอดภัย</span>
+        </div>
+        <div class="hint-text" style="margin-top:6px;">รัศมี = ระยะจากจุดศูนย์กลางถึงขอบเขตที่ใกล้ที่สุด — วงเขตจะแสดงเฉพาะในมุมมอง <b>Top View</b> เท่านั้น และระบบจะประกาศในแชทเมื่อมีคนเข้า/ออกเขตนี้</div>
+
+        <div class="type-modal-footer" style="display:flex;gap:8px;">
+            <button class="panel-action-btn btn-danger-outline" style="flex:1;" onclick="removeActiveMarker()">ลบจุดนี้</button>
+            <button class="panel-action-btn btn-save" style="flex:1;" onclick="saveActiveMarker()">บันทึกจุด</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="color-wheel.js"></script>
+<script src="world-prefs.js"></script>
+<script src="guide.js"></script>
+<script src="type-interactions.js"></script>
+<script src="panel-sections.js"></script>
+<script src="load-progress.js"></script>
+<script src="app.js"></script>
+<script src="vr-mode.js"></script>
+
+    <!--
+      สคริปต์เสริมฝั่งหน้าเพจ — ไม่แตะ logic ใน app.js
+      1) แท็บคอลัมน์ซ้าย: โชว์ทีละแผง (คีย์ลัด H/T เดิมยังใช้ได้ผ่าน togglePanelElement)
+      2) ช่องค้นหาชิ้นส่วน: กรองรายการใน #mesh-container ตามข้อความ
+      3) empty state บน canvas: เฝ้าดูข้อความสถานะใน #factory-status แล้วซ่อน/แสดงเอง
+    -->
+    <script>
+    // ปุ่ม "?" มุมขวาบนของฉาก ต้องมีทุกโหมด — เป็นทางเปิดคู่มือกลับมาหลังติ๊ก "ไม่ต้องแสดงอีก"
+    // (แถบปุ่มด้านล่างถูกซ่อนทั้งแถบบนจอเล็กแนวนอน จะเหลือปุ่มนี้ทางเดียว)
+    AecGuide.mountFab();
+    // ส่วนการเด้งคู่มือเองครั้งแรก ข้ามในโหมด viewer (Digital Twin) ที่ไม่มีตัวละคร/ปุ่มส่วนใหญ่
+    if (new URLSearchParams(location.search).get('mode') !== 'viewer') AecGuide.autoOpenOnce();
+    </script>
+
+    <script>
+    (function () {
+        function initTabs(tabBarId, panelIds) {
+            const tabBar = document.getElementById(tabBarId);
+            if (!tabBar) return;
+
+            function activate(targetId) {
+                panelIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = (id === targetId) ? 'block' : 'none';
+                });
+                tabBar.querySelectorAll('.side-tab').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.target === targetId);
+                });
+            }
+
+            tabBar.querySelectorAll('.side-tab').forEach(btn => {
+                btn.addEventListener('click', () => activate(btn.dataset.target));
+            });
+
+            // ให้ app.js สลับแท็บได้เอง — ใช้ตอนซ่อนแท็บ "โมเดล" จากผู้ใช้ที่ไม่มีสิทธิ์
+            // แล้วต้องเด้งไปแท็บอื่นแทน ไม่งั้นคอลัมน์ซ้ายจะว่างเปล่า
+            if (tabBarId === 'left-tabs') window.activateLeftTab = activate;
+
+            // ตั้งค่าเริ่มต้น: โชว์แผงแรกของแท็บเท่านั้น
+            // (ทำงานหลัง app.js โหลดเสร็จ จึงชนะการที่ app.js สั่งเปิด transform-panel ไว้ตอนเริ่มต้น)
+            activate(panelIds[0]);
+            window.refreshRoleUi?.();   // สิทธิ์อาจรู้ผลมาก่อนแท็บพร้อม
+        }
+        initTabs('left-tabs', ['dashboard', 'transform-panel', 'safety-panel']);
+        initTabs('right-tabs', ['details-panel', 'marker-list-panel']);
+
+        // ---- ค้นหาชิ้นส่วนในรายการ (กรองเฉพาะการแสดงผล ไม่แตะข้อมูล) ----
+        const filter = document.getElementById('mesh-filter');
+        filter?.addEventListener('input', () => {
+            const q = filter.value.trim().toLowerCase();
+            document.querySelectorAll('#mesh-container .mesh-item').forEach(it => {
+                it.style.display = (!q || it.innerText.toLowerCase().includes(q)) ? '' : 'none';
+            });
+        });
+
+        // ---- empty state: ซ่อนเมื่อสถานะบอกว่ากำลังโหลด/โหลดสำเร็จ ----
+        const hint = document.getElementById('canvas-empty-hint');
+        const status = document.getElementById('factory-status');
+        if (hint && status) {
+            const sync = () => {
+                const t = status.innerText || '';
+                hint.style.display = t.includes('รอการอัปโหลด') ? 'flex' : 'none';
+            };
+            new MutationObserver(sync).observe(status, { childList: true, characterData: true, subtree: true });
+            sync();
+        }
+    })();
+    </script>
+</body>
+</html>

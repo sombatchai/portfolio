@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>AEC VERSE — Avatar</title>
+<link rel="icon" type="image/png" href="Logo.png">
+<script src="page-transitions.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="public-portal.css">
+<script src="demo-runtime/runtime.js"></script>
+<script src="supabaseClient.js"></script>
+
+<script src="public-portal.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<!-- ต้องมาก่อนสคริปต์ในหน้า เพราะหน้านี้เรียกใช้ทะเบียนร่างตั้งแต่ตอนเปิด -->
+<script src="app-config.js"></script>
+<script src="collapse-group.js"></script>
+<script src="avatar-import.js"></script>
+<script src="avatar-creator.js"></script>
+<style>
+#avatar-preview{width:100%;height:520px;border-radius:10px;background:var(--bg-0);border:1px solid var(--border-soft);overflow:hidden;position:relative;}
+#avatar-preview canvas{display:block;}
+.preview-hint{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:var(--text-2);font-size:10.5px;pointer-events:none;}
+.model-option{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:8px;transition:.15s;}
+.model-option:hover{background:var(--panel-2);}
+.model-option.selected{border-color:var(--blue);background:var(--blue-soft);}
+.model-option .mo-icon{font-size:24px;width:40px;text-align:center;flex-shrink:0;}
+.model-option .mo-name{font-weight:700;font-size:12.5px;}
+.model-option .mo-desc{color:var(--text-2);font-size:11px;margin-top:2px;line-height:1.5;}
+/* ปุ่มลบร่าง — จางไว้ ชัดเมื่อชี้ที่แถวนั้น ไม่ใช้ title ของ browser เพราะป้ายแบบนั้นบัค */
+.model-option .mo-del{background:none;border:none;cursor:pointer;color:var(--text-2);font-size:13px;
+  line-height:1;padding:6px 7px;border-radius:7px;flex-shrink:0;opacity:0;transition:opacity .15s,background .15s,color .15s;font-family:inherit;}
+.model-option:hover .mo-del,.model-option .mo-del:focus-visible{opacity:1;}
+.model-option .mo-del:hover{background:var(--panel);color:var(--red);}
+@media (hover:none){ .model-option .mo-del{opacity:.7;} }   /* จอสัมผัสไม่มี hover ซ่อนไว้จะกดไม่ได้ */
+@media (prefers-reduced-motion: reduce){ .model-option .mo-del{transition:none;} }
+.color-swatches{display:flex;gap:8px;flex-wrap:wrap;}
+.swatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s;}
+.swatch:hover{transform:scale(1.1);}
+.swatch.selected{border-color:#fff;box-shadow:0 0 0 2px var(--blue);}
+#save-status{font-size:11.5px;min-height:16px;margin-top:10px;}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.card-head h3{margin:0;font-size:13px;font-weight:700;}
+.g12-8-4{grid-template-columns:7fr 5fr;}
+@media (max-width:1100px){ .g12-8-4{grid-template-columns:1fr;} }
+</style>
+<link rel="stylesheet" href="ui-polish.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="portal-sidebar"></aside>
+
+    <div class="page">
+    <div class="topbar" id="portal-topbar"></div>
+
+      <div class="page-content">
+        <div class="grid g12-8-4">
+          <div class="card">
+            <div class="card-head"><h3>ตัวอย่างตัวละคร</h3><button class="btn" id="btn-toggle-walk" onclick="togglePreviewWalk()">▶ ลองเดิน</button></div>
+            <div id="avatar-preview">
+              <div class="preview-hint">ลากเมาส์เพื่อหมุนดูรอบตัว — ตัวละครนี้คือร่างที่ผู้เล่นคนอื่นจะเห็นคุณในโลก Virtual Tour</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-label">เลือกร่างตัวละคร</div>
+
+            <!-- สร้างตัวละครของตัวเอง — เลือกทรงผม รูปหน้า สีผิว เสื้อผ้า -->
+            <button id="rpm-open" class="btn"
+              style="width:100%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;color:#fff;
+                     font-weight:800;padding:12px;margin-bottom:6px;">
+              ✨ สร้างตัวละครของตัวเอง
+            </button>
+            <div style="font-size:10.5px;color:var(--text-2);line-height:1.6;margin-bottom:12px;">
+              เลือกทรงผม รูปหน้า สีผิว และเสื้อผ้าได้เอง ทำเสร็จแล้วร่างจะเข้ามาอยู่ในรายการนี้ทันที
+              และเดินได้เหมือนร่างอื่น เก็บไว้ได้ไม่จำกัดจำนวน
+            </div>
+            <!-- ร่างที่ผู้ใช้คนนี้สร้างเอง — คนอื่นไม่เห็นในรายการนี้ แต่เห็นตอนอยู่ในโลก 3D -->
+            <div id="avatar-groups"></div>
+            <div id="my-avatars"></div>
+            <div id="builtin-avatars">
+            <div class="model-option" data-model="character" onclick="selectModel('character')">
+              <div class="mo-icon">🧍</div>
+              <div><div class="mo-name">Character 1</div><div class="mo-desc">ตัวละคร 3D สมจริงพร้อมแอนิเมชันเดิน</div></div>
+            </div>
+            <div class="model-option" data-model="ch22" onclick="selectModel('ch22')">
+              <div class="mo-icon">🧑</div>
+              <div><div class="mo-name">Character 2</div><div class="mo-desc">ตัวละครสมจริงแบบที่สอง</div></div>
+            </div>
+            <div class="model-option" data-model="ch07" onclick="selectModel('ch07')">
+              <div class="mo-icon">🧑‍🔧</div>
+              <div><div class="mo-name">Character 3</div><div class="mo-desc">ตัวละครสมจริงแบบที่สาม</div></div>
+            </div>
+            <div class="model-option" data-model="remy" onclick="selectModel('remy')">
+              <div class="mo-icon">🧒</div>
+              <div><div class="mo-name">Remy</div><div class="mo-desc">ตัวละครสไตล์การ์ตูน</div></div>
+            </div>
+            <div class="model-option" data-model="engineer" onclick="selectModel('engineer')">
+              <div class="mo-icon">👷</div>
+              <div><div class="mo-name">Engineer (คลาสสิก)</div><div class="mo-desc">วิศวกรชุดส้มสไตล์บล็อก — เบาและโหลดเร็วที่สุด</div></div>
+            </div>
+            </div>
+
+            <div id="anim-options">
+            <div class="model-option" data-anim="walking" onclick="selectAnim('walking')">
+              <div class="mo-icon">🚶</div>
+              <div><div class="mo-name">Walking</div><div class="mo-desc">ท่าเดินปกติ เป็นธรรมชาติ</div></div>
+            </div>
+            <div class="model-option" data-anim="catwalk" onclick="selectAnim('catwalk')">
+              <div class="mo-icon">💃</div>
+              <div><div class="mo-name">Catwalk High Knees</div><div class="mo-desc">ท่าเดินยกเข่าสูงสไตล์แคทวอล์ก</div></div>
+            </div>
+            </div>
+
+            <div id="color-block">
+              <div style="color:var(--text-2);font-size:11px;margin-bottom:10px;">ใช้กับป้ายชื่อ วงแหวนใต้เท้า และสีข้อความแชท — ช่วยให้เพื่อนแยกคุณออกจากคนอื่นได้ทันที</div>
+              <div class="color-swatches" id="color-swatches"></div>
+            </div>
+
+            <button class="btn primary" style="width:100%;margin-top:20px;" onclick="saveAvatar()">บันทึกตัวละคร</button>
+            <div id="save-status"></div>
+            <div style="color:var(--text-2);font-size:10.5px;line-height:1.6;margin-top:8px;">
+              ตัวละครผูกกับบัญชีของคุณ — บันทึกแล้วเปิดหน้า Virtual Tour ใหม่ (หรือรีเฟรช) เพื่อสวมร่างใหม่ ผู้ใช้คนอื่นจะเห็นคุณเป็นร่างนี้
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+renderPortalSidebar('PublicAvatar.html');
+renderPortalTopbar('Avatar', '(ปรับแต่งตัวละครของคุณ)');
+initUserChip();
+initPortalLiveFeed();
+
+// ============================================================
+// สถานะที่ผู้ใช้เลือก (โหลดค่าเดิมจากบัญชีตอนเปิดหน้า)
+// ============================================================
+const COLORS = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#c77dff', '#ff9f43', '#00d2d3', '#ff6b9d'];
+let selected = { model: 'character', anim: 'walking', color: COLORS[3] };
+
+function refreshOptionUI(){
+  document.querySelectorAll('.model-option[data-model]').forEach(el => el.classList.toggle('selected', el.dataset.model === selected.model));
+  document.querySelectorAll('.model-option[data-anim]').forEach(el => el.classList.toggle('selected', el.dataset.anim === selected.anim));
+  document.querySelectorAll('.swatch').forEach(el => el.classList.toggle('selected', el.dataset.color === selected.color));
+}
+function selectModel(m){ selected.model = m; refreshOptionUI(); rebuildPreviewAvatar(); }
+function selectAnim(a){ selected.anim = a; refreshOptionUI(); rebuildPreviewAvatar(); }
+function selectColor(c){ selected.color = c; refreshOptionUI(); rebuildPreviewAvatar(); }
+
+const swatchBox = document.getElementById('color-swatches');
+COLORS.forEach(c => {
+  const s = document.createElement('div');
+  s.className = 'swatch'; s.dataset.color = c; s.style.background = c;
+  s.onclick = () => selectColor(c);
+  swatchBox.appendChild(s);
+});
+
+// ร่างที่นำเข้า/สร้างเอง — เดิมหน้านี้รู้จักแต่ร่างที่ฝังไว้ในโค้ด
+// ร่างที่ผู้ใช้สร้างเองจึงถูกปัดทิ้งทุกครั้งที่เปิดหน้า และพรีวิวขึ้นเป็นร่างบล็อก
+let importedAvatars = [], personalAvatars = [];
+const knownAvatarIds = new Set(['engineer', 'character', 'ch22', 'ch07', 'remy']);
+const avatarUrlById = id => {
+  const a = [...importedAvatars, ...personalAvatars].find(x => x.id === id);
+  return a ? a.url : null;
+};
+
+function renderCatalogAvatars() {
+  const box = document.getElementById('my-avatars');
+  if (!box) return;
+  const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  box.innerHTML = [...personalAvatars, ...importedAvatars].map(a => `
+    <div class="model-option" data-model="${esc(a.id)}" onclick="selectModel('${esc(a.id)}')">
+      <div class="mo-icon">${a.ownerId ? '✨' : (a.rigged ? '🧍' : '🗿')}</div>
+      <div style="flex:1;min-width:0;"><div class="mo-name">${esc(a.name)}</div><div class="mo-desc">${a.ownerId ? 'ร่างของคุณเอง' : 'ร่างที่นำเข้าไว้ให้ทุกคนใช้'}${a.rigged ? '' : ' · ไม่มีโครงกระดูก Mixamo จึงยืนนิ่ง'}</div></div>
+      ${a.ownerId ? `<button type="button" class="mo-del" aria-label="ลบร่างนี้"
+        onclick="event.stopPropagation();deleteMyAvatar('${esc(a.id)}')">🗑</button>` : ''}
+    </div>`).join('');
+  refreshOptionUI();
+}
+
+// จัดหน้าเป็นหัวข้อใหญ่กดย่อได้ ผู้ใช้จะได้เจอข้อมูลทีละก้อน ไม่ใช่รายการยาวทั้งหน้า
+// ปุ่มสร้างตัวละครอยู่นอกหัวข้อ เพราะเป็นสิ่งแรกที่อยากให้เห็น ไม่ควรถูกพับซ่อน
+let avatarGroups = null;
+function buildAvatarGroups() {
+  if (avatarGroups || !window.AecCollapseGroup) return;
+  const host = document.getElementById('avatar-groups');
+  const pick = id => document.getElementById(id);
+  if (!host) return;
+  // countNode = นับของจริงข้างในกล่อง ไม่ใช่นับตัวกล่อง (ไม่งั้นได้ 1 ทุกหมวด)
+  avatarGroups = AecCollapseGroup.build(host, [
+    { key: 'mine',    icon: '✨', label: 'ร่างของฉัน', open: true,
+      nodes: [pick('my-avatars')], countNode: pick('my-avatars'),
+      empty: 'ยังไม่มีร่างที่สร้างเอง — กดปุ่มด้านบนเพื่อสร้างร่างของคุณ' },
+    { key: 'builtin', icon: '🧍', label: 'ร่างสำเร็จรูป', open: false,
+      nodes: [pick('builtin-avatars')], countNode: pick('builtin-avatars') },
+    { key: 'anim',    icon: '🚶', label: 'ท่าเดิน', open: false,
+      nodes: [pick('anim-options')], countNode: pick('anim-options') },
+    { key: 'color',   icon: '🎨', label: 'สีประจำตัว', open: false,
+      nodes: [pick('color-block')], count: false }
+  ], { storeKey: 'aec_public_avatar_groups' });
+}
+
+// จำนวนร่างของฉันเปลี่ยนได้ตลอด (สร้างใหม่/ลบทิ้ง) ตัวเลขบนหัวข้อต้องตามด้วย
+function refreshAvatarGroups() {
+  if (!avatarGroups) return;
+  avatarGroups.forEach(g => AecCollapseGroup.refresh(g));
+}
+
+async function deleteMyAvatar(id) {
+  const a = personalAvatars.find(x => x.id === id);
+  if (!confirm(`ลบร่าง "${a ? a.name : id}" ออกจากบัญชีของคุณ?`)) return;
+  try {
+    await AecAvatarImport.remove(id);
+    if (selected.model === id) selectModel('character');   // กำลังใส่ร่างที่เพิ่งลบอยู่
+    await loadAvatarCatalog();
+  } catch (err) { alert(err.message || 'ลบไม่สำเร็จ'); }
+}
+
+async function loadAvatarCatalog() {
+  if (!window.AecAvatarImport) return;
+  const cat = await AecAvatarImport.list();
+  importedAvatars = cat.imported || [];
+  personalAvatars = cat.personal || [];
+  [...importedAvatars, ...personalAvatars].forEach(a => knownAvatarIds.add(a.id));
+  buildAvatarGroups();
+  renderCatalogAvatars();
+  refreshAvatarGroups();
+}
+
+// ทะเบียนมาทางเน็ต แต่ค่าที่บันทึกไว้อ่านได้เร็วกว่า ถ้าไม่รอกันจะตัดสินตอนที่ยัง
+// รู้จักแต่ร่างพื้นฐาน แล้วเด้งกลับร่างเริ่มต้นทั้งที่ผู้ใช้เลือกร่างของตัวเองไว้
+// ผู้ใช้ทั่วไปสร้างร่างของตัวเองได้ แต่ไม่มีปุ่มอัปไฟล์ .glb (canImportFile: false)
+AecAvatarCreator.mount(document.getElementById('rpm-open'), {
+  canImportFile: false,
+  onSaved: async avatar => { await loadAvatarCatalog(); selectModel(avatar.id); }
+});
+
+const avatarCatalogReady = loadAvatarCatalog().catch(err => {
+  console.warn('[AVATAR] โหลดทะเบียนร่างไม่สำเร็จ', err);
+});
+
+async function loadSavedConfig(){
+  await avatarCatalogReady;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const saved = session?.user?.user_metadata?.avatar;
+    if (saved) {
+      if (knownAvatarIds.has(saved.model)) selected.model = saved.model;
+      if (['catwalk', 'walking'].includes(saved.anim)) selected.anim = saved.anim;
+      if (typeof saved.color === 'string' && /^#[0-9a-fA-F]{6}$/.test(saved.color)) selected.color = saved.color;
+    }
+  } catch (err) { /* ใช้ค่าเริ่มต้น */ }
+  refreshOptionUI();
+  rebuildPreviewAvatar();
+}
+
+async function saveAvatar(){
+  const status = document.getElementById('save-status');
+  status.style.color = 'var(--text-2)';
+  status.textContent = 'กำลังบันทึก...';
+  try {
+    const { error } = await supabaseClient.auth.updateUser({ data: { avatar: { model: selected.model, anim: selected.anim, color: selected.color } } });
+    if (error) throw error;
+    await markTaskDone('avatarSaved');
+    status.style.color = 'var(--green)';
+    status.textContent = '✓ บันทึกแล้ว — รีเฟรชหน้า Virtual Tour เพื่อสวมร่างใหม่';
+  } catch (err) {
+    status.style.color = 'var(--red)';
+    status.textContent = 'บันทึกไม่สำเร็จ: ' + (err.message || err);
+  }
+}
+
+// ============================================================
+// พรีวิว 3D — ฉากเดียวกับโลกจริง (ตัวละคร + วงแหวนสี + คลิปเดิน)
+// ============================================================
+const pvBox = document.getElementById('avatar-preview');
+const pvScene = new THREE.Scene();
+pvScene.background = new THREE.Color(0x080b11);
+const pvCam = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+pvCam.position.set(0, 1.5, 3.2);
+const pvRenderer = new THREE.WebGLRenderer({ antialias: true });
+pvRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+pvBox.insertBefore(pvRenderer.domElement, pvBox.firstChild);
+function fitPv(){ const w = pvBox.clientWidth, h = pvBox.clientHeight; if (!w || !h) return; pvCam.aspect = w / h; pvCam.updateProjectionMatrix(); pvRenderer.setSize(w, h); }
+fitPv();
+if (window.ResizeObserver) new ResizeObserver(fitPv).observe(pvBox);
+
+const pvControls = new THREE.OrbitControls(pvCam, pvRenderer.domElement);
+pvControls.target.set(0, 0.95, 0);
+pvControls.enableDamping = true;
+pvControls.minDistance = 1.5; pvControls.maxDistance = 6;
+
+pvScene.add(new THREE.AmbientLight(0xffffff, 0.65));
+pvScene.add(new THREE.HemisphereLight(0xbcd4ff, 0x0e131c, 0.6));
+const pvDir = new THREE.DirectionalLight(0xffffff, 1.0);
+pvDir.position.set(3, 6, 4); pvScene.add(pvDir);
+pvScene.add(new THREE.GridHelper(8, 16, 0x2e4a75, 0x141c2a));
+
+// ร่าง engineer แบบย่อ (กล่อง) — เวอร์ชันเดียวกับในโลกจริง
+function buildEngineerPreview(color){
+  const g = new THREE.Group();
+  const hex = parseInt(String(color).replace('#',''), 16);
+  const suit = new THREE.MeshStandardMaterial({ color: 0xff6600, roughness: .6 });
+  const skin = new THREE.MeshStandardMaterial({ color: 0xf4c08a, roughness: .7 });
+  const helmet = new THREE.MeshStandardMaterial({ color: hex, roughness: .3, metalness: .3 });
+  const visib = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+  const boot = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: .9 });
+  const add = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); g.add(m); return m; };
+  add(new THREE.BoxGeometry(.22,.24,.22), skin, 0, 1.62, 0);
+  add(new THREE.BoxGeometry(.26,.12,.26), helmet, 0, 1.78, 0);
+  add(new THREE.BoxGeometry(.34,.03,.3), helmet, 0, 1.72, 0);
+  add(new THREE.BoxGeometry(.38,.5,.2), suit, 0, 1.14, 0);
+  add(new THREE.BoxGeometry(.39,.05,.21), visib, 0, 1.22, 0);
+  add(new THREE.BoxGeometry(.39,.05,.21), visib, 0, 1.08, 0);
+  add(new THREE.BoxGeometry(.11,.55,.13), suit, -.265, 1.08, 0);
+  add(new THREE.BoxGeometry(.11,.55,.13), suit, .265, 1.08, 0);
+  add(new THREE.BoxGeometry(.14,.42,.15), suit, -.1, .6, 0);
+  add(new THREE.BoxGeometry(.14,.42,.15), suit, .1, .6, 0);
+  add(new THREE.BoxGeometry(.16,.1,.22), boot, -.1, .33, -.03);
+  add(new THREE.BoxGeometry(.16,.1,.22), boot, .1, .33, -.03);
+  return g;
+}
+
+let pvAvatar = null, pvMixer = null, pvWalkAction = null, pvIdleAction = null, pvWalking = false;
+const PV_MODEL_FILES = { character: 'avatars/character.glb', ch22: 'avatars/ch22.glb', ch07: 'avatars/ch07.glb', remy: 'avatars/remy.glb' };
+// ร่างที่นำเข้าไม่ได้อยู่ในรายการข้างบน ต้องถามทะเบียนต่อ ไม่งั้นพรีวิวตกไปเป็นร่างบล็อก
+const pvUrlFor = id => PV_MODEL_FILES[id] || (typeof avatarUrlById === 'function' ? avatarUrlById(id) : null);
+const PV_ANIM_FILES = { catwalk: 'avatars/walk_anim.glb', walking: 'avatars/walking_anim.glb' };
+const pvCache = {};
+function pvLoad(url){
+  if (!pvCache[url]) pvCache[url] = new Promise((res, rej) => new THREE.GLTFLoader().load(url, res, undefined, rej));
+  return pvCache[url];
+}
+// ไฟล์ Mixamo แต่ละไฟล์ใช้ prefix กระดูกต่างกัน (mixamorig / mixamorig1 / ...) — จับคู่ด้วยชื่อจริงหลังตัด prefix
+function pvRetarget(clip, model){
+  const bones = {};
+  model.traverse(o => { if (o.isBone) bones[o.name.replace(/^mixamorig\d*/, '')] = o.name; });
+  const tracks = [];
+  clip.tracks.forEach(t => {
+    const dot = t.name.lastIndexOf('.');
+    const target = bones[t.name.slice(0, dot).replace(/^mixamorig\d*/, '')];
+    if (target) { const nt = t.clone(); nt.name = target + t.name.slice(dot); tracks.push(nt); }
+  });
+  return new THREE.AnimationClip(clip.name, clip.duration, tracks);
+}
+
+let pvBuildSeq = 0; // กันการกดสลับเร็วๆ แล้วผลโหลดช้ามาทับตัวเลือกล่าสุด
+async function rebuildPreviewAvatar(){
+  const seq = ++pvBuildSeq;
+  const container = new THREE.Group();
+  const pvUrl = pvUrlFor(selected.model);
+  if (pvUrl) {
+    try {
+      const [charGltf, animGltf] = await Promise.all([pvLoad(pvUrl), pvLoad(PV_ANIM_FILES[selected.anim] || PV_ANIM_FILES.catwalk)]);
+      if (seq !== pvBuildSeq) return; // มีการเลือกใหม่ระหว่างโหลด — ทิ้งผลนี้
+      const visual = charGltf.scene;
+      visual.rotation.y = 0;
+      visual.scale.setScalar(1);
+      visual.updateMatrixWorld(true);
+      const h = new THREE.Box3().setFromObject(visual).getSize(new THREE.Vector3()).y;
+      if (h > 0.1) visual.scale.setScalar(1.75 / h);
+      container.add(visual);
+      const walkClip = pvRetarget(animGltf.animations[0], visual);
+      pvMixer = new THREE.AnimationMixer(visual);
+      pvWalkAction = pvMixer.clipAction(walkClip);
+      pvIdleAction = pvMixer.clipAction(THREE.AnimationUtils.subclip(walkClip, 'pv_idle_' + selected.model + '_' + selected.anim, 0, 1, 30));
+      (pvWalking ? pvWalkAction : pvIdleAction).play();
+    } catch (err) {
+      console.warn('พรีวิวโหลดไม่สำเร็จ:', err);
+      container.add(buildEngineerPreview(selected.color));
+      pvMixer = null; pvWalkAction = null; pvIdleAction = null;
+    }
+  } else {
+    container.add(buildEngineerPreview(selected.color));
+    pvMixer = null; pvWalkAction = null; pvIdleAction = null;
+  }
+  if (seq !== pvBuildSeq) return;
+  if (pvAvatar) { pvScene.remove(pvAvatar); pvAvatar = null; }
+  const ring = new THREE.Mesh(
+    new THREE.RingGeometry(.34, .44, 32),
+    new THREE.MeshBasicMaterial({ color: new THREE.Color(selected.color), transparent: true, opacity: .55, side: THREE.DoubleSide })
+  );
+  ring.rotation.x = -Math.PI / 2; ring.position.y = .02;
+  container.add(ring);
+  pvScene.add(container);
+  pvAvatar = container;
+}
+
+function togglePreviewWalk(){
+  pvWalking = !pvWalking;
+  document.getElementById('btn-toggle-walk').textContent = pvWalking ? '⏸ หยุดเดิน' : '▶ ลองเดิน';
+  if (pvMixer && pvWalkAction && pvIdleAction) {
+    const next = pvWalking ? pvWalkAction : pvIdleAction;
+    const prev = pvWalking ? pvIdleAction : pvWalkAction;
+    next.enabled = true; next.reset().play();
+    prev.crossFadeTo(next, .2, false);
+  }
+}
+
+const pvClock = new THREE.Clock();
+(function pvLoop(){
+  requestAnimationFrame(pvLoop);
+  const dt = pvClock.getDelta();
+  if (pvMixer) pvMixer.update(dt);
+  pvControls.update();
+  pvRenderer.render(pvScene, pvCam);
+})();
+
+loadSavedConfig();
+</script>
+<script src="notifications.js"></script>
+</body>
+</html>

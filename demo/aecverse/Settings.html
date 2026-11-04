@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="th">
+    <head>
+        <meta charset="UTF-8">
+        <title>AEC VERSE — Settings</title>
+        <link rel="icon" type="image/png" href="Logo.png">
+        <script src="page-transitions.js"></script>
+        <script src="world-prefs.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+        <script src="demo-runtime/runtime.js"></script>
+        <script src="supabaseClient.js"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+        <style>
+        /* ==================== AEC VERSE — shared design system ==================== */
+        :root{
+            --bg-0:#080b11;
+            --bg-1:#0b0f17;
+            --panel:#0e131c;
+            --panel-2:#111826;
+            --border:#1c2531;
+            --border-soft:#161d29;
+            --text-0:#eef2f7;
+            --text-1:#9aa7b8;
+            --text-2:#657182;
+            --blue:#3b82f6;
+            --blue-soft:rgba(59,130,246,0.14);
+            --green:#22c55e;
+            --green-soft:rgba(34,197,94,0.14);
+            --yellow:#f59e0b;
+            --yellow-soft:rgba(245,158,11,0.14);
+            --red:#ef4444;
+            --red-soft:rgba(239,68,68,0.14);
+            --purple:#a855f7;
+            --purple-soft:rgba(168,85,247,0.14);
+            --cyan:#22d3ee;
+            --cyan-soft:rgba(34,211,238,0.14);
+            --radius:12px;
+            --radius-sm:8px;
+            --sidebar-w:216px;
+        }
+
+        *{box-sizing:border-box;}
+        html,body{margin:0;padding:0;}
+        body{
+            background:var(--bg-0);
+            color:var(--text-0);
+            font-family:"Inter",system-ui,-apple-system,sans-serif;
+            font-size:13px;
+            -webkit-font-smoothing:antialiased;
+        }
+
+        a{color:inherit;text-decoration:none;}
+        button{font-family:inherit;}
+
+        /* ---------- shell ---------- */
+        .app-shell{display:flex;min-height:100vh;}
+
+        /* ---------- sidebar ---------- */
+        .sidebar{
+            width:var(--sidebar-w);
+            flex-shrink:0;
+            background:var(--panel);
+            border-right:1px solid var(--border);
+            display:flex;
+            flex-direction:column;
+            padding:18px 12px;
+            position:sticky;
+            top:0;
+            height:100vh;
+        }
+
+        .sb-logo{
+            display:flex;
+            align-items:center;
+            gap:9px;
+            padding:4px 6px 18px 6px;
+        }
+
+        .sb-logo img{width:30px;height:30px;object-fit:contain;}
+        .sb-logo .lg-text{line-height:1.1;}
+
+        .sb-logo .lg-text b{
+            display:block;font-size:14px;font-weight:800;letter-spacing:0.5px;
+            font-family:"Sora",sans-serif;
+        }
+
+        .sb-logo .lg-text b .verse{color:var(--green);}
+
+        .sb-logo .lg-text span{
+            display:block;font-size:7.5px;letter-spacing:1px;color:var(--text-2);font-weight:700;
+        }
+
+        .sb-nav{display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto;}
+
+        .nav-item{
+            display:flex;align-items:center;gap:10px;
+            padding:9px 10px;
+            border-radius:8px;
+            color:var(--text-1);
+            font-size:13px;
+            font-weight:500;
+            cursor:pointer;
+            border-left:2px solid transparent;
+        }
+
+        .nav-item svg{flex-shrink:0;width:16px;height:16px;}
+        .nav-item:hover{background:var(--panel-2);color:var(--text-0);}
+
+        .nav-item.active{
+            background:var(--blue-soft);
+            color:#8fb8ff;
+            border-left:2px solid var(--blue);
+        }
+
+        .sb-weather{
+            margin-top:10px;
+            padding:12px 10px 4px 10px;
+            border-top:1px solid var(--border-soft);
+            color:var(--text-2);
+            font-size:11px;
+        }
+
+        .sb-weather .temp{font-size:20px;font-weight:700;color:var(--text-0);}
+        .sb-weather .time{font-size:15px;font-weight:600;color:var(--text-1);margin-top:6px;}
+        .sb-weather .date{margin-top:2px;}
+
+        /* ---------- topbar ---------- */
+        .topbar{
+            height:58px;
+            border-bottom:1px solid var(--border);
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:0 22px;
+            background:var(--bg-1);
+            position:sticky;
+            top:0;
+            z-index:5;
+        }
+
+        .search-box{
+            display:flex;align-items:center;gap:8px;
+            background:var(--panel-2);
+            border:1px solid var(--border);
+            border-radius:8px;
+            padding:7px 12px;
+            width:340px;
+            color:var(--text-2);
+        }
+
+        .search-box input{
+            background:none;border:none;outline:none;color:var(--text-0);font-size:12.5px;width:100%;
+        }
+
+        .search-box input::placeholder{color:var(--text-2);}
+        .topbar-right{display:flex;align-items:center;gap:14px;}
+        .icon-btn{
+            width:34px;height:34px;border-radius:8px;
+            border:1px solid var(--border);
+            background:var(--panel-2);
+            display:flex;align-items:center;justify-content:center;
+            color:var(--text-1);
+            cursor:pointer;
+            position:relative;
+        }
+
+        .icon-btn .badge-dot{
+            position:absolute;top:-3px;right:-3px;
+            width:14px;height:14px;border-radius:50%;
+            background:var(--red);
+            font-size:8.5px;font-weight:700;color:#fff;
+            display:flex;align-items:center;justify-content:center;
+            border:2px solid var(--bg-1);
+        }
+
+        .user-chip{display:flex;align-items:center;gap:9px;padding-left:8px;border-left:1px solid var(--border);}
+
+        .user-chip .avatar{
+            width:30px;height:30px;border-radius:50%;
+            background:linear-gradient(135deg,#3b82f6,#22c55e);
+            display:flex;align-items:center;justify-content:center;
+            font-size:11px;font-weight:700;color:#04150b;
+        }
+
+        .user-chip .u-name{font-size:12px;font-weight:600;line-height:1.1;}
+        .user-chip .u-role{font-size:10.5px;color:var(--text-2);}
+
+        /* ---------- page ---------- */
+        .page{flex:1;display:flex;flex-direction:column;min-width:0;}
+        .page-content{padding:18px 22px 30px 22px;flex:1;}
+
+        .page-title{
+            font-size:16px;font-weight:700;margin:0 0 3px 0;
+        }
+        .page-title .th{color:var(--text-2);font-weight:500;font-size:12.5px;}
+        .page-sub{color:var(--text-2);font-size:12px;margin:0 0 16px 0;}
+
+        /* ---------- generic card ---------- */
+        .card{
+            background:var(--panel);
+            border:1px solid var(--border);
+            border-radius:var(--radius);
+            padding:16px;
+        }
+        .card-head{
+            display:flex;align-items:center;justify-content:space-between;
+            margin-bottom:12px;
+        }
+
+        .card-head h3{margin:0;font-size:13px;font-weight:700;}
+        .card-head .muted{color:var(--text-2);font-size:11.5px;}
+
+        .grid{display:grid;gap:14px;}
+        .g2{grid-template-columns:1fr 1fr;}
+        .g3{grid-template-columns:1fr 1fr 1fr;}
+        .g4{grid-template-columns:repeat(4,1fr);}
+        .g12-8-4{grid-template-columns:8fr 4fr;}
+        .g12-4-8{grid-template-columns:4fr 8fr;}
+        .g12-3{grid-template-columns:repeat(3,1fr);}
+
+        /* ---------- KPI ---------- */
+        .kpi{
+            background:var(--panel);
+            border:1px solid var(--border);
+            border-radius:var(--radius);
+            padding:14px 16px;
+        }
+
+        .kpi .k-label{font-size:11px;color:var(--text-2);font-weight:600;letter-spacing:.2px;}
+        .kpi .k-value{font-size:24px;font-weight:800;margin:6px 0 4px 0;font-family:"Sora",sans-serif;}
+        .kpi .k-delta{font-size:11px;font-weight:600;display:flex;align-items:center;gap:4px;}
+        .kpi .k-delta.up{color:var(--green);}
+        .kpi .k-delta.down{color:var(--red);}
+
+        /* ---------- badges ---------- */
+        .badge{
+            display:inline-flex;align-items:center;gap:5px;
+            padding:3px 9px;border-radius:20px;
+            font-size:10.5px;font-weight:700;letter-spacing:.2px;
+        }
+
+        .badge.b-green{background:var(--green-soft);color:var(--green);}
+        .badge.b-yellow{background:var(--yellow-soft);color:var(--yellow);}
+        .badge.b-red{background:var(--red-soft);color:var(--red);}
+        .badge.b-blue{background:var(--blue-soft);color:var(--blue);}
+        .badge.b-purple{background:var(--purple-soft);color:var(--purple);}
+        .badge.b-gray{background:#1c2531;color:var(--text-1);}
+
+        /* ---------- User Management (Usermanagement.html design) ---------- */
+        .filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:2px;padding:0 0 14px 0;}
+        .filter-row .search-box{width:240px;}
+        .filter-select{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text-1);font-size:12.5px;display:flex;align-items:center;gap:8px;cursor:pointer;}
+        .filter-select-wrap{position:relative;}
+        .filter-dropdown{position:absolute;top:calc(100% + 6px);left:0;z-index:20;min-width:150px;background:var(--panel-2);border:1px solid var(--border);border-radius:9px;padding:5px;box-shadow:0 10px 24px rgba(0,0,0,0.4);display:none;}
+        .filter-dropdown.open{display:block;}
+        .filter-option{padding:9px 10px;border-radius:6px;font-size:12.5px;color:var(--text-1);cursor:pointer;display:flex;align-items:center;gap:8px;}
+        .filter-option:hover{background:var(--panel-3, var(--panel-2));color:var(--text-0);}
+        .filter-option.selected{color:var(--text-0);font-weight:700;background:var(--blue-soft);}
+        .presence{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;}
+        .presence .p-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+        .presence.online{color:var(--green);}
+        .presence.online .p-dot{background:var(--green);box-shadow:0 0 6px var(--green);}
+        .presence.offline{color:var(--text-2);}
+        .presence.offline .p-dot{background:var(--text-2);}
+        .presence-sub{font-size:10px;color:var(--text-2);margin-top:1px;}
+        .user-cell{display:flex;align-items:center;gap:10px;cursor:pointer;}
+        .user-cell .u-ic{width:34px;height:34px;border-radius:50%;background:var(--panel-2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text-1);flex-shrink:0;}
+        .user-cell .u-name{font-weight:700;font-size:12.5px;}
+        .user-cell .u-sub{font-size:10.5px;color:var(--text-2);}
+        .ud-avatar{width:56px;height:56px;border-radius:50%;background:var(--panel-2);margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--text-1);}
+        .ud-row{display:flex;justify-content:space-between;font-size:12px;padding:9px 0;border-bottom:1px solid var(--border-soft);}
+        .ud-row .ud-k{color:var(--text-2);}
+        .ud-row .ud-v{color:var(--text-0);font-weight:600;text-align:right;}
+        .ud-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:10px;border:1px solid var(--border);background:var(--panel-2);color:var(--text-0);}
+        .ud-btn.promote{color:var(--blue);border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.08);}
+        .ud-btn.demote{color:var(--red);border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.12);}
+        /* ตัวเลือกสิทธิ์ — จัดซ้าย 2 บรรทัด (ชื่อสิทธิ์ + คำอธิบายว่าทำอะไรได้บ้าง) */
+        .ud-btn.role-opt{flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:10px 12px;}
+        .ud-btn.role-opt .role-hint{font-size:10.5px;font-weight:500;color:var(--text-2);line-height:1.5;}
+        .ud-btn.role-opt:hover:not(:disabled){border-color:#33475e;}
+        .ud-btn.role-opt[data-role="admin"].current{color:var(--purple);border-color:rgba(168,85,247,.45);background:rgba(168,85,247,.12);}
+        .ud-btn.role-opt[data-role="engineer"].current{color:var(--blue);border-color:rgba(59,130,246,.45);background:rgba(59,130,246,.12);}
+        .ud-btn.role-opt[data-role="user"].current{color:var(--text-1);border-color:var(--border);background:var(--panel-2);}
+        .ud-btn.role-opt.current::after{content:"● ใช้อยู่";position:absolute;right:12px;top:11px;font-size:10px;font-weight:800;}
+        .ud-btn.role-opt{position:relative;}
+        .ud-btn.role-opt:disabled{cursor:default;opacity:1;}
+        .g8-4{grid-template-columns:8fr 4fr;}
+
+        /* ---------- QR Code generator (System Configuration tab) ---------- */
+        .qr-field-label{display:block;font-size:11.5px;color:var(--text-1);font-weight:600;margin-bottom:6px;}
+        .qr-select{width:100%;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text-0);font-size:12.5px;font-family:inherit;outline:none;}
+        .qr-select:focus{border-color:var(--blue);}
+        .qr-preview-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;background:var(--panel-2);border:1px dashed var(--border);border-radius:10px;min-height:260px;}
+        .qr-preview-box canvas, .qr-preview-box img{border-radius:8px;background:#fff;padding:8px;}
+        .qr-url-box{font-family:monospace;font-size:11px;color:var(--text-2);word-break:break-all;text-align:center;background:var(--panel-2);padding:8px 10px;border-radius:6px;max-width:100%;}
+        .qr-empty-hint{color:var(--text-2);font-size:11.5px;text-align:center;}
+        @media (max-width:1100px){ .g8-4{grid-template-columns:1fr;} }
+        .dot-sm{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+        /* ---------- buttons ---------- */
+        .btn{
+            display:inline-flex;align-items:center;justify-content:center;gap:7px;
+            padding:8px 14px;border-radius:8px;
+            font-size:12.5px;font-weight:700;
+            border:1px solid var(--border);
+            background:var(--panel-2);
+            color:var(--text-0);
+            cursor:pointer;
+        }
+        .btn.primary{
+            background:linear-gradient(90deg,#3b82f6,#22c55e);
+            border:none;color:#03130a;
+        }
+        .btn.danger{background:var(--red);border:none;color:#fff;}
+        .btn:hover{filter:brightness(1.08);}
+        .btn-sm{padding:6px 10px;font-size:11.5px;}
+
+        /* ---------- table ---------- */
+        table{width:100%;border-collapse:collapse;}
+        thead th{
+            text-align:left;font-size:10.5px;color:var(--text-2);
+            font-weight:700;letter-spacing:.3px;
+            padding:9px 10px;border-bottom:1px solid var(--border);
+            text-transform:uppercase;
+        }
+        tbody td{
+            padding:11px 10px;font-size:12.5px;
+            border-bottom:1px solid var(--border-soft);
+            color:var(--text-1);
+        }
+        tbody tr:hover{background:var(--panel-2);}
+        tbody td.strong{color:var(--text-0);font-weight:600;}
+
+        /* ---------- misc ---------- */
+        .select{
+            background:var(--panel-2);border:1px solid var(--border);
+            border-radius:8px;padding:7px 10px;color:var(--text-0);font-size:12px;
+        }
+        .tabs{display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--border);border-radius:9px;padding:3px;width:fit-content;}
+        .tab{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;}
+        .tab.active{background:var(--blue);color:#fff;}
+        .progress{height:6px;border-radius:4px;background:#1a2330;overflow:hidden;}
+        .progress > span{display:block;height:100%;border-radius:4px;}
+
+        .icon-chip{
+            width:34px;height:34px;border-radius:9px;
+            display:flex;align-items:center;justify-content:center;flex-shrink:0;
+        }
+
+        .section-label{
+            font-size:11px;color:var(--text-2);font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+            margin:0 0 10px 2px;
+        }
+
+        .hr{height:1px;background:var(--border-soft);border:none;margin:14px 0;}
+        .pager{display:flex;align-items:center;gap:6px;color:var(--text-2);font-size:12px;}
+        .pager span.pg{
+            width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+            border-radius:6px;border:1px solid var(--border);cursor:pointer;
+        }
+        .pager span.pg.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+        @media (max-width:1100px){
+            .g4{grid-template-columns:1fr 1fr;}
+            .g3, .g12-3{grid-template-columns:1fr 1fr;}
+            .g2, .g12-8-4, .g12-4-8{grid-template-columns:1fr;}
+        }
+
+        </style>
+    <link rel="stylesheet" href="ui-polish.css">
+    </head>
+
+        <body>
+        <div class="app-shell">
+            <aside class="sidebar">
+            <div class="sb-logo">
+                <img src="Logo.png" alt="AEC VERSE">
+                <div class="lg-text"><b>AEC <span class="verse">VERS</span></b><span>SMART BIOGAS DIGITAL TWIN</span></div>
+            </div>
+            <nav class="sb-nav">
+                <div class="nav-item" onclick="location.href='Dashboard.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Metaverse</span></div>
+        <div class="nav-item" onclick="location.href='Avatar.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Avatar</span></div>
+                <div class="nav-item" onclick="location.href='Digitaltwin.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg><span>Digital Twin</span></div>
+                <div class="nav-item" onclick="location.href='Analytics.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg><span>Analytics</span></div>
+                <div class="nav-item" onclick="location.href='WorkOrder.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 10h6M9 14h6M9 18h3"/></svg><span>Work Order</span></div>
+                <div class="nav-item" onclick="location.href='Emergency.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><span>Emergency</span></div>
+                <div class="nav-item" onclick="location.href='KnowledgeAdmin.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><span>Knowledge Check</span></div>
+                <div class="nav-item" onclick="location.href='Reports.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6M9 13h6M9 17h6"/></svg><span>Reports</span></div>
+                <div class="nav-item active" onclick="location.href='Settings.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.9 2.9l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.9-2.9l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.9-2.9l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.9 2.9l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg><span>Settings</span></div>
+            </nav>
+            <div class="sb-weather">
+                <div class="temp">30°C</div>
+                <div class="time">--:--:--</div>
+                <div class="date">—</div>
+                <div class="date">Thailand</div>
+                <div class="date">Asia/Bangkok (UTC+7)</div>
+            </div>
+            </aside>
+
+            <div class="page">
+            <div class="topbar">
+            <div style="display:flex;align-items:center;gap:22px;">
+                <div class="page-title" style="margin:0;">Settings <span class="th">(ตั้งค่า)</span></div>
+            </div>
+            <div class="search-box">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                <input placeholder="Search ...">
+            </div>
+            <div class="topbar-right">
+                <div class="icon-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+                <span class="badge-dot">3</span>
+                </div>
+                <div class="icon-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                </div>
+                <div class="user-chip" style="cursor:pointer;" onclick="handleLogout()" title="บัญชีผู้ใช้ / ออกจากระบบ">
+                <div class="avatar">SY</div>
+                <div>
+                    <div class="u-name">สมปอง ยิ้ม</div>
+                    <div class="u-role">Engineer</div>
+                </div>
+                </div>
+            </div>
+            </div>
+
+            <div class="page-content">
+
+            <div class="tabs" style="margin-bottom:14px;" id="settings-tabs">
+                <div class="tab active" data-tab="general">General</div>
+                <div class="tab" data-tab="usermgmt">User Management</div>
+                <div class="tab" data-tab="chatvoice">Chat & Voice</div>
+                <div class="tab" data-tab="sysconfig">AR &amp; QR Code</div>
+            </div>
+
+            <div id="settings-panel-general" class="settings-panel">
+            <div class="grid g2">
+                <div class="card">
+                <div class="card-head"><h3>General Settings</h3></div>
+                <div style="margin-bottom:14px;">
+            <div style="color:var(--text-2);font-size:11px;margin-bottom:6px;">Company Name</div>
+            <input id="gs-orgName" class="select" style="width:100%;" type="text">
+            </div>
+                <div style="margin-bottom:14px;">
+            <div style="color:var(--text-2);font-size:11px;margin-bottom:6px;">System Time Zone</div>
+            <select id="gs-timezone" class="select" style="width:100%;">
+                <option>(UTC+7) Bangkok, Jakarta</option>
+                <option>(UTC+0) London</option>
+                <option>(UTC+9) Tokyo, Seoul</option>
+                <option>(UTC-5) New York</option>
+            </select>
+            </div>
+                <div style="margin-bottom:14px;">
+            <div style="color:var(--text-2);font-size:11px;margin-bottom:6px;">Date Format</div>
+            <select id="gs-dateFormat" class="select" style="width:100%;">
+                <option>DD/MM/YYYY</option>
+                <option>MM/DD/YYYY</option>
+                <option>YYYY-MM-DD</option>
+            </select>
+            </div>
+                <div style="margin-bottom:14px;">
+            <div style="color:var(--text-2);font-size:11px;margin-bottom:6px;">Language</div>
+            <select id="gs-language" class="select" style="width:100%;">
+                <option value="th">ไทย (Thai)</option>
+                <option value="en">English</option>
+            </select>
+            </div>
+                <div style="margin-bottom:14px;">
+            <div style="color:var(--text-2);font-size:11px;margin-bottom:6px;">Temperature Unit</div>
+            <select id="gs-tempUnit" class="select" style="width:100%;">
+                <option value="C">°C</option>
+                <option value="F">°F</option>
+            </select>
+            </div>
+                <div style="margin-bottom:14px;">
+            <div style="color:var(--text-2);font-size:11px;margin-bottom:6px;">Pressure Unit</div>
+            <select id="gs-pressureUnit" class="select" style="width:100%;">
+                <option value="mbar">mbar</option>
+                <option value="psi">psi</option>
+                <option value="kPa">kPa</option>
+            </select>
+            </div>
+                <div style="margin-bottom:14px;">
+            <div style="color:var(--text-2);font-size:11px;margin-bottom:6px;">Flow Unit</div>
+            <select id="gs-flowUnit" class="select" style="width:100%;">
+                <option value="m3h">m³/h</option>
+                <option value="lps">L/s</option>
+            </select>
+            </div>
+                <div class="hr"></div>
+                <label style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:12px;">
+                    <div>
+                        <div style="font-weight:600;font-size:12.5px;">🚧 Maintenance Mode</div>
+                        <div style="color:var(--text-2);font-size:11px;margin-top:2px;">ปิดการเข้าใช้งาน Visitor Portal ชั่วคราว (แอดมินยังเข้าได้)</div>
+                    </div>
+                    <input type="checkbox" id="gs-maintenanceMode" style="width:16px;height:16px;accent-color:var(--yellow);">
+                </label>
+                <label style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:14px;">
+                    <div>
+                        <div style="font-weight:600;font-size:12.5px;">📝 Public Registration</div>
+                        <div style="color:var(--text-2);font-size:11px;margin-top:2px;">อนุญาตให้ผู้เยี่ยมชมสมัครบัญชีใหม่เองได้</div>
+                    </div>
+                    <input type="checkbox" id="gs-publicRegistration" style="width:16px;height:16px;accent-color:var(--green);">
+                </label>
+                <button class="btn primary" style="width:100%;" onclick="saveGeneralSettings()">Save Changes</button>
+                <div id="gs-save-status" style="color:var(--green);font-size:11px;min-height:14px;margin-top:8px;"></div>
+                </div>
+                <div class="card">
+                <div class="card-head"><h3>System Information</h3></div>
+                <div style="display:flex;flex-direction:column;gap:12px;font-size:12px;">
+                    <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-2);">Version</span><span style="font-weight:700;">2.0.0</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-2);">Last Update</span><span style="font-weight:700;">20/05/2025</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-2);">Database Status</span><span class="badge b-green">Connected</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-2);">API Status</span><span class="badge b-green">Connected</span></div>
+                    <div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:var(--text-2);">Storage Usage</span><span style="font-weight:700;">256 GB / 1 TB (25%)</span></div>
+                    <div class="progress"><span style="width:25%;background:var(--blue);"></span></div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+
+            <div id="settings-panel-usermgmt" class="settings-panel" style="display:none;">
+                <div class="grid g8-4">
+                    <div class="card" style="padding:0;">
+                        <div style="padding:16px 16px 0 16px;display:flex;justify-content:space-between;align-items:center;">
+                            <h3 style="margin:0;font-size:13px;font-weight:700;">User Management</h3>
+                            <span style="color:var(--text-2);font-size:11.5px;" id="usermgmt-status">กำลังโหลด...</span>
+                        </div>
+                        <div class="filter-row" style="padding:12px 16px 0 16px;">
+                            <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="umSearch" placeholder="Search users..." oninput="filterUmTable()"></div>
+                            <div class="filter-select-wrap">
+                                <div class="filter-select" id="umStatusFilter" onclick="toggleUmDropdown()">
+                                    <span id="umStatusFilterLabel">All Status</span>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                                </div>
+                                <div class="filter-dropdown" id="umStatusDropdown">
+                                    <div class="filter-option selected" onclick="setUmStatusFilter('all', this)">🔘 All Status</div>
+                                    <div class="filter-option" onclick="setUmStatusFilter('online', this)">🟢 Online now</div>
+                                    <div class="filter-option" onclick="setUmStatusFilter('offline', this)">⚪ Offline</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Bulk actions — เลือกได้ทั้งแก้ไขทีละคน (คลิกแถว) หรือเลือกหลายคนพร้อมกันแล้วแก้รวด -->
+                        <div id="umBulkBar" style="display:none;align-items:center;gap:10px;padding:10px 16px;margin:10px 16px 0 16px;background:var(--blue-soft);border:1px solid var(--blue);border-radius:9px;font-size:12px;">
+                            <span id="umBulkCount" style="font-weight:700;color:#8fb8ff;flex:1;">0 คนถูกเลือก</span>
+                            <button class="btn btn-sm" onclick="bulkSetRole('admin')">⬆️ ตั้งเป็น Admin ทั้งหมด</button>
+                            <button class="btn btn-sm" onclick="bulkSetRole('user')">⬇️ ถอด Admin ทั้งหมด</button>
+                            <button class="btn btn-sm outline" onclick="clearUmSelection()">ยกเลิกเลือก</button>
+                        </div>
+                        <div style="overflow-x:auto;padding:12px 4px 8px;">
+                            <table id="umTable">
+                                <thead><tr><th style="width:30px;"><input type="checkbox" id="umSelectAll" onclick="toggleUmSelectAll(this.checked)" style="width:14px;height:14px;accent-color:var(--blue);"></th><th>User</th><th>Email</th><th>Status</th><th>Checklist</th><th>Last Sign In</th><th style="text-align:right;">Actions</th></tr></thead>
+                                <tbody id="umTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div style="font-size:11.5px;color:var(--text-2);font-weight:700;margin-bottom:14px;">User Detail</div>
+                        <div id="umDetailEmpty" style="color:var(--text-2);font-size:12px;text-align:center;padding:30px 0;">คลิกผู้ใช้ในตารางเพื่อดูรายละเอียด</div>
+                        <div id="umDetailBody" style="display:none;">
+                            <div style="display:flex;align-items:center;gap:14px;">
+                                <div class="ud-avatar" id="udAvatar" style="margin-bottom:0;flex-shrink:0;">?</div>
+                                <div>
+                                    <div style="font-size:15px;font-weight:800;word-break:break-all;" id="udName">—</div>
+                                    <span class="badge b-gray" id="udRoleBadge" style="margin-top:6px;">User</span>
+                                </div>
+                            </div>
+                            <div class="hr"></div>
+                            <div class="ud-row"><span class="ud-k">Email</span><span class="ud-v" id="udEmail">—</span></div>
+                            <div class="ud-row"><span class="ud-k">สถานะ</span><span class="ud-v" id="udStatus">—</span></div>
+                            <div class="ud-row"><span class="ud-k">เข้าสู่ระบบล่าสุด</span><span class="ud-v" id="udLastSignIn">—</span></div>
+                            <div class="ud-row"><span class="ud-k">สมัครสมาชิกเมื่อ</span><span class="ud-v" id="udCreated">—</span></div>
+                            <div class="hr"></div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                <span style="font-size:11.5px;color:var(--text-2);font-weight:700;">Onboarding Checklist</span>
+                                <span class="ud-v" id="udOnboardingPercent">—</span>
+                            </div>
+                            <div class="progress" style="margin-bottom:10px;"><span id="udOnboardingBar" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--green));"></span></div>
+                            <div id="udOnboardingList" style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;"></div>
+                            <div class="hr"></div>
+                            <div id="udRolePicker" style="display:none;">
+                                <div style="font-size:11.5px;color:var(--text-2);font-weight:700;margin-bottom:8px;">สิทธิ์การใช้งาน</div>
+                                <button class="ud-btn role-opt" data-role="admin" onclick="setRole(currentDetailUserId, 'admin')">
+                                    👑 Admin<span class="role-hint">ทำได้ทุกอย่าง — อัปโหลด / เซฟ / โหลด / ลบ / ปรับสเกล / แก้ไข / เพิ่มจุด</span>
+                                </button>
+                                <button class="ud-btn role-opt" data-role="engineer" onclick="setRole(currentDetailUserId, 'engineer')">
+                                    🛠️ Engineer<span class="role-hint">แก้ไขข้อมูล + เพิ่มจุดได้ — แต่อัปโหลด / เซฟ / โหลด / ลบ / ปรับสเกลโมเดลไม่ได้</span>
+                                </button>
+                                <button class="ud-btn role-opt" data-role="user" onclick="setRole(currentDetailUserId, 'user')">
+                                    👤 User<span class="role-hint">ดูอย่างเดียว — ไม่เห็นแผงจัดการโมเดลเลย</span>
+                                </button>
+                            </div>
+                            <div id="udBootstrapNote" style="display:none;color:var(--text-2);font-size:11px;margin-top:10px;text-align:center;">Admin ตั้งต้นจาก environment variable — แก้ผ่านหน้านี้ไม่ได้</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHAT & VOICE — การตั้งค่าแชท/เสียงของโลก Metaverse
+                 เก็บใน localStorage: หน้า Metaverse (3D) ที่เปิดอยู่รับ storage event แล้วปรับตามทันที -->
+            <div id="settings-panel-chatvoice" class="settings-panel" style="display:none;">
+                <div class="grid g2">
+                    <div class="card">
+                        <div class="card-head"><h3>Chat & Voice ในโลก Metaverse</h3></div>
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                            <label style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+                                <div>
+                                    <div style="font-weight:600;font-size:12.5px;">แชทข้อความ</div>
+                                    <div style="color:var(--text-2);font-size:11px;margin-top:2px;">หน้าต่างแชทในโลก 3D (กด / เพื่อพิมพ์)</div>
+                                </div>
+                                <input type="checkbox" id="cv-chat-enabled" style="width:16px;height:16px;accent-color:var(--blue);">
+                            </label>
+                            <label style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+                              <div>
+                                <div style="font-weight:600;font-size:12.5px;">เปิดหน้าต่างแชทให้อัตโนมัติ</div>
+                                <div style="color:var(--text-2);font-size:11px;margin-top:2px;">เด้งหน้าต่างแชทขึ้นมาเองเมื่อมีคนพิมพ์ข้อความเข้ามา — ข้อความแจ้งเตือนจากระบบจะไม่เด้ง ถ้ากดปิดเอง ข้อความที่มาติดกันในชุดเดียวจะไม่เด้งซ้ำ แต่พอมีคนพิมพ์มาใหม่จะเด้งให้เหมือนเดิม</div>
+                              </div>
+                              <input type="checkbox" id="cv-chat-autoopen" style="width:16px;height:16px;accent-color:var(--blue);">
+                            </label>
+                            <label style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+                                <div>
+                                    <div style="font-weight:600;font-size:12.5px;">เสียงพูดคุย (Voice Chat)</div>
+                                    <div style="color:var(--text-2);font-size:11px;margin-top:2px;">คุยเสียงกับผู้เล่นในโลกแบบ P2P (กด V เพื่อเปิด/ปิดไมค์)</div>
+                                </div>
+                                <input type="checkbox" id="cv-voice-enabled" style="width:16px;height:16px;accent-color:var(--blue);">
+                            </label>
+                            <div>
+                                <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                                    <span style="font-weight:600;font-size:12.5px;">ระดับเสียงเพื่อนร่วมโลก</span>
+                                    <span id="cv-volume-val" style="color:var(--text-2);font-size:11.5px;">80%</span>
+                                </div>
+                                <input type="range" id="cv-voice-volume" min="0" max="100" step="5" style="width:100%;accent-color:var(--blue);">
+                            </div>
+                            <div id="cv-save-status" style="color:var(--green);font-size:11px;min-height:14px;"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:14px;">
+                        <div class="card">
+                            <div class="card-head"><h3>🎙️ เลือกไมโครโฟน</h3></div>
+                            <div id="wp-mic-mount"></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-head"><h3>⌨️ ปุ่มควบคุมในโลก Metaverse</h3></div>
+                            <div id="wp-keybind-mount"></div>
+                            <div class="hr" style="margin:10px 0 6px;"></div>
+                            <div style="color:var(--text-2);font-size:11px;line-height:1.6;">
+                                การตั้งค่ามีผลทันทีกับแท็บ Metaverse ที่เปิดอยู่ — เสียงพูดวิ่งตรงระหว่างผู้เล่น (P2P)
+                                ไม่ผ่านเซิร์ฟเวอร์ และเปิดไมค์ได้เฉพาะตอนที่คุณกดปุ่มไมค์เท่านั้น
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USER FUNCTION MANAGEMENT — จากมอคอัพของเพื่อน (Userfunctionmanagement.html)
+                 5 sub-tabs: ฟังก์ชันผู้ใช้ (feature toggles) / Home / Process / About Us / Quiz & Certificate.
+                 Feature toggles + Quiz&Cert exam toggle เชื่อมกับ server จริง; Home/Process/About Us
+                 เซฟลง server จริงแล้ว แต่หน้า Public*.html ยังไม่ได้ดึงมาแสดง (เฟสถัดไป) -->
+
+            <div id="settings-panel-sysconfig" class="settings-panel" style="display:none;">
+                <!-- ============ AR: เลือกโมเดลจากคลัง -> สร้าง QR -> สแกนแล้วเห็นโมเดลลอยในที่จริง ============ -->
+                <div class="grid g8-4" style="margin-bottom:14px;">
+                    <div class="card">
+                        <div class="card-head"><h3>🥽 AR — QR Code ดูโมเดลลอยในโลกจริง</h3></div>
+                        <p style="color:var(--text-2);font-size:12px;line-height:1.7;margin:0 0 16px 0;">
+                            เลือกโมเดลที่อัปโหลดไว้ในคลัง แล้วพิมพ์ QR ไปติดที่ป้าย/บอร์ดนิทรรศการ —
+                            ผู้ชมสแกนด้วยมือถือแล้วจะเห็นโมเดลนั้นลอยอยู่ในที่จริง <b>แตะที่ชิ้นส่วนเพื่อดูข้อมูลความปลอดภัยได้เลย</b>
+                            โดยไม่ต้องล็อกอิน
+                        </p>
+
+                        <label class="qr-field-label">เลือกโมเดลจากคลัง</label>
+                        <select id="arModelSelect" class="qr-select" style="margin-bottom:14px;" onchange="renderArQr()">
+                            <option value="">กำลังโหลดรายการโมเดล...</option>
+                        </select>
+
+                        <div class="qr-preview-box" id="arQrPreviewBox">
+                            <div class="qr-empty-hint">เลือกโมเดลด้านบนเพื่อสร้าง QR Code</div>
+                        </div>
+
+                        <div id="arQrLink" style="display:none;font-size:10.5px;color:var(--text-2);
+                            font-family:ui-monospace,'Cascadia Mono',monospace;word-break:break-all;margin-top:10px;"></div>
+
+                        <div style="display:flex;gap:10px;margin-top:14px;">
+                            <button class="btn btn-sm" style="flex:1;" onclick="downloadArQrPng()">⬇️ ดาวน์โหลด PNG</button>
+                            <button class="btn btn-sm primary" style="flex:1;" onclick="printArQr()">🖨️ พิมพ์</button>
+                            <button class="btn btn-sm" style="flex:1;" onclick="openArPreview()">👁️ ลองเปิดดู</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3>วิธีใช้งาน AR</h3></div>
+                        <div style="display:flex;flex-direction:column;gap:12px;font-size:12px;color:var(--text-1);line-height:1.7;">
+                            <div>1. อัปโหลดโมเดลที่หน้า Metaverse ก่อน (โมเดลจะเข้าคลังอัตโนมัติ)</div>
+                            <div>2. เลือกโมเดลจากรายการ แล้วดาวน์โหลด/พิมพ์ QR</div>
+                            <div>3. ผู้ชมสแกน QR ด้วยกล้องมือถือ → เปิดหน้า AR ทันที ไม่ต้องติดตั้งแอป</div>
+                            <div>4. กด "ดูแบบ AR" แล้วเล็งกล้องไปที่พื้น → แตะเพื่อวางโมเดลลงในที่จริง</div>
+                            <div>5. แตะที่ชิ้นส่วนใดก็ได้ เพื่อดูชื่อและข้อกำหนดความปลอดภัยของชิ้นนั้น</div>
+                            <div class="hr" style="margin:4px 0;"></div>
+                            <div style="color:var(--text-2);font-size:11px;line-height:1.65;">
+                                📱 <b>Android</b> (Chrome/WebXR): วางโมเดลลงพื้นจริง + แตะชิ้นส่วนดูข้อมูลได้ในโหมด AR<br>
+                                🍎 <b>iPhone / iPad</b> (Safari): เปิดด้วยตัวดู AR ของ Apple ได้ (ระบบจะแปลงไฟล์ให้อัตโนมัติในเครื่องผู้ชม
+                                โมเดลใหญ่อาจใช้เวลาสักครู่) — แต่ในตัวดูของ Apple <b>แตะดูข้อมูลรายชิ้นไม่ได้</b> ต้องดูในหน้าพรีวิว 3 มิติ<br>
+                                💻 เครื่องอื่น: เปิดเป็น <b>โหมดพรีวิว 3 มิติ</b> หมุน/ซูม/แตะดูข้อมูลได้ครบ<br>
+                                ข้อมูลชิ้นส่วนใช้ชุดเดียวกับที่แก้ไว้ในโลก 3D
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ QR เดิม: สแกนแล้วเข้าไปดูจุดนั้นในแบบจำลอง 3D ============ -->
+                <div class="grid g8-4">
+                    <div class="card">
+                        <div class="card-head"><h3>QR Code สำหรับติดหน้าอุปกรณ์จริง</h3></div>
+                        <p style="color:var(--text-2);font-size:12px;line-height:1.7;margin:0 0 16px 0;">
+                            เลือกประเภทอุปกรณ์และหน้าที่ต้องการ แล้วพิมพ์ QR Code ไปติดที่จุดนั้นในโรงงานจริง —
+                            ผู้เยี่ยมชมสแกนแล้วแอปจะพาเข้าไปยังจุดนั้นในแบบจำลอง 3D ให้อัตโนมัติ (ถ้ายังไม่ได้ล็อกอิน จะพาไป login ก่อนแล้วกลับมาที่จุดเดิมให้เอง)
+                        </p>
+                        <label class="qr-field-label">ประเภทอุปกรณ์</label>
+                        <select id="qrTypeSelect" class="qr-select" style="margin-bottom:14px;" onchange="renderQrPreview()"></select>
+
+                        <label class="qr-field-label">เปิดในหน้า</label>
+                        <select id="qrPageSelect" class="qr-select" style="margin-bottom:18px;" onchange="renderQrPreview()">
+                            <option value="PublicVirtualTour.html">Virtual Tour (มี Avatar เดินสำรวจได้)</option>
+                            <option value="PublicDigitalTwin.html">Digital Twin (ดูข้อมูลอย่างเดียว ไม่มี Avatar)</option>
+                        </select>
+
+                        <div class="qr-preview-box" id="qrPreviewBox">
+                            <div class="qr-empty-hint">เลือกประเภทอุปกรณ์ด้านบนเพื่อสร้าง QR Code</div>
+                        </div>
+
+                        <div style="display:flex;gap:10px;margin-top:14px;">
+                            <button class="btn btn-sm" style="flex:1;" onclick="downloadQrPng()">⬇️ ดาวน์โหลด PNG</button>
+                            <button class="btn btn-sm primary" style="flex:1;" onclick="printQr()">🖨️ พิมพ์</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3>วิธีใช้งาน</h3></div>
+                        <div style="display:flex;flex-direction:column;gap:12px;font-size:12px;color:var(--text-1);line-height:1.7;">
+                            <div>1. เลือกประเภทอุปกรณ์ที่ต้องการติด QR ให้ตรงกับจุดจริงในโรงงาน</div>
+                            <div>2. เลือกว่าจะให้เปิดหน้า Virtual Tour หรือ Digital Twin</div>
+                            <div>3. ดาวน์โหลด/พิมพ์ QR แล้วนำไปติดที่จุดนั้นจริง</div>
+                            <div>4. ผู้เยี่ยมชมสแกนด้วยกล้องมือถือ ระบบจะล็อกอิน (ถ้ายังไม่ได้ล็อกอิน) แล้วพากล้อง/ตัวละครไปโฟกัสที่ชิ้นส่วนประเภทนั้นให้อัตโนมัติ</div>
+                            <div class="hr" style="margin:4px 0;"></div>
+                            <div style="color:var(--text-2);font-size:11px;">หมายเหตุ: ถ้าโมเดลที่โหลดอยู่ตอนนั้นไม่มีชิ้นส่วนประเภทที่ระบุ ระบบจะเข้าหน้าปกติเฉยๆ โดยไม่ error</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+            </div>
+        </div>
+
+        <script>
+        async function handleLogout(){
+            await supabaseClient.auth.signOut();
+            window.location.href = 'Login.html';
+        }
+        initUserChip();
+  guardAdminOnly();
+
+        // เลือกไมโครโฟน + เปลี่ยนปุ่มควบคุม (เก็บใน localStorage — โลก 3D อ่านค่าไปใช้)
+        AecWorldPrefs.mountMic(document.getElementById('wp-mic-mount'));
+        AecWorldPrefs.mountKeybinds(document.getElementById('wp-keybind-mount'));
+
+        document.getElementById('settings-tabs').addEventListener('click', e => {
+            const tabEl = e.target.closest('.tab');
+            if (!tabEl) return;
+            document.querySelectorAll('#settings-tabs .tab').forEach(t => t.classList.remove('active'));
+            tabEl.classList.add('active');
+            document.querySelectorAll('.settings-panel').forEach(p => p.style.display = 'none');
+            const panel = document.getElementById('settings-panel-' + tabEl.dataset.tab);
+            if (panel) panel.style.display = 'block';
+            if (tabEl.dataset.tab === 'usermgmt') loadUserManagement();
+        });
+
+        // ---------- General settings ----------
+        async function loadGeneralSettings() {
+            try {
+                const s = await fetch('/api/settings/general').then(r => r.json());
+                $g('gs-orgName').value = s.orgName || '';
+                $g('gs-timezone').value = s.timezone || '(UTC+7) Bangkok, Jakarta';
+                $g('gs-dateFormat').value = s.dateFormat || 'DD/MM/YYYY';
+                $g('gs-language').value = s.language || 'th';
+                $g('gs-tempUnit').value = s.tempUnit || 'C';
+                $g('gs-pressureUnit').value = s.pressureUnit || 'mbar';
+                $g('gs-flowUnit').value = s.flowUnit || 'm3h';
+                $g('gs-maintenanceMode').checked = !!s.maintenanceMode;
+                $g('gs-publicRegistration').checked = s.publicRegistration !== false;
+            } catch (err) { console.warn('โหลด general settings ไม่สำเร็จ:', err.message); }
+        }
+        function $g(id) { return document.getElementById(id); }
+        async function saveGeneralSettings() {
+            const body = {
+                orgName: $g('gs-orgName').value,
+                timezone: $g('gs-timezone').value,
+                dateFormat: $g('gs-dateFormat').value,
+                language: $g('gs-language').value,
+                tempUnit: $g('gs-tempUnit').value,
+                pressureUnit: $g('gs-pressureUnit').value,
+                flowUnit: $g('gs-flowUnit').value,
+                maintenanceMode: $g('gs-maintenanceMode').checked,
+                publicRegistration: $g('gs-publicRegistration').checked
+            };
+            const status = $g('gs-save-status');
+            try {
+                const session = (await supabaseClient.auth.getSession()).data.session;
+                const res = await fetch('/api/settings/general', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) throw new Error((await res.json()).error || 'บันทึกไม่สำเร็จ');
+                status.textContent = '✅ บันทึกแล้ว';
+                setTimeout(() => status.textContent = '', 2500);
+            } catch (err) { status.style.color = 'var(--red)'; status.textContent = '❌ ' + err.message; }
+        }
+        loadGeneralSettings();
+
+        // ---------- Chat & Voice settings (localStorage — โลก 3D อ่านค่าพวกนี้) ----------
+        (function () {
+            const chatCb = document.getElementById('cv-chat-enabled');
+            const autoOpenCb = document.getElementById('cv-chat-autoopen');
+            const voiceCb = document.getElementById('cv-voice-enabled');
+            const volRange = document.getElementById('cv-voice-volume');
+            const volVal = document.getElementById('cv-volume-val');
+            const status = document.getElementById('cv-save-status');
+
+            chatCb.checked = localStorage.getItem('aec_chat_enabled') !== 'off';
+            voiceCb.checked = localStorage.getItem('aec_voice_enabled') !== 'off';
+            autoOpenCb.checked = localStorage.getItem('aec_chat_autoopen') !== 'off';
+            const savedVol = parseInt(localStorage.getItem('aec_voice_volume') ?? '80', 10);
+            volRange.value = isNaN(savedVol) ? 80 : savedVol;
+            volVal.textContent = volRange.value + '%';
+
+            let statusTimer = null;
+            function saved() {
+                status.textContent = '✓ บันทึกแล้ว — มีผลกับแท็บ Metaverse ที่เปิดอยู่ทันที';
+                clearTimeout(statusTimer);
+                statusTimer = setTimeout(() => { status.textContent = ''; }, 2500);
+            }
+            chatCb.addEventListener('change', () => { localStorage.setItem('aec_chat_enabled', chatCb.checked ? 'on' : 'off'); saved(); });
+            voiceCb.addEventListener('change', () => { localStorage.setItem('aec_voice_enabled', voiceCb.checked ? 'on' : 'off'); saved(); });
+            autoOpenCb.addEventListener('change', () => { localStorage.setItem('aec_chat_autoopen', autoOpenCb.checked ? 'on' : 'off'); saved(); });
+            volRange.addEventListener('input', () => { volVal.textContent = volRange.value + '%'; });
+            volRange.addEventListener('change', () => { localStorage.setItem('aec_voice_volume', volRange.value); saved(); });
+        })();
+
+        // 3 ระดับสิทธิ์ — ต้องตรงกับ ROLES ใน server.js
+        const ROLE_LABEL = { admin: 'Admin', engineer: 'Engineer', user: 'User' };
+        const ROLE_BADGE_CLASS = { admin: 'b-purple', engineer: 'b-blue', user: 'b-gray' };
+        const roleBadge = role => {
+            const r = ROLE_LABEL[role] ? role : 'user';
+            return `<span class="badge ${ROLE_BADGE_CLASS[r]}">${ROLE_LABEL[r]}</span>`;
+        };
+
+        // ต้องตรงกับ ONBOARDING_TASKS ใน public-portal.js และ ONBOARDING_TASK_IDS ใน server.js
+        const ONBOARDING_TASK_LABELS = {
+            avatarSaved: 'ปรับแต่งตัวละคร (Avatar)',
+            virtualTourVisited: 'เข้าชม Virtual Tour',
+            digitalTwinVisited: 'เข้าชม Digital Twin',
+            knowledgeCheckPassed: 'ทำแบบทดสอบผ่านเกณฑ์',
+            settingsVisited: 'ตั้งค่า Chat & Voice'
+        };
+        function onboardingBadge(p) {
+            if (!p) return '—';
+            const cls = p.percent >= 100 ? 'b-green' : p.percent > 0 ? 'b-blue' : 'b-gray';
+            return '<span class="badge ' + cls + '">' + p.done + '/' + p.total + ' (' + p.percent + '%)</span>';
+        }
+
+        // ============================================================
+        // USER MANAGEMENT — รายชื่อผู้ใช้ทั้งหมด (Supabase Admin API) +
+        // สถานะออนไลน์จริง (นับจาก socket ที่ต่ออยู่ตอนนี้ — ดู server.js
+        // presence Map) อัปเดตสดผ่าน socket 'presence_snapshot' โดยไม่ต้อง
+        // กดรีเฟรชเอง
+        // ============================================================
+        let umUsers = [];
+        let umMeId = null;
+        let umStatusFilter = 'all';
+        let currentDetailUserId = null;
+        const umSelected = new Set(); // เลือกได้หลายคนพร้อมกัน — ไว้แก้ role รวดเดียว (แยกจากการคลิกแถวเพื่อดู/แก้ทีละคน)
+
+        function toggleUmDropdown() {
+            document.getElementById('umStatusFilter').classList.toggle('open');
+            document.getElementById('umStatusDropdown').classList.toggle('open');
+        }
+        function setUmStatusFilter(value, el) {
+            umStatusFilter = value;
+            document.getElementById('umStatusFilterLabel').textContent = value === 'all' ? 'All Status' : (value === 'online' ? 'Online now' : 'Offline');
+            document.querySelectorAll('#umStatusDropdown .filter-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('umStatusFilter').classList.remove('open');
+            document.getElementById('umStatusDropdown').classList.remove('open');
+            renderUmTable();
+        }
+        document.addEventListener('click', e => {
+            const wrap = document.querySelector('#settings-panel-usermgmt .filter-select-wrap');
+            if (wrap && !wrap.contains(e.target)) {
+                document.getElementById('umStatusFilter')?.classList.remove('open');
+                document.getElementById('umStatusDropdown')?.classList.remove('open');
+            }
+        });
+        function filterUmTable() { renderUmTable(); }
+
+        function relativeLastSeen(ts) {
+            if (!ts) return '—';
+            const diffMin = Math.round((Date.now() - ts) / 60000);
+            if (diffMin < 1) return 'เมื่อสักครู่';
+            if (diffMin < 60) return diffMin + ' นาทีที่แล้ว';
+            const diffHr = Math.round(diffMin / 60);
+            if (diffHr < 24) return diffHr + ' ชม.ที่แล้ว';
+            return Math.round(diffHr / 24) + ' วันที่แล้ว';
+        }
+
+        function renderUmTable() {
+            const q = (document.getElementById('umSearch')?.value || '').toLowerCase();
+            const tbody = document.getElementById('umTableBody');
+            const rows = umUsers.filter(u => {
+                const matchesSearch = !q || u.email.toLowerCase().includes(q);
+                const matchesStatus = umStatusFilter === 'all' || (umStatusFilter === 'online' ? u.online : !u.online);
+                return matchesSearch && matchesStatus;
+            });
+            tbody.innerHTML = rows.map(u => {
+                const isMe = u.id === umMeId;
+                const lastSignIn = u.lastSignInAt ? new Date(u.lastSignInAt).toLocaleDateString('th-TH') : '—';
+                const presenceHtml = u.online
+                    ? '<span class="presence online"><span class="p-dot"></span>Online now</span>'
+                    : '<span class="presence offline"><span class="p-dot"></span>Offline</span>' + (u.lastSeenAt ? '<div class="presence-sub">last seen ' + relativeLastSeen(u.lastSeenAt) + '</div>' : '');
+                const selectable = !isMe && !u.isBootstrapAdmin;
+                return '<tr onclick="showUserDetail(\'' + u.id + '\')" style="cursor:pointer;">' +
+                    '<td onclick="event.stopPropagation();">' + (selectable ? '<input type="checkbox" class="um-row-check" data-uid="' + u.id + '" ' + (umSelected.has(u.id) ? 'checked' : '') + ' onclick="toggleUmRowCheck(\'' + u.id + '\', this.checked)" style="width:14px;height:14px;accent-color:var(--blue);">' : '') + '</td>' +
+                    '<td><div class="user-cell"><div class="u-ic">' + (u.email || '?').slice(0, 2).toUpperCase() + '</div><div><div class="u-name">' + u.email + (isMe ? ' <span style="color:var(--text-2);font-weight:400;">(คุณ)</span>' : '') + '</div><div class="u-sub">' + roleBadge(u.role) + '</div></div></div></td>' +
+                    '<td>' + u.email + '</td>' +
+                    '<td>' + presenceHtml + '</td>' +
+                    '<td>' + onboardingBadge(u.onboardingProgress) + '</td>' +
+                    '<td>' + lastSignIn + '</td>' +
+                    '<td style="text-align:right;color:var(--text-2);">→</td></tr>';
+            }).join('');
+            document.getElementById('usermgmt-status').textContent = rows.length + ' / ' + umUsers.length + ' บัญชี';
+            // rows ที่ถูกกรองออกไป (search/status) ไม่ควรค้างอยู่ในเซ็ตที่เลือก เพราะมองไม่เห็นแล้วว่าเลือกอะไรอยู่
+            const visibleIds = new Set(rows.map(u => u.id));
+            [...umSelected].forEach(id => { if (!visibleIds.has(id)) umSelected.delete(id); });
+            updateUmBulkBar();
+        }
+
+        window.showUserDetail = function (userId) {
+            const u = umUsers.find(x => x.id === userId);
+            if (!u) return;
+            currentDetailUserId = userId;
+            document.getElementById('umDetailEmpty').style.display = 'none';
+            document.getElementById('umDetailBody').style.display = 'block';
+            document.getElementById('udAvatar').textContent = (u.email || '?').slice(0, 2).toUpperCase();
+            document.getElementById('udName').textContent = u.email;
+            const roleBadgeEl = document.getElementById('udRoleBadge');
+            const shownRole = ROLE_LABEL[u.role] ? u.role : 'user';
+            roleBadgeEl.className = 'badge ' + ROLE_BADGE_CLASS[shownRole];
+            roleBadgeEl.textContent = ROLE_LABEL[shownRole];
+            document.getElementById('udEmail').textContent = u.email;
+            document.getElementById('udStatus').innerHTML = u.online ? '<span class="presence online"><span class="p-dot"></span>Online now</span>' : '<span class="presence offline"><span class="p-dot"></span>Offline' + (u.lastSeenAt ? ' · ' + relativeLastSeen(u.lastSeenAt) : '') + '</span>';
+            document.getElementById('udLastSignIn').textContent = u.lastSignInAt ? new Date(u.lastSignInAt).toLocaleString('th-TH') : '—';
+            document.getElementById('udCreated').textContent = u.createdAt ? new Date(u.createdAt).toLocaleString('th-TH') : '—';
+
+            const prog = u.onboardingProgress || { done: 0, total: 5, percent: 0, tasks: {} };
+            document.getElementById('udOnboardingPercent').textContent = prog.done + '/' + prog.total + ' (' + prog.percent + '%)';
+            document.getElementById('udOnboardingBar').style.width = prog.percent + '%';
+            document.getElementById('udOnboardingList').innerHTML = Object.entries(ONBOARDING_TASK_LABELS).map(([id, label]) => {
+                const isDone = !!prog.tasks[id];
+                return '<div style="display:flex;align-items:center;gap:7px;color:' + (isDone ? 'var(--text-0)' : 'var(--text-2)') + ';">' +
+                    '<span style="color:' + (isDone ? 'var(--green)' : 'var(--text-2)') + ';">' + (isDone ? '✓' : '○') + '</span>' +
+                    '<span>' + label + '</span></div>';
+            }).join('');
+
+            // Admin ตั้งต้นจาก env var แก้ผ่านหน้านี้ไม่ได้ — ซ่อนตัวเลือกทั้งชุด
+            const picker = document.getElementById('udRolePicker');
+            const bootstrapNote = document.getElementById('udBootstrapNote');
+            picker.style.display = u.isBootstrapAdmin ? 'none' : 'block';
+            bootstrapNote.style.display = u.isBootstrapAdmin ? 'block' : 'none';
+            // ไฮไลท์สิทธิ์ปัจจุบัน และปิดปุ่มของสิทธิ์ที่เป็นอยู่แล้ว (กดซ้ำไม่ได้อะไรขึ้นมา)
+            picker.querySelectorAll('.role-opt').forEach(b => {
+                const isCurrent = b.dataset.role === shownRole;
+                b.classList.toggle('current', isCurrent);
+                b.disabled = isCurrent;
+            });
+        };
+
+        async function loadUserManagement(){
+            const statusEl = document.getElementById('usermgmt-status');
+            statusEl.textContent = 'กำลังโหลด...';
+
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { statusEl.textContent = 'ไม่พบ session'; return; }
+
+            try {
+                const res = await fetch('/api/admin/users', {
+                    headers: { Authorization: 'Bearer ' + session.access_token }
+                });
+                const data = await res.json();
+                if (!res.ok) { statusEl.textContent = ''; document.getElementById('umTableBody').innerHTML = '<tr><td colspan="6" style="color:var(--red);">' + (data.error || 'เกิดข้อผิดพลาด') + '</td></tr>'; return; }
+
+                umUsers = data.users;
+                umMeId = data.me;
+                renderUmTable();
+                if (currentDetailUserId) showUserDetail(currentDetailUserId);
+                subscribeAdminPresence(session.access_token);
+            } catch (err) {
+                statusEl.textContent = '';
+                document.getElementById('umTableBody').innerHTML = '<tr><td colspan="6" style="color:var(--red);">เชื่อมต่อเซิร์ฟเวอร์ไม่ได้</td></tr>';
+            }
+        }
+
+        async function setRole(userId, role){
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) return;
+            const res = await fetch('/api/admin/users/' + userId + '/role', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
+                body: JSON.stringify({ role })
+            });
+            const data = await res.json();
+            if (!res.ok) { alert(data.error || 'เกิดข้อผิดพลาด'); return; }
+            loadUserManagement();
+        }
+
+        // ---------- bulk select: แก้ role ของหลายบัญชีพร้อมกัน (แยกจาก setRole ทีละคนด้านบน) ----------
+        function toggleUmSelectAll(checked) {
+            document.querySelectorAll('.um-row-check').forEach(cb => {
+                cb.checked = checked;
+                if (checked) umSelected.add(cb.dataset.uid); else umSelected.delete(cb.dataset.uid);
+            });
+            updateUmBulkBar();
+        }
+        function toggleUmRowCheck(userId, checked) {
+            if (checked) umSelected.add(userId); else umSelected.delete(userId);
+            updateUmBulkBar();
+        }
+        function clearUmSelection() {
+            umSelected.clear();
+            const selectAll = document.getElementById('umSelectAll');
+            if (selectAll) selectAll.checked = false;
+            renderUmTable();
+        }
+        function updateUmBulkBar() {
+            const bar = document.getElementById('umBulkBar');
+            const count = umSelected.size;
+            bar.style.display = count > 0 ? 'flex' : 'none';
+            if (count > 0) document.getElementById('umBulkCount').textContent = count + ' คนถูกเลือก';
+            const selectAll = document.getElementById('umSelectAll');
+            const selectableCount = document.querySelectorAll('.um-row-check').length;
+            if (selectAll) selectAll.checked = selectableCount > 0 && count === selectableCount;
+        }
+        async function bulkSetRole(role) {
+            if (!umSelected.size) return;
+            const label = role === 'admin' ? 'ตั้งเป็น Admin' : 'ถอด Admin';
+            if (!confirm(label + ' ผู้ใช้ ' + umSelected.size + ' คนที่เลือกไว้?')) return;
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) return;
+            const ids = [...umSelected];
+            const results = await Promise.all(ids.map(id =>
+                fetch('/api/admin/users/' + id + '/role', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
+                    body: JSON.stringify({ role })
+                }).then(res => res.ok)
+            ));
+            const failCount = results.filter(ok => !ok).length;
+            umSelected.clear();
+            await loadUserManagement();
+            if (failCount) alert(failCount + ' / ' + ids.length + ' บัญชีแก้ไขไม่สำเร็จ');
+        }
+
+        // ---------- real-time presence: subscribe once, merge updates into the table ----------
+        let umPresenceSocket = null;
+        function subscribeAdminPresence(token) {
+            if (umPresenceSocket) return; // subscribe ครั้งเดียวพอ ต่อเนื่องไปตลอดอายุหน้า
+            const SERVER = window.AEC_SERVER_URL || location.origin;
+            umPresenceSocket = io(SERVER, { transports: ['websocket', 'polling'], auth: { token, role: 'watcher' } });
+            umPresenceSocket.on('connect', () => umPresenceSocket.emit('subscribe_admin_presence'));
+            umPresenceSocket.on('presence_snapshot', snap => {
+                let changed = false;
+                umUsers.forEach(u => {
+                    const p = snap[u.id];
+                    const online = !!(p && p.online);
+                    const lastSeenAt = p ? p.lastSeenAt : u.lastSeenAt;
+                    if (u.online !== online || u.lastSeenAt !== lastSeenAt) { u.online = online; u.lastSeenAt = lastSeenAt; changed = true; }
+                });
+                if (changed) {
+                    renderUmTable();
+                    if (currentDetailUserId) showUserDetail(currentDetailUserId);
+                }
+            });
+        }
+
+        // ============================================================
+        // QR CODE GENERATOR — พิมพ์ QR ติดหน้าอุปกรณ์จริง สแกนแล้วพาเข้า Virtual
+        // Tour/Digital Twin โฟกัสตรงจุด (อ่าน ?focus=<typeKey> ใน index.html)
+        // รายการประเภทอุปกรณ์คัดลอกมาจาก TYPE_OPTIONS ใน app.js — ถ้าเพิ่ม type
+        // ใหม่ในนั้น ต้องมาเพิ่มที่นี่ด้วยเพื่อให้เลือกสร้าง QR ได้ครบ
+        // ============================================================
+        const QR_TYPE_OPTIONS = [
+            { key: 'tank', icon: '🟤', label: 'บ่อหมัก / Digester Tank' },
+            { key: 'manhole', icon: '🔴', label: 'ปากบ่อ Manhole' },
+            { key: 'pvrv', icon: '🔴', label: 'วาล์วนิรภัย PVRV' },
+            { key: 'flame_arrester', icon: '🟠', label: 'Flame Arrester' },
+            { key: 'pipe', icon: '🟠', label: 'ท่อก๊าซชีวภาพ' },
+            { key: 'lightning_rod', icon: '🟠', label: 'เสาล่อฟ้า' },
+            { key: 'loto', icon: '🔵', label: 'จุด LOTO / MCC' },
+            { key: 'ppe_checkpoint', icon: '🔵', label: 'จุดตรวจ PPE' },
+            { key: 'esd', icon: '🟢', label: 'ปุ่มฉุกเฉิน ESD' },
+            { key: 'utilization', icon: '🟢', label: 'อาคารเครื่องยนต์ Genset' },
+            { key: 'flare', icon: '🟢', label: 'หอเผาก๊าซ Flare' },
+            { key: 'water_seal', icon: '🟠', label: 'ชุดดักไฟย้อน Water Seal' },
+            { key: 'gas_detector', icon: '🟢', label: 'เครื่องตรวจจับก๊าซถาวร' },
+            { key: 'fire_equipment', icon: '🟢', label: 'อุปกรณ์ดับเพลิง' }
+        ];
+        (function initQrTypeSelect() {
+            const sel = document.getElementById('qrTypeSelect');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">— เลือกประเภทอุปกรณ์ —</option>' +
+                QR_TYPE_OPTIONS.map(o => `<option value="${o.key}">${o.icon} ${o.label}</option>`).join('');
+        })();
+
+        let qrInstance = null;
+        window.renderQrPreview = function () {
+            const box = document.getElementById('qrPreviewBox');
+            const typeKey = document.getElementById('qrTypeSelect').value;
+            const page = document.getElementById('qrPageSelect').value;
+            if (!typeKey) {
+                box.innerHTML = '<div class="qr-empty-hint">เลือกประเภทอุปกรณ์ด้านบนเพื่อสร้าง QR Code</div>';
+                qrInstance = null;
+                return;
+            }
+            const url = window.location.origin + '/' + page + '?focus=' + encodeURIComponent(typeKey);
+            box.innerHTML = '<div id="qrCanvasWrap"></div><div class="qr-url-box">' + url + '</div>';
+            qrInstance = new QRCode(document.getElementById('qrCanvasWrap'), {
+                text: url, width: 200, height: 200,
+                colorDark: '#000000', colorLight: '#ffffff'
+            });
+        };
+
+        window.downloadQrPng = function () {
+            const img = document.querySelector('#qrCanvasWrap img');
+            const canvas = document.querySelector('#qrCanvasWrap canvas');
+            const src = img ? img.src : (canvas ? canvas.toDataURL('image/png') : null);
+            if (!src) { alert('กรุณาเลือกประเภทอุปกรณ์ก่อนดาวน์โหลด'); return; }
+            const typeKey = document.getElementById('qrTypeSelect').value;
+            const a = document.createElement('a');
+            a.href = src;
+            a.download = 'qr-' + typeKey + '.png';
+            document.body.appendChild(a); a.click(); a.remove();
+        };
+
+        window.printQr = function () {
+            if (!qrInstance) { alert('กรุณาเลือกประเภทอุปกรณ์ก่อนพิมพ์'); return; }
+            const img = document.querySelector('#qrCanvasWrap img');
+            const canvas = document.querySelector('#qrCanvasWrap canvas');
+            const src = img ? img.src : (canvas ? canvas.toDataURL('image/png') : null);
+            const label = document.getElementById('qrTypeSelect').selectedOptions[0].textContent;
+            const w = window.open('', '_blank', 'width=420,height=520');
+            w.document.write('<html><head><title>Print QR — ' + label + '</title></head><body style="text-align:center;font-family:sans-serif;padding:24px;"><h3>' + label + '</h3><img src="' + src + '" style="width:280px;height:280px;"><script>window.onload=()=>{window.print();}<\/script></body></html>');
+            w.document.close();
+        };
+
+        // ============================================================
+        // AR — เลือกโมเดลจากคลัง Supabase แล้วสร้าง QR ไปที่ ar.html
+        // ผู้ชมสแกนแล้วเห็นโมเดลลอยในที่จริง แตะชิ้นส่วนดูข้อมูลได้ (ไม่ต้องล็อกอิน)
+        // ============================================================
+        const AR_SUPABASE_URL = 'https://hzlokmixfkfrmkuucfhg.supabase.co';
+        const AR_SUPABASE_BUCKET = 'models';
+        const AR_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh6bG9rbWl4Zmtmcm1rdXVjZmhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1NzA5NTUsImV4cCI6MjA5ODE0Njk1NX0.DSj0c7XN979948Iq5rGmWqI9ddcbg56OmfKFin--Luo';
+
+        (async function initArModelSelect() {
+            const sel = document.getElementById('arModelSelect');
+            if (!sel) return;
+            try {
+                const res = await fetch(`${AR_SUPABASE_URL}/storage/v1/object/list/${AR_SUPABASE_BUCKET}`, {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${AR_ANON_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prefix: '', limit: 100, sortBy: { column: 'created_at', order: 'desc' } })
+                });
+                const files = await res.json();
+                // AR รองรับเฉพาะ .glb/.gltf — .fbx โหลดในหน้า AR ไม่ได้ จึงไม่เอามาให้เลือกให้เข้าใจผิด
+                const models = (Array.isArray(files) ? files : []).filter(f => /\.(glb|gltf)$/i.test(f.name));
+                if (!models.length) {
+                    sel.innerHTML = '<option value="">— ยังไม่มีโมเดล .glb ในคลัง —</option>';
+                    return;
+                }
+                sel.innerHTML = '<option value="">— เลือกโมเดล —</option>' + models.map(f => {
+                    const mb = f.metadata && f.metadata.size ? ' (' + (f.metadata.size / 1048576).toFixed(1) + ' MB)' : '';
+                    const label = f.name.replace(/^model_\d+_/, '') + mb;
+                    return `<option value="${f.name.replace(/"/g, '&quot;')}">${label}</option>`;
+                }).join('');
+            } catch (err) {
+                console.error('[AR] โหลดรายการโมเดลไม่สำเร็จ:', err);
+                sel.innerHTML = '<option value="">— โหลดรายการไม่สำเร็จ —</option>';
+            }
+        })();
+
+        let arQrInstance = null;
+        function arQrUrl() {
+            const file = document.getElementById('arModelSelect').value;
+            return file ? (location.origin + '/ar.html?model=' + encodeURIComponent(file)) : null;
+        }
+        window.renderArQr = function () {
+            const box = document.getElementById('arQrPreviewBox');
+            const linkBox = document.getElementById('arQrLink');
+            const url = arQrUrl();
+            if (!url) {
+                box.innerHTML = '<div class="qr-empty-hint">เลือกโมเดลด้านบนเพื่อสร้าง QR Code</div>';
+                linkBox.style.display = 'none';
+                arQrInstance = null;
+                return;
+            }
+            box.innerHTML = '<div id="arQrCanvasWrap"></div>';
+            arQrInstance = new QRCode(document.getElementById('arQrCanvasWrap'), {
+                text: url, width: 200, height: 200, colorDark: '#000000', colorLight: '#ffffff'
+            });
+            linkBox.style.display = 'block';
+            linkBox.textContent = url;
+        };
+        function arQrSrc() {
+            const img = document.querySelector('#arQrCanvasWrap img');
+            const canvas = document.querySelector('#arQrCanvasWrap canvas');
+            return img ? img.src : (canvas ? canvas.toDataURL('image/png') : null);
+        }
+        window.downloadArQrPng = function () {
+            const src = arQrSrc();
+            if (!src) { alert('กรุณาเลือกโมเดลก่อนดาวน์โหลด'); return; }
+            const a = document.createElement('a');
+            a.href = src;
+            a.download = 'ar-qr-' + document.getElementById('arModelSelect').value.replace(/\.(glb|gltf)$/i, '') + '.png';
+            document.body.appendChild(a); a.click(); a.remove();
+        };
+        window.printArQr = function () {
+            const src = arQrSrc();
+            if (!src) { alert('กรุณาเลือกโมเดลก่อนพิมพ์'); return; }
+            const label = document.getElementById('arModelSelect').selectedOptions[0].textContent;
+            const w = window.open('', '_blank', 'width=420,height=560');
+            w.document.write('<html><head><title>Print AR QR — ' + label + '</title></head><body style="text-align:center;font-family:sans-serif;padding:24px;"><h3>🥽 สแกนเพื่อดูแบบ AR</h3><p style="font-size:13px;color:#555;">' + label + '</p><img src="' + src + '" style="width:280px;height:280px;"><p style="font-size:12px;color:#777;">เปิดกล้องมือถือแล้วสแกน — ไม่ต้องติดตั้งแอป</p><script>window.onload=()=>{window.print();}<\/script></body></html>');
+            w.document.close();
+        };
+        window.openArPreview = function () {
+            const url = arQrUrl();
+            if (!url) { alert('กรุณาเลือกโมเดลก่อน'); return; }
+            window.open(url, '_blank');
+        };
+        </script>
+        <script src="settings-sections.js"></script>
+        <script src="notifications.js"></script>
+</body>
+        </html>
