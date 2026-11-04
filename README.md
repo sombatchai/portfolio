@@ -1,90 +1,101 @@
-# Sombatchai Khamkhao — Developer Portfolio
+# Portfolio — สมบัติชัย คำขาว (Sombatchai Khamkhao)
 
-Personal portfolio of **Sombatchai Khamkhao (สมบัติชัย คำขาว)**, a third-year Digital Technology student at Suranaree University of Technology (SUT), looking for a **Software Developer CWIE internship**.
+เว็บไซต์ Portfolio ส่วนตัวของ **สมบัติชัย คำขาว** นักศึกษาชั้นปีที่ 3 สาขาเทคโนโลยีดิจิทัล มหาวิทยาลัยเทคโนโลยีสุรนารี (มทส.) ทำขึ้นเพื่อใช้สมัคร **ฝึกงานสหกิจศึกษา (CWIE) ตำแหน่ง Software Developer**
 
-The site tells my story as a cinematic scroll: each project is a chapter with real screenshots, followed by a detailed case study page.
+เว็บเล่าเรื่องแบบเลื่อนหน้าจอ (Scroll story) โปรเจคแต่ละตัวคือหนึ่ง "บท" พร้อมภาพหน้าจอจริง และกดเข้าไปอ่านรายละเอียดเชิงลึก (Case study) ของแต่ละโปรเจคได้
 
-**🔗 Live site: https://sombatchai.github.io/portfolio/**
+**🔗 ดูเว็บไซต์จริง: https://sombatchai.github.io/portfolio/**
 
-![Home page](assets/img/readme/home.jpg)
+![หน้าแรกของเว็บไซต์](assets/img/readme/home.jpg)
 
-## Projects featured
+## โปรเจคในเว็บไซต์
 
-| Project | What it is | Stack |
+| โปรเจค | รายละเอียด | เทคโนโลยี |
 | --- | --- | --- |
-| **AEC VERSE** – Smart Biogas Digital Twin | Capstone built for a real company: an industrial metaverse and digital twin for safety training (26 pages, 32 API endpoints, real-time sockets) | JavaScript, Three.js, Node.js, Express, Socket.IO, Supabase |
-| **MissionLife** – Gamified Habit Tracker | Mobile app that turns real-life goals into quests, XP, trophies and boss battles | React Native, Expo, Firebase, Figma |
-| **Retail Insight** – Retail Sales Analytics | Web app for a Data Analytics team: import sales files and see the dashboard, trends, a Linear Regression forecast and dead stock | React 19, Vite, Tailwind CSS, Recharts, Firebase Firestore |
-| **StockMB** – Inventory Management System | Desktop stock and point-of-sale system for small shops, with a full SRS | Electron, JavaScript, SQLite |
-| **ChainPass** – Blockchain Ticketing (Hackathon) | Hackathon concept and Figma prototype: smart-contract tickets, escrow wallet and price-capped resale | Figma, Blockchain concept |
-| **Wi-Fi Security Pentest** | Lab study of how password complexity affects WEP / WPA / WPA2 security | Kali Linux, Aircrack-ng, Wifite, Wireshark |
+| **AEC VERSE** – Smart Biogas Digital Twin | โปรเจคจบที่พัฒนาให้บริษัทจริง: Digital Twin และ Metaverse ของโรงงานไบโอแก๊สสำหรับฝึกอบรมความปลอดภัย (26 หน้า, 32 API endpoints, Real-time socket) | JavaScript, Three.js, Node.js, Express, Socket.IO, Supabase |
+| **MissionLife** – Gamified Habit Tracker | แอปมือถือที่เปลี่ยนเป้าหมายในชีวิตจริงให้เป็นเควส ได้ XP ถ้วยรางวัล และสู้บอส | React Native, Expo, Firebase, Figma |
+| **Retail Insight** – Retail Sales Analytics | เว็บแอปให้ทีม Data Analytics: นำเข้าไฟล์ยอดขายแล้วดู Dashboard แนวโน้ม พยากรณ์ด้วย Linear Regression และสินค้าค้างสต๊อก | React 19, Vite, Tailwind CSS, Recharts, Firebase Firestore |
+| **StockMB** – Inventory Management System | โปรแกรมเดสก์ท็อปจัดการสต๊อกและขายหน้าร้านสำหรับร้านค้าขนาดเล็ก พร้อมเอกสาร SRS ครบ | Electron, JavaScript, SQLite |
+| **ChainPass** – Blockchain Ticketing (Hackathon) | ไอเดียและ Prototype จากการแข่งขัน Hackathon: ตั๋วบน Smart Contract, กระเป๋าเงินแบบ Escrow และขายต่อแบบล็อกเพดานราคา | Figma, แนวคิด Blockchain |
+| **Wi-Fi Security Pentest** | ทดลองในห้องแล็บว่าความซับซ้อนของรหัสผ่านมีผลต่อความปลอดภัยของ WEP / WPA / WPA2 อย่างไร | Kali Linux, Aircrack-ng, Wifite, Wireshark |
 
-Each project has its own case study: overview, goals and role, features, diagrams, screenshots, tech stack and lessons learned.
+ทุกโปรเจคมีหน้ารายละเอียดของตัวเอง ได้แก่ ภาพรวม เป้าหมายและบทบาทของผม ฟีเจอร์ ไดอะแกรม ภาพหน้าจอ เทคโนโลยีที่ใช้ และสิ่งที่ได้เรียนรู้
 
-![Case study page](assets/img/readme/case-study.jpg)
+![หน้ารายละเอียดโปรเจค](assets/img/readme/case-study.jpg)
 
-## Highlights of the site
+## จุดเด่นของเว็บไซต์
 
-- **Cinematic scroll story** on the home page, driven by scroll progress (CSS custom properties updated every frame) with smooth scrolling from Lenis
-- **Data-driven content**: every page is rendered from plain JavaScript data files, so adding a project means adding one object
-- **Case study pages** generated from the same data: stats, SVG architecture and sequence diagrams, screenshot galleries with a lightbox, phone mock-ups
-- **No framework, no build step**: plain HTML, CSS and JavaScript
-- Responsive layout with a mobile menu, and reduced-motion support
+- **หน้าแรกแบบ Scroll story**: แอนิเมชันขยับตามการเลื่อนหน้าจอ (อัปเดตค่า CSS custom properties ทุกเฟรม) และเลื่อนแบบนุ่มนวลด้วย Lenis
+- **แยกข้อมูลออกจากหน้าเว็บ**: เนื้อหาทุกหน้าสร้างจากไฟล์ข้อมูล JavaScript ธรรมดา อยากเพิ่มโปรเจคใหม่ก็แค่เพิ่มข้อมูลหนึ่งชุด
+- **หน้า Case study สร้างอัตโนมัติ** จากข้อมูลชุดเดียวกัน: ตัวเลขสรุป, ไดอะแกรม Architecture และ Sequence แบบ SVG, แกลเลอรีภาพหน้าจอที่กดขยายได้, กรอบมือถือจำลอง
+- **ไม่ใช้ Framework และไม่ต้อง Build**: เขียนด้วย HTML, CSS และ JavaScript ล้วน
+- **รองรับทุกขนาดหน้าจอ**: มีเมนูสำหรับมือถือ และลดแอนิเมชันให้ผู้ที่ตั้งค่า Reduced motion ไว้
 
-## Tech
+## เทคโนโลยีที่ใช้
 
-- HTML5, CSS3 (custom properties, container queries, `clip-path`, masks)
-- Vanilla JavaScript (ES2020+)
-- [Lenis](https://github.com/darkroomengineering/lenis) for smooth scrolling
-- Google Fonts: Barlow, Barlow Condensed, Inter, JetBrains Mono, Noto Sans Thai
+- HTML5, CSS3 (Custom properties, Container queries, `clip-path`, Mask)
+- JavaScript (ES2020+) แบบไม่ใช้ Framework
+- [Lenis](https://github.com/darkroomengineering/lenis) สำหรับการเลื่อนหน้าจอแบบนุ่มนวล
+- ฟอนต์จาก Google Fonts: Barlow, Barlow Condensed, Inter, JetBrains Mono, Noto Sans Thai
+- โฮสต์บน GitHub Pages
 
-## Project structure
+## โครงสร้างโปรเจค
 
 ```
 .
-├── index.html             Home page (scroll story: intro, work, skills, about, contact)
-├── project.html           Case study page (project.html?id=<project-id>)
+├── index.html             หน้าแรก (แนะนำตัว, ผลงาน, ทักษะ, เกี่ยวกับฉัน, ติดต่อ)
+├── project.html           หน้ารายละเอียดโปรเจค (project.html?id=<รหัสโปรเจค>)
 ├── css/
-│   ├── story.css          Home page styles and scroll animations
-│   ├── style.css          Shared base styles
-│   ├── project.css        Case study layout
-│   └── theme-console.css  Case study theme
+│   ├── story.css          สไตล์และแอนิเมชันของหน้าแรก
+│   ├── style.css          สไตล์พื้นฐานที่ใช้ร่วมกัน
+│   ├── project.css        เลย์เอาต์หน้ารายละเอียดโปรเจค
+│   └── theme-console.css  ธีมของหน้ารายละเอียดโปรเจค
 ├── js/
-│   ├── data.js            Profile, skills and contact details
-│   ├── projects.js        Project list (title, tags, role, year, link)
-│   ├── project-details.js Case study content for each project
-│   ├── story.js           Home page rendering and scroll engine
-│   ├── main.js            Shared header, footer, reveals and lightbox
-│   └── project-page.js    Case study rendering
-├── assets/img/            Photos and project screenshots
-└── cv/                    Resume (PDF)
+│   ├── data.js            ข้อมูลส่วนตัว ทักษะ และช่องทางติดต่อ
+│   ├── projects.js        รายการโปรเจค (ชื่อ, แท็ก, บทบาท, ปี, ลิงก์)
+│   ├── project-details.js เนื้อหาหน้ารายละเอียดของแต่ละโปรเจค
+│   ├── story.js           สร้างหน้าแรกและระบบแอนิเมชันตามการเลื่อน
+│   ├── main.js            ส่วนหัว ส่วนท้าย เอฟเฟกต์ และตัวขยายภาพที่ใช้ร่วมกัน
+│   └── project-page.js    สร้างหน้ารายละเอียดโปรเจค
+├── assets/img/            รูปภาพและภาพหน้าจอของโปรเจค
+└── cv/                    ไฟล์ Resume (PDF)
 ```
 
-## Run locally
+## วิธีรันในเครื่อง
 
-Any static file server works. For example:
+ใช้ Static file server ตัวไหนก็ได้ เช่น
 
 ```bash
 npx http-server -p 5500 -c-1
 ```
 
-Then open http://localhost:5500.
+แล้วเปิด http://localhost:5500
 
-## Editing the content
+## วิธีแก้ไขเนื้อหา
 
-- **Profile, skills, contact**: `js/data.js`
-- **Add or change a project**: add an entry to `js/projects.js` and its case study to `js/project-details.js` (the `id` must match), then put images in `assets/img/projects/<id>/`
-- **Resume**: replace the PDF in `cv/`
+- **ข้อมูลส่วนตัว ทักษะ ช่องทางติดต่อ**: แก้ที่ `js/data.js`
+- **เพิ่มหรือแก้โปรเจค**: เพิ่มข้อมูลใน `js/projects.js` และเนื้อหาหน้ารายละเอียดใน `js/project-details.js` (ค่า `id` ต้องตรงกัน) แล้วใส่รูปไว้ที่ `assets/img/projects/<id>/`
+- **Resume**: แทนที่ไฟล์ PDF ในโฟลเดอร์ `cv/` โดยใช้ชื่อไฟล์เดิม
 
-## Notes
+## อัปเดตเว็บไซต์
 
-- Retail Insight screenshots use the sample data that ships with that project's repository, not real shop data.
-- ChainPass is a hackathon idea and prototype; it has not been built as a working product.
-- Other people's personal details in screenshots have been blurred.
+แก้ไฟล์เสร็จแล้วรันคำสั่งด้านล่าง GitHub Pages จะอัปเดตเว็บให้เองภายใน 1–2 นาที
 
-## Contact
+```bash
+git add -A
+git commit -m "อธิบายสั้น ๆ ว่าแก้อะไร"
+git push
+```
 
-- Email: schkkh0@gmail.com
+## หมายเหตุ
+
+- ภาพหน้าจอของ Retail Insight ใช้ข้อมูลตัวอย่างที่มากับ Repository ของโปรเจคนั้น ไม่ใช่ข้อมูลจริงของร้านค้า
+- ChainPass เป็นไอเดียและ Prototype สำหรับการแข่งขัน Hackathon ยังไม่ได้พัฒนาเป็นระบบที่ใช้งานจริง
+- ข้อมูลส่วนตัวของบุคคลอื่นในภาพหน้าจอถูกเบลอแล้ว
+
+## ติดต่อ
+
+- อีเมล: schkkh0@gmail.com
 - GitHub: [@sombatchai](https://github.com/sombatchai)
 
-© 2026 Sombatchai Khamkhao. The code is free to learn from; the photos, screenshots and resume are mine, so please don't reuse them.
+© 2026 สมบัติชัย คำขาว (Sombatchai Khamkhao) นำโค้ดไปศึกษาได้ แต่รูปภาพ ภาพหน้าจอ และ Resume เป็นของผม กรุณาอย่านำไปใช้ซ้ำ
