@@ -54,7 +54,7 @@ const PROJECTS = [
       "Generated an electronic certificate (E-Certificate) for trainees who pass",
     ],
     link: "https://github.com/sombatchai/Aecverse",
-    demo: "demo/aecverse/Login.html",
+    demo: "https://aecverse.up.railway.app/",
   },
   {
     id: "mission",
