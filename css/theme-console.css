@@ -1,0 +1,38 @@
+/* ==========================================================
+   Brings the case-study page in line with the home page:
+   same palette, Barlow body text and condensed italic headings.
+   Load after style.css and project.css.
+   ========================================================== */
+:root {
+  --bg: #0c0a12;
+  --bg-2: #12101a;
+  --surface: rgba(22, 19, 31, .85);
+  --surface-solid: #16131f;
+  --border: rgba(255,255,255,.08);
+  --border-strong: rgba(183,148,255,.35);
+  --primary: #8b5cf6;
+  --primary-2: #b794ff;
+  --grad: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  --grad-text: linear-gradient(90deg, #b794ff, #8b5cf6);
+  --radius: 8px;
+  --radius-sm: 6px;
+  --font: "Barlow", "Noto Sans Thai", system-ui, sans-serif;
+}
+body { font-size: 16.5px; }
+.blob { opacity: .28; }
+.bg-fx::before { opacity: .5; }
+
+.logo, .cs-hero h1, .section-title, .cs-highlight h3, .oop-text h3, .cs-nav b, .stat .num {
+  font-family: "Barlow Condensed", "Noto Sans Thai", sans-serif;
+}
+.cs-hero h1, .section-title { font-style: italic; font-weight: 800; text-transform: uppercase; letter-spacing: .005em; }
+.cs-hero h1 { font-size: clamp(40px, 5.4vw, 72px); line-height: .95; }
+.section-title { font-size: clamp(30px, 3.6vw, 44px); }
+.section-title::before { width: 46px; height: 4px; border-radius: 2px; align-self: center; }
+.chip, .tag, .crumbs, .ps-tag, .cs-role small, .cs-pad small, .heatmap thead th {
+  font-family: "JetBrains Mono", ui-monospace, monospace; letter-spacing: .06em;
+}
+.tag { border-radius: 4px; }
+.card, .cs-cover, .shot .frame, .feature { border-radius: 8px; }
+.nav-links a.active { background: var(--primary); color: #fff; box-shadow: none; }
+.btn { border-radius: 6px; }
