@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="../demo-runtime/sql-wasm.js"></script>
+    <script src="../demo-runtime/runtime.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMB | Employee Data</title>
+    <link rel="stylesheet" href="../style/Employee.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+    <div class="header-logo">StockMB</div> 
+    <div class="header-user">
+        <span id="display-staff-name" style="color: white; font-weight: bold; margin-right: 10px; font-size: 0.9rem;"></span>
+        <i class="fa-solid fa-user-circle"></i>
+        <button onclick="logout()" style="background: none; border: none; color: white; cursor: pointer; margin-left: 15px;">
+            <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+        </button>
+    </div>
+</header>
+
+
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+         <ul>
+        <li class="admin-only"><a href="Index.html"><i class="fas fa-th-large"></i> dashboard</a></li>
+        <li><a href="ProductSales.html"><i class="fas fa-shopping-cart"></i> Product Sales</a></li>
+        <li><a href="Productmanagement.html"><i class="fas fa-box-open"></i> Product Management</a></li>
+        <li class="active admin-only"><a href="Employee.html"><i class="fas fa-users"></i> Employee Data</a></li>
+         </ul>
+    </nav>
+
+        <main class="main-content" id="mainContent">
+            <div class="content-wrapper">
+                <h1 class="date-header" id="current-date">กำลังโหลดวันที่...</h1>
+
+                <div class="employee-data-container">
+                    <div class="left-content">
+                        <div class="search-group">
+                            <div class="search-wrapper">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" id="employee-search" placeholder="พิมพ์รหัสหรือชื่อพนักงานเพื่อค้นหา..." onkeyup="filterEmployeeTable()">
+                                <button id="clear-search" class="clear-btn" onclick="clearSearch()"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                        <h1 class="employee-data-title">ข้อมูลพนักงาน</h1>
+                    </div>
+
+                    <div class="data-actions"> 
+                        <a href="AddEmpData.html" class="btn-add-new-employee">
+                            <i class="fas fa-user-plus"></i> เพิ่มพนักงานใหม่
+                        </a>
+                    </div>
+                </div>
+
+                <div class="employee-table-container">
+                    <table class="employee-data-table">
+                        <thead>
+                            <tr>
+                                <th>ลำดับ</th>
+                                <th>รหัสพนักงาน</th>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th>วุฒิการศึกษา</th>
+                                <th>ตำแหน่ง</th>
+                                <th>เบอร์โทรศัพท์</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employee-list-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    const { ipcRenderer } = require('electron');
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // ดึงชื่อพนักงานที่ถูกบันทึกไว้ตั้งแต่หน้า Login
+        const name = localStorage.getItem('employeeName');
+
+        if (name) {
+            // หากพบชื่อ ให้ส่งไปแสดงผลที่ id="display-staff-name"
+            const nameElement = document.getElementById('display-staff-name');
+            if (nameElement) {
+                nameElement.innerText = name;
+            }
+        } else {
+            // ระบบความปลอดภัย: หากแอบเข้าหน้าอื่นโดยไม่ผ่านการ Login ให้เด้งกลับไปหน้าแรก
+            window.location.href = 'Login.html';
+        }
+        });
+    // 1. ส่งสัญญาณขอข้อมูลเมื่อหน้าโหลด
+    ipcRenderer.send('load-employees');
+
+    // 2. ฟังก์ชันสำหรับกดปุ่มแก้ไข
+    function editEmployee(empId) {
+        window.location.href = `EditEmp.html?id=${empId}`;
+    }
+
+    // 3. รับข้อมูลจากฐานข้อมูลมาแสดงผลในตาราง
+    ipcRenderer.on('render-employees', (event, employees) => {
+    const tableBody = document.getElementById('employee-list-body');
+    if (!tableBody) return;
+    tableBody.innerHTML = ''; 
+
+    employees.forEach((emp, index) => {
+        const row = `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${emp.emp_id}</td>
+                <td>${emp.emp_name}</td>
+                <td>${emp.qualification || '-'}</td>
+                <td>${emp.position}</td>
+                <td>${emp.phone}</td>
+                <td>
+                    <button onclick="editEmployee('${emp.emp_id}')" class="edit-btn">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </td>
+            </tr>`;
+        tableBody.innerHTML += row;
+    });
+});
+    //  4. ฟังก์ชันค้นหาพนักงานในตารางแบบทันที (Client-side Search)
+    function filterEmployeeTable() {
+        const input = document.getElementById("employee-search");
+        const filter = input.value.toLowerCase();
+        const tableBody = document.getElementById("employee-list-body");
+        const tr = tableBody.getElementsByTagName("tr");
+
+        for (let i = 0; i < tr.length; i++) {
+            // คอลัมน์ที่ 1 คือ รหัสพนักงาน (index 1)
+            // คอลัมน์ที่ 2 คือ ชื่อ-นามสกุล (index 2)
+            const idCell = tr[i].getElementsByTagName("td")[1]; 
+            const nameCell = tr[i].getElementsByTagName("td")[2];
+
+            if (idCell || nameCell) {
+                const idValue = idCell.textContent || idCell.innerText;
+                const nameValue = nameCell.textContent || nameCell.innerText;
+
+                // ตรวจสอบว่าคำที่พิมพ์มีอยู่ในรหัสหรือชื่อพนักงานหรือไม่
+                if (idValue.toLowerCase().indexOf(filter) > -1 || 
+                    nameValue.toLowerCase().indexOf(filter) > -1) {
+                    tr[i].style.display = ""; // แสดงแถว
+                } else {
+                    tr[i].style.display = "none"; // ซ่อนแถว
+                }
+            }
+        }
+    }
+
+    // ฟังก์ชันล้างการค้นหา
+    function clearSearch() {
+        const input = document.getElementById("employee-search");
+        input.value = "";
+        filterEmployeeTable(); // รีเซ็ตการแสดงผลตาราง
+    }
+    function logout() {
+    localStorage.clear();
+    window.location.href = 'Login.html'; 
+}
+
+
+// ตรวจสอบสิทธิ์การเข้าใช้งานในทุกหน้าที่โหลด
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. จัดการชื่อผู้ใช้
+    const name = localStorage.getItem('employeeName');
+    const nameElement = document.getElementById('display-staff-name');
+    if (name) {
+        if (nameElement) nameElement.innerText = name;
+    } else {
+        window.location.href = 'Login.html';
+    }
+
+    // 2. ส่งคำขอโหลดข้อมูลพนักงาน 
+    ipcRenderer.send('load-employees');
+});
+
+function loadData() {
+    // 1. ล้างตัวดักฟังเก่าออกให้หมดก่อน (เพื่อไม่ให้ทำงานซ้อนกันจนอืด)
+    ipcRenderer.removeAllListeners('render-employees');
+    ipcRenderer.removeAllListeners('render-products');
+
+    //  2. ส่งคำสั่งดึงข้อมูล
+    ipcRenderer.send('load-data-request');
+}
+
+
+    </script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/TimeDisplay.js"></script>
+    <script src="../js/script.js"></script>
+</body>
+</html>

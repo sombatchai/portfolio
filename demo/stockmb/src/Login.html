@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="../demo-runtime/sql-wasm.js"></script>
+    <script src="../demo-runtime/runtime.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMB | เข้าสู่ระบบ</title>
+    <link rel="stylesheet" href="../style/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2 class="title">เข้าสู่ระบบของคุณ</h2>
+        
+        <form id="loginForm" class="login-form">
+            <div class="input-group">
+                 <input type="text" id="username" name="username" placeholder="ชื่อผู้ใช้" required>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" name="password" placeholder="รหัสผ่าน" required>
+            </div>
+
+            <div class="forgot-password">
+                <a href="forgot.html">ลืมรหัสผ่าน?</a>
+            </div>
+
+            <button type="submit" class="login-button">เข้าสู่ระบบ</button>
+
+            
+        </form>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // ตรวจจับการกดปุ่ม 'เข้าสู่ระบบ'
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault(); // ป้องกันหน้าเว็บรีโหลด
+            
+            // ดึงค่าจากช่อง Username และ Password
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // ส่งข้อมูลไปตรวจสอบที่ main.js
+            ipcRenderer.send('login-attempt', { username, password });
+        });
+
+        // รอรับคำตอบจาก backend (main.js)
+        ipcRenderer.on('login-response', (event, res) => {
+    if (res.success) {
+        localStorage.setItem('employeeName', res.userName);
+        localStorage.setItem('employeeRole', res.role); 
+        
+        if (res.role === 'Staff') {
+            
+            window.location.href = 'ProductSales.html'; 
+        } else {
+            
+            window.location.href = 'Index.html'; 
+        }
+    } else {
+        alert(res.message); 
+    }
+});
+
+
+function loadData() {
+    //  1. ล้างตัวดักฟังเก่าออกให้หมดก่อน (เพื่อไม่ให้ทำงานซ้อนกันจนอืด)
+    ipcRenderer.removeAllListeners('render-employees');
+    ipcRenderer.removeAllListeners('render-products');
+
+    //  2. ส่งคำสั่งดึงข้อมูล
+    ipcRenderer.send('load-data-request');
+}
+
+// เรียกใช้งานเมื่อโหลดหน้า
+document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

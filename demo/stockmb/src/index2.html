@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="../demo-runtime/sql-wasm.js"></script>
+    <script src="../demo-runtime/runtime.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMB | Import Dashboard</title>
+    <link rel="stylesheet" href="../style/style1.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .color-cyan { background-color: #7dd3e8 !important; color: white; }
+        .color-green { background-color: #28a745 !important; color: white; }
+        .color-red { background-color: #ff0000 !important; color: white; }
+        .summary-box { border-radius: 10px; padding: 15px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+   <header class="header">
+    <div class="header-logo">StockMB</div> 
+    <div class="header-user">
+        <span id="display-staff-name" style="color: white; font-weight: bold; margin-right: 10px; font-size: 0.9rem;"></span>
+        <i class="fa-solid fa-user-circle"></i>
+        <button onclick="logout()" style="background: none; border: none; color: white; cursor: pointer; margin-left: 15px;">
+            <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+        </button>
+    </div>
+</header>
+
+
+    <div class="app-container">
+        <nav class="sidebar">
+            <ul>
+                <li class="active"><a href="Index.html"><i class="fas fa-th-large"></i> dashboard</a></li>
+                <li><a href="ProductSales.html"><i class="fas fa-shopping-cart"></i> Product Sales</a></li>
+                <li><a href="Productmanagement.html"><i class="fas fa-box-open"></i> Product Management</a></li>
+                <li><a href="Employee.html"><i class="fas fa-users"></i> Employee Data</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <div class="date-header-container">
+                <h1 class="date-header" id="current-date">กำลังโหลดวันที่...</h1>
+            </div>
+
+            <div class="dashboard-grid-layout">
+                <div class="chart-section">
+                    <div class="chart-container-card">
+                        <canvas id="dashboardChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="analytics-sidebar">
+                    <button class="header-status-btn" onclick="location.href='importrecapstock.html'">ข้อมูลสต็อกสินค้า</button>
+
+                    <div class="toggle-tabs">
+                        <button class="tab-item active">นำเข้า</button>
+                        <a href="Index.html" class="tab-item" style="text-decoration: none; text-align: center;">ขายออก</a>
+                    </div>
+
+                    <div class="filter-panel">
+                        <div class="date-range-display" id="current-date-display">
+                            <i class="far fa-calendar-alt"></i> กำลังโหลดวันที่...
+                        </div>
+                        <select id="time-filter" class="data-dropdown" onchange="changeTimeFilter()">
+                            <option value="daily">ดูรายวัน (7 วันล่าสุด)</option>
+                            <option value="monthly">ดูรายเดือน (ปีนี้)</option>
+                            <option value="yearly">ดูรายปี</option>
+                        </select>
+                    </div>
+
+                    <div class="financial-summary">
+                        <div class="summary-box color-cyan">
+                            <h3 class="summary-amount" id="import-page-salaries">฿0</h3>
+                            <p class="summary-label">รายจ่ายพนักงาน</p>
+                        </div>
+                        <div class="summary-box color-green">
+                            <h3 class="summary-amount" id="import-page-costs">฿0</h3>
+                            <p class="summary-label">นำเข้าสินค้า</p>
+                        </div>
+                        <div class="summary-box color-red">
+                            <h3 class="summary-amount" id="import-page-total">฿0</h3>
+                            <p class="summary-label">รายจ่ายรวมทั้งสิ้น</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/TimeDisplay.js"></script>
+    <script>
+        const { ipcRenderer } = require('electron');
+        document.addEventListener('DOMContentLoaded', () => {
+        // ดึงชื่อพนักงานที่ถูกบันทึกไว้ตั้งแต่หน้า Login
+        const name = localStorage.getItem('employeeName');
+
+        if (name) {
+            // หากพบชื่อ ให้ส่งไปแสดงผลที่ id="display-staff-name"
+            const nameElement = document.getElementById('display-staff-name');
+            if (nameElement) {
+                nameElement.innerText = name;
+            }
+        } else {
+            // ระบบความปลอดภัย: หากแอบเข้าหน้าอื่นโดยไม่ผ่านการ Login ให้เด้งกลับไปหน้าแรก
+            window.location.href = 'Login.html';
+        }
+    });
+        // 1. สร้าง Instance ของกราฟรอไว้
+        const ctx = document.getElementById('dashboardChart').getContext('2d');
+        let dashboardChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['รายจ่ายพนักงาน', 'นำเข้าสินค้า'],
+                datasets: [{
+                    label: 'บาท (฿)',
+                    data: [0, 0],
+                    backgroundColor: ['#7dd3e8', '#28a745'],
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { callback: (value) => '฿' + value.toLocaleString() }
+                    } 
+                }
+            }
+        });
+
+function loadData() {
+    //  1. ล้างตัวดักฟังเก่าออกให้หมดก่อน 
+    ipcRenderer.removeAllListeners('render-employees');
+    ipcRenderer.removeAllListeners('render-products');
+
+    //  2. ส่งคำสั่งดึงข้อมูล
+    ipcRenderer.send('load-data-request');
+}
+
+// เรียกใช้งานเมื่อโหลดหน้า
+document.addEventListener('DOMContentLoaded', loadData);
+        // 2. ฟังก์ชันขอข้อมูลจาก Main Process โดยส่งค่า filter ไปด้วย
+        function fetchImportDashboardData() {
+            const filterValue = document.getElementById('time-filter').value;
+            ipcRenderer.send('get-dashboard-stats', filterValue);
+            ipcRenderer.send('get-import-summary-chart', filterValue);
+            updateCurrentDate();
+        }
+
+        // 3. ฟังก์ชันสำหรับส่งคำขอข้อมูลใหม่เมื่อเปลี่ยน Filter 
+        function changeTimeFilter() {
+            fetchImportDashboardData();
+        }
+
+        // 4. รับข้อมูลตัวเลขสรุปรายจ่ายมาแสดงผล
+        ipcRenderer.on('render-dashboard-stats', (event, stats) => {
+            const salaryAmt = stats.salaries || 0;
+            const importAmt = stats.importCosts || 0;
+            const totalAmt = salaryAmt + importAmt;
+
+            const salariesEl = document.getElementById('import-page-salaries');
+            if (salariesEl) salariesEl.innerText = "฿" + salaryAmt.toLocaleString();
+            
+            const costsEl = document.getElementById('import-page-costs');
+            if (costsEl) costsEl.innerText = "฿" + importAmt.toLocaleString();
+            
+            const totalEl = document.getElementById('import-page-total');
+            if (totalEl) totalEl.innerText = "฿" + totalAmt.toLocaleString();
+        });
+
+        // 5. รับข้อมูลวาดกราฟ
+        ipcRenderer.on('render-import-summary-chart', (event, rows) => {
+            if (rows && rows.length > 0) {
+                dashboardChart.data.labels = rows.map(r => r.category);
+                dashboardChart.data.datasets[0].data = rows.map(r => r.total_amount);
+                
+                dashboardChart.data.datasets[0].backgroundColor = rows.map(r => 
+                    r.category === 'รายจ่ายพนักงาน' ? '#7dd3e8' : '#28a745'
+                );
+                
+                dashboardChart.update(); 
+            }
+        });
+
+        function updateCurrentDate() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+            document.getElementById('current-date-display').innerHTML = `<i class="far fa-calendar-alt"></i> วันที่ ${dateStr}`;
+            document.getElementById('current-date').innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        // 6. เมื่อโหลดหน้าจอ ให้ดึงค่าเริ่มต้นและทำงาน 
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchImportDashboardData(); // ฟังก์ชันนี้รวมการดึงค่าเริ่มต้นจาก select ไว้แล้ว
+            
+            // หากต้องการให้อัปเดตอัตโนมัติ ให้ใช้ค่า filter ล่าสุดเสมอ
+            setInterval(fetchImportDashboardData, 3000); 
+        });
+       function logout() {
+    localStorage.clear();
+    window.location.href = 'Login.html'; 
+}
+
+
+// ตรวจสอบสิทธิ์การเข้าใช้งานในทุกหน้าที่โหลด
+document.addEventListener('DOMContentLoaded', () => {
+    const name = localStorage.getItem('employeeName');
+    const nameElement = document.getElementById('display-staff-name');
+    
+    if (name) {
+        if (nameElement) nameElement.innerText = name;
+    } else {
+        // หากไม่มีชื่อในเครื่อง (ไม่ได้ Login) ให้ดีดกลับหน้า Login ทันที
+        window.location.href = 'Login.html';
+    }
+});
+document.addEventListener('DOMContentLoaded', () => {
+    const role = localStorage.getItem('employeeRole');
+    const sidebar = document.querySelector('.sidebar ul');
+
+    if (role === 'Staff') {
+        //  สำหรับพนักงานทั่วไป: ซ่อนเมนูที่ไม่เกี่ยวข้อง
+        const adminMenus = document.querySelectorAll('.admin-only');
+        adminMenus.forEach(menu => menu.style.display = 'none');
+        
+        // หากพนักงานพยายามเข้าหน้า index.html ให้ดีดไปหน้าขายสินค้าทันที
+        if (window.location.pathname.includes('index.html')) {
+            window.location.href = 'ProductSales.html';
+        }
+    }
+});
+    </script>
+</body>
+</html>

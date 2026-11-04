@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="../demo-runtime/sql-wasm.js"></script>
+    <script src="../demo-runtime/runtime.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMB | Dashboard Analytics</title>
+    <link rel="stylesheet" href="../style/style1.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-logo">StockMB</div> 
+        <div class="header-user">
+            <span id="display-staff-name" style="color: white; font-weight: bold; margin-right: 10px; font-size: 0.9rem;"></span>
+            <i class="fa-solid fa-user-circle"></i>
+            <button onclick="logout()" style="background: none; border: none; color: white; cursor: pointer; margin-left: 15px;">
+                <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+            </button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <nav class="sidebar">
+    <ul>
+        <li class="admin-only"><a href="Index.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+        <li><a href="ProductSales.html"><i class="fas fa-shopping-cart"></i> Product Sales</a></li>
+        <li><a href="Productmanagement.html"><i class="fas fa-box-open"></i> Product Management</a></li>
+        <li class="admin-only"><a href="Employee.html"><i class="fas fa-users"></i> Employee Data</a></li>
+    </ul>
+</nav>
+        
+        <main class="main-content">
+            <div class="date-header-container">
+                <h1 class="date-header" id="current-date">กำลังโหลดวันที่...</h1>
+            </div>
+
+            <div class="dashboard-grid-layout">
+                <div class="chart-section">
+                    <div class="chart-container-card">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="analytics-sidebar">
+                    <button class="header-status-btn" onclick="location.href='salerecap.html'">ข้อมูลสต็อกสินค้า</button>
+
+                    <div class="toggle-tabs">
+                        <a href="index2.html" class="tab-item" style="text-decoration: none; text-align: center;">นำเข้า</a>
+                        <a href="Index.html" class="tab-item active" style="text-decoration: none; text-align: center;">ขายออก</a>
+                    </div>
+
+                    <div class="filter-panel">
+                        <div class="date-range-display" id="current-date-display">
+                            <i class="far fa-calendar-alt"></i> กำลังโหลดวันที่...
+                        </div>
+
+                        <select id="time-filter" class="data-dropdown" onchange="changeTimeFilter()">
+                            <option value="daily">ดูรายวัน (7 วันล่าสุด)</option>
+                            <option value="monthly">ดูรายเดือน (ปีนี้)</option>
+                            <option value="yearly">ดูรายปี</option>
+                        </select>
+                    </div>
+
+                    <div class="data-list-placeholder">
+                        <p style="text-align: center; color: #666; margin-top: 20px;">รายรับรวมทั้งหมด: <span id="realtime-sales">0</span> ฿</p>
+                    </div>
+
+                    <div class="financial-summary">
+                        <div class="summary-box profit-box" style="background-color: #28a745; color: white;">
+                            <h3 class="summary-amount" id="display-revenue">฿0</h3>
+                            <p class="summary-label">รายรับจากการขายทั้งหมด</p>
+                        </div>
+                        <div class="summary-box loss-box" style="background-color: #dc3545; color: white;">
+                            <h3 class="summary-amount" id="display-cogs">฿0</h3>
+                            <p class="summary-label">ต้นทุนสินค้าทั้งหมด</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/TimeDisplay.js"></script>
+    <script>
+        const { ipcRenderer } = require('electron');
+        let myChart = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const name = localStorage.getItem('employeeName');
+            if (name) {
+                document.getElementById('display-staff-name').innerText = name;
+            } else {
+                window.location.href = 'Login.html';
+            }
+
+            updateDashboardDate();
+            changeTimeFilter(); // เรียกโหลดข้อมูลครั้งแรก
+
+            // อัปเดตข้อมูลทุก 5 วินาที
+            setInterval(() => {
+                changeTimeFilter();
+            }, 5000);
+        });
+
+        function changeTimeFilter() {
+            const filterValue = document.getElementById('time-filter').value;
+            ipcRenderer.send('get-dashboard-stats', filterValue);
+            // เรียกข้อมูลกราฟรายรับ/ต้นทุน
+            ipcRenderer.send('get-revenue-cost-chart'); 
+        }
+
+        // รับข้อมูลตัวเลขสรุป
+        ipcRenderer.on('render-dashboard-stats', (event, stats) => {
+            document.getElementById('display-revenue').innerText = "฿" + (stats.sales || 0).toLocaleString();
+            document.getElementById('display-cogs').innerText = "฿" + (stats.importCosts || 0).toLocaleString();
+            document.getElementById('realtime-sales').innerText = (stats.sales || 0).toLocaleString();
+        });
+
+        //  ระบบวาดกราฟเปรียบเทียบ รายรับ vs ต้นทุน
+        ipcRenderer.on('render-revenue-cost-chart', (event, data) => {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            if (myChart) myChart.destroy(); // ลบกราฟเก่า
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.label),
+                    datasets: [{
+                        label: 'ยอดเงินรวม (฿)',
+                        data: data.map(item => item.amount),
+                        // ใช้สีเขียวสำหรับรายรับ และสีแดงสำหรับต้นทุนตามบล็อกด้านขวา
+                        backgroundColor: data.map(item => item.color), 
+                        borderRadius: 10,
+                        barThickness: 80 
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { callback: (value) => '฿' + value.toLocaleString() }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+
+        function updateDashboardDate() {
+            const now = new Date();
+            const dateDisplay = document.getElementById('current-date-display');
+            if (dateDisplay) dateDisplay.innerHTML = `<i class="far fa-calendar-alt"></i> วันที่ ${now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+            
+            const headerDate = document.getElementById('current-date');
+            if (headerDate) headerDate.innerText = now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function logout() {
+    localStorage.clear();
+    window.location.href = 'Login.html'; 
+}
+
+        document.addEventListener('DOMContentLoaded', () => {
+    const role = localStorage.getItem('employeeRole');
+    const sidebar = document.querySelector('.sidebar ul');
+
+    if (role === 'Staff') {
+        //  สำหรับพนักงานทั่วไป: ซ่อนเมนูที่ไม่เกี่ยวข้อง
+        const adminMenus = document.querySelectorAll('.admin-only');
+        adminMenus.forEach(menu => menu.style.display = 'none');
+        
+        // หากพนักงานพยายามเข้าหน้า index.html (Dashboard) ให้ดีดไปหน้าขายสินค้าทันที
+        if (window.location.pathname.includes('index.html')) {
+            window.location.href = 'ProductSales.html';
+        }
+    }
+});
+
+
+function loadData() {
+    //  1. ล้างตัวดักฟังเก่าออกให้หมดก่อน (เพื่อไม่ให้ทำงานซ้อนกันจนอืด)
+    ipcRenderer.removeAllListeners('render-employees');
+    ipcRenderer.removeAllListeners('render-products');
+
+    //  2. ส่งคำสั่งดึงข้อมูล
+    ipcRenderer.send('load-data-request');
+}
+
+// เรียกใช้งานเมื่อโหลดหน้า
+document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+    <script src="../js/auth.js"></script>
+</body>
+</html>

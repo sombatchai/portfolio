@@ -1,0 +1,328 @@
+/* --- 1. การตั้งค่าพื้นฐาน & ตัวแปรสี --- */
+:root {
+    --primary-blue: #007bff;
+    --app-bg: #eef7f9;
+    --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+    --white: #ffffff;
+    --text-dark: #333333;
+    --text-gray: #666666;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Kanit', sans-serif;
+}
+
+body {
+    background-color: var(--app-bg);
+    overflow-y: auto; /*  อนุญาตให้เลื่อนหน้าจอได้ */
+    min-height: 100vh;
+    color: var(--text-dark);
+}
+
+/* --- 2. HEADER: ยึดติดด้านบน --- */
+.header {
+    background-color: var(--primary-blue);
+    height: 65px;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-container {
+    width: 100%;
+    max-width: 96%; 
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    align-items: center;
+}
+
+.header-logo {
+    color: var(--white);
+    font-size: 24px;
+    font-weight: bold; 
+}
+
+.header-user {
+    color: var(--white);
+    font-size: 28px;
+    cursor: pointer;
+}
+
+/* --- 3. LAYOUT CONTAINER --- */
+.content-wrapper {
+    width: 96%; 
+    max-width: 1600px; 
+    margin: 20px auto 50px; /*  เพิ่มระยะห่างด้านล่าง */
+    padding: 0 10px;
+}
+
+/* แถบควบคุมด้านบน */
+.top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px; /*  ลดระยะเพื่อให้หัวข้อขยับขึ้น */
+}
+
+.nav-controls button {
+    border: none;
+    padding: 10px 22px;
+    border-radius: 25px;
+    color: var(--white);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn-back { background-color: #42a5f5; }
+.btn-back:hover { transform: translateY(-2px); opacity: 0.9; }
+
+/* --- 4. ส่วนหัวข้อกลางหน้า (ขยับขึ้นและจัดกึ่งกลาง) --- */
+.header-section {
+    text-align: center;
+    margin-top: -25px; /*  ขยับหัวข้อขึ้นไปชิดส่วนบนมากขึ้น */
+    margin-bottom: 35px;
+}
+
+.header-section h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.search-bar-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    align-items: center;
+}
+
+.search-pill {
+    position: relative;
+    width: 100%;
+    max-width: 480px; 
+}
+
+.search-pill input {
+    width: 100%;
+    padding: 12px 50px 12px 25px;
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    outline: none;
+    background: var(--white);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.search-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.category-select {
+    padding: 0 20px;
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    height: 45px;
+    width: 220px;
+    background: var(--white);
+    cursor: pointer;
+}
+
+/* --- 5. MAIN GRID: 3 คอลัมน์สมดุล --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr 300px; /* 🟢 จัดสัดส่วน 3 คอลัมน์ */
+    gap: 30px; /* 🟢 เพิ่ม Gap เพื่อไม่ให้ Card ติดกันเกินไป */
+    align-items: stretch;
+}
+
+.card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s ease;
+}
+
+.card:hover { transform: translateY(-5px); }
+
+/* ข้อมูลสินค้า (ซ้าย) */
+.card-title {
+    font-size: 19px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f4f8fb;
+    padding-bottom: 12px;
+    font-weight: 600;
+}
+
+.product-content {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    align-items: center;
+}
+
+.product-image img {
+    border-radius: 12px;
+    border: 1px solid #f0f0f0;
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+}
+
+.product-details p {
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: var(--text-dark);
+}
+
+.stock-status {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: var(--white);
+    text-align: center;
+    padding: 18px;
+    border-radius: 18px;
+    box-shadow: 0 6px 15px rgba(46, 204, 113, 0.25);
+}
+
+.stock-status .count {
+    font-size: 42px; /* 🟢 ขยายตัวเลขให้เด่นชัด */
+    font-weight: bold;
+    display: block;
+}
+
+/* กราฟ (กลาง) --- */
+.chart-visual {
+    height: 420px; /* 🟢 เพิ่มความสูงเพื่อให้เต็มพื้นที่ */
+    background: #fafbfc;
+    border-radius: 15px;
+    border: 1px solid #f0f4f8;
+    padding: 25px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.bar-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    width: 100%;
+    height: 100%;
+}
+
+.bar-group {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.bar {
+    width: 20px;
+    border-radius: 5px 5px 0 0;
+}
+
+.bar.cyan { background-color: #4dd0e1; }
+.bar.blue { background-color: #3498db; }
+
+/* รายการ Badges (ขวา) --- */
+.summary-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.badge-item {
+    padding: 20px;
+    border-radius: 15px;
+    color: var(--white);
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.bg-darkblue { background-color: #2980b9; }
+.bg-cyan { background-color: #4dd0e1; }
+.bg-green { background-color: #2ecc71; }
+.bg-red { background-color: #ff3b30; }
+
+/* Responsive สำหรับจอเล็กลง */
+@media (max-width: 1250px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .summary-badges { flex-direction: row; flex-wrap: wrap; }
+    .badge-item { flex: 1; min-width: 250px; }
+}
+
+/* สไตล์สำหรับการแสดงผลแบบแถวแนวนอนที่เลื่อนดูได้ต่อเนื่อง */
+        .product-stat-row {
+            display: grid;
+            grid-template-columns: 250px 1fr 280px;
+            gap: 20px;
+            padding: 25px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .product-stat-row:hover {
+            transform: translateY(-5px);
+        }
+        .product-info-section { 
+            text-align: center; 
+            border-right: 1px solid #f0f0f0; 
+            padding-right: 20px; 
+        }
+        .product-info-section img { 
+            border-radius: 15px; 
+            margin-bottom: 15px; 
+            object-fit: cover; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            border: 1px solid #eee;
+        }
+        .chart-section { 
+            height: 250px; 
+            min-width: 0; 
+            padding: 0 20px; 
+        }
+        .badges-section { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            padding-left: 20px; 
+            border-left: 1px solid #f0f0f0; 
+        }
+        .badge-stat {
+            padding: 12px;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .stock-tag {
+            background: #2ecc71;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #all-stats-container {
+            padding: 10px 20px 50px 20px;
+        }
+    

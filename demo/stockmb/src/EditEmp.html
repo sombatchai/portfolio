@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="../demo-runtime/sql-wasm.js"></script>
+    <script src="../demo-runtime/runtime.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMB | Edit Employee Data</title>
+    <link rel="stylesheet" href="../style/AddEmpData.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+    <div class="header-logo">StockMB</div> 
+    <div class="header-user">
+        <span id="display-staff-name" style="color: white; font-weight: bold; margin-right: 10px; font-size: 0.9rem;"></span>
+        <i class="fa-solid fa-user-circle"></i>
+        <button onclick="logout()" style="background: none; border: none; color: white; cursor: pointer; margin-left: 15px;">
+            <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+        </button>
+    </div>
+</header
+
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <ul>
+                <li><a href="Index.html"><i class="fas fa-th-large"></i> dashboard</a></li>
+                <li><a href="ProductSales.html"><i class="fas fa-shopping-cart"></i> Product Sales</a></li>
+                <li><a href="Productmanagement.html"><i class="fas fa-box-open"></i> Product Management</a></li>
+                <li class="active"><a href="Employee.html"><i class="fas fa-users"></i> Employee Data</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content" id="mainContent">
+            <div class="form-data-wrapper"> 
+                <div class="form-header-box">
+                    <h1 class="page-title">แก้ไขข้อมูลพนักงาน</h1>
+                    <p class="page-description">แก้ไขข้อมูลหลักของพนักงาน รวมถึงสิทธิ์การเข้าถึงระบบ</p>
+                </div>
+
+                <div class="employee-form-section">
+                    <h2 class="form-section-title">ฟอร์มแก้ไขข้อมูล</h2>
+                    
+                    <form class="employee-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employee-id">รหัสพนักงาน</label>
+                                <input type="text" id="employee-id" name="employee-id">
+                            </div>
+                            <div class="form-group">
+                                <label for="employee-name">ชื่อ</label>
+                                <input type="text" id="employee-name" name="employee-name">
+                            </div>
+                            <div class="form-group">
+                                <label for="employee-age">อายุ</label>
+                                <input type="number" id="employee-age" name="employee-age">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employee-phone">โทรศัพท์</label>
+                                <input type="tel" id="employee-phone" name="employee-phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="employee-gender">เพศ</label>
+                                <input type="text" id="employee-gender" name="employee-gender">
+                            </div>
+                            <div class="form-group">
+                                <label for="employee-position">ตำแหน่ง</label>
+                                <input type="text" id="employee-position" name="employee-position">
+                            </div>
+                        </div>
+
+                        <div class="form-row single-input-row">
+                            <div class="form-group salary-group">
+                                <label for="employee-salary">เงินเดือน</label>
+                                <input type="number" id="employee-salary" name="employee-salary">
+                            </div>
+                            <div class="form-group">
+                                <label for="education">วุฒิการศึกษา</label>
+                                <input type="text" id="education">
+                            </div>
+                            <div class="form-group">
+                                <label for="employee-email">อีเมล (Email)</label>
+                                <input type="email" id="employee-email" name="employee-email">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>สถานะพนักงาน</label>
+                                <select id="employee-role" class="filter-select" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; background-color: #fff; font-size: 1rem;">
+                                    <option value="Staff">พนักงานทั่วไป (Staff)</option>
+                                    <option value="Admin">ผู้ดูแลระบบ (Admin)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="text" id="password" name="password">
+                            </div>
+                        </div> 
+
+                        <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                            <button type="button" onclick="deleteEmployee()" style="background-color: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                                ลบข้อมูลพนักงาน
+                            </button>
+                            <button type="submit" class="btn-save" style="padding: 10px 20px; border-radius: 5px; border: none; background-color: #007bff; color: white; cursor: pointer;">
+                                บันทึกข้อมูล
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    const { ipcRenderer } = require('electron');
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // ดึงชื่อพนักงานที่ถูกบันทึกไว้ตั้งแต่หน้า Login
+        const name = localStorage.getItem('employeeName');
+
+        if (name) {
+            // หากพบชื่อ ให้ส่งไปแสดงผลที่ id="display-staff-name"
+            const nameElement = document.getElementById('display-staff-name');
+            if (nameElement) {
+                nameElement.innerText = name;
+            }
+        } else {
+            // ระบบความปลอดภัย: หากแอบเข้าหน้าอื่นโดยไม่ผ่านการ Login ให้เด้งกลับไปหน้าแรก
+            window.location.href = 'Login.html';
+        }
+        });
+    const urlParams = new URLSearchParams(window.location.search);
+    const empId = urlParams.get('id');
+    let oldEmployeeId = ''; 
+
+    if (empId) {
+        ipcRenderer.send('get-employee-by-id', empId);
+    }
+
+    //  รับข้อมูลมาแสดงผล รวมถึง Role
+    ipcRenderer.on('employee-data-response', (event, data) => {
+        if (data) {
+            oldEmployeeId = data.emp_id;
+            const idInput = document.getElementById('employee-id');
+            idInput.value = data.emp_id;
+            idInput.readOnly = false;
+            idInput.style.backgroundColor = '#ffffff';
+
+            document.getElementById('employee-name').value = data.emp_name;
+            document.getElementById('employee-age').value = data.age;
+            document.getElementById('employee-phone').value = data.phone;
+            document.getElementById('employee-gender').value = data.sex;
+            document.getElementById('employee-position').value = data.position;
+            document.getElementById('employee-salary').value = data.salary;
+            document.getElementById('education').value = data.qualification || '';
+            document.getElementById('employee-email').value = data.email || '';
+            document.getElementById('username').value = data.username || '';
+            document.getElementById('password').value = data.password || '';
+            
+            //  แสดงสถานะพนักงานเดิมจากฐานข้อมูล
+            document.getElementById('employee-role').value = data.role || 'Staff';
+        }
+    });
+
+    function deleteEmployee() {
+        const id = document.getElementById('employee-id').value;
+        if (!id) return;
+        if (confirm(` คุณต้องการลบข้อมูลพนักงานรหัส ${id} ใช่หรือไม่?`)) {
+            ipcRenderer.send('delete-employee', id);
+        }
+    }
+
+    ipcRenderer.on('delete-employee-response', (event, response) => {
+        if (response.success) {
+            alert('ลบข้อมูลพนักงานเรียบร้อยแล้ว');
+            window.location.href = 'Employee.html';
+        } else {
+            alert('ลบไม่สำเร็จ: ' + response.message);
+        }
+    });
+
+    document.querySelector('.employee-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const employeeData = {
+            old_id: oldEmployeeId, 
+            emp_id: document.getElementById('employee-id').value.trim(),
+            emp_name: document.getElementById('employee-name').value,
+            age: document.getElementById('employee-age').value,
+            phone: document.getElementById('employee-phone').value,
+            sex: document.getElementById('employee-gender').value,
+            position: document.getElementById('employee-position').value,
+            salary: document.getElementById('employee-salary').value,
+            qualification: document.getElementById('education').value,
+            email: document.getElementById('employee-email').value,
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+            // ส่งค่า Role ใหม่ไปบันทึก
+            role: document.getElementById('employee-role').value,
+            year_qual: 0 
+        };
+
+        localStorage.setItem('lastEmployee', JSON.stringify(employeeData));
+        ipcRenderer.send('update-employee', employeeData);
+    });
+
+    ipcRenderer.on('update-response', (event, response) => {
+        if (response.success) {
+            alert('แก้ไขข้อมูลพนักงานเรียบร้อย!');
+            window.location.href = 'EmpSave.html';
+        } else {
+            alert(' แก้ไขไม่สำเร็จ: ' + response.message);
+        }
+    });
+    function logout() {
+    localStorage.clear();
+    window.location.href = 'Login.html'; 
+}
+
+
+// ตรวจสอบสิทธิ์การเข้าใช้งานในทุกหน้าที่โหลด
+document.addEventListener('DOMContentLoaded', () => {
+    const name = localStorage.getItem('employeeName');
+    const nameElement = document.getElementById('display-staff-name');
+    
+    if (name) {
+        if (nameElement) nameElement.innerText = name;
+    } else {
+        // หากไม่มีชื่อในเครื่อง (ไม่ได้ Login) ให้ดีดกลับหน้า Login ทันที
+        window.location.href = 'Login.html';
+    }
+});
+
+
+function loadData() {
+    // 1. ล้างตัวดักฟังเก่าออกให้หมดก่อน (เพื่อไม่ให้ทำงานซ้อนกันจนอืด)
+    ipcRenderer.removeAllListeners('render-employees');
+    ipcRenderer.removeAllListeners('render-products');
+
+    // 2. ส่งคำสั่งดึงข้อมูล
+    ipcRenderer.send('load-data-request');
+}
+
+// เรียกใช้งานเมื่อโหลดหน้า
+document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+    <script src="../js/script.js"></script>
+</body>
+</html>

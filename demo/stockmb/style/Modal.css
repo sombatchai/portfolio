@@ -1,0 +1,88 @@
+/* --- สไตล์ของหน้าต่าง Modal เพิ่มสินค้า --- */
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5); /* พื้นหลังดำโปร่งแสง */
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 20px;
+    width: 420px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+}
+
+/* ปุ่มปิด (X) */
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+}
+
+/* ส่วนพรีวิวรูปภาพ (ช่องสี่เหลี่ยมบวก) */
+#image-preview-box {
+    width: 160px;
+    height: 160px;
+    background-color: #f8f9fa;
+    border: 2px dashed #ddd;
+    border-radius: 15px;
+    margin: 0 auto 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    overflow: hidden; /* กันรูปล้นขอบมน */
+}
+
+#image-preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ส่วนช่องกรอกข้อมูล (Input) */
+.input-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+}
+
+/* ปุ่มยืนยันสีฟ้า */
+.confirm-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="../demo-runtime/sql-wasm.js"></script>
+    <script src="../demo-runtime/runtime.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMB | ลืมรหัสผ่าน</title>
+    <link rel="stylesheet" href="../style/login2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="auth-bg">
+
+    <div class="auth-card">
+        <h2 class="auth-title">ลืมรหัสผ่าน</h2>
+        
+        <form id="forgotPasswordForm" onsubmit="event.preventDefault(); updatePassword();">
+            <div class="input-group">
+                <i class="fa-regular fa-envelope input-icon"></i>
+                <input type="email" id="email" placeholder="กรอกอีเมลที่ลงทะเบียนไว้" required>
+            </div>
+
+            <div class="input-group">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="newPassword" placeholder="รหัสผ่านใหม่" required>
+                <i class="fa-regular fa-eye-slash toggle-password" onclick="togglePass('newPassword', this)"></i>
+            </div>
+
+            <div class="input-group">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="confirmPassword" placeholder="ยืนยันรหัสผ่านใหม่" required>
+                <i class="fa-regular fa-eye-slash toggle-password" onclick="togglePass('confirmPassword', this)"></i>
+            </div>
+
+            <button type="submit" class="btn-submit">ยืนยันการเปลี่ยนรหัสผ่าน</button>
+        </form>
+
+        <div class="auth-footer">
+            <a href="Login.html">↩ ย้อนกลับไปหน้าเข้าสู่ระบบ</a>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // ฟังก์ชันเปิด-ปิดการมองเห็นรหัสผ่าน
+        function togglePass(id, el) {
+            const input = document.getElementById(id);
+            if (input.type === "password") {
+                input.type = "text";
+                el.classList.replace("fa-eye-slash", "fa-eye");
+            } else {
+                input.type = "password";
+                el.classList.replace("fa-eye", "fa-eye-slash");
+            }
+        }
+
+        // ฟังก์ชันหลักในการส่งข้อมูลไปที่ Backend
+        function updatePassword() {
+            const email = document.getElementById('email').value; 
+            const pass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            // ตรวจสอบความถูกต้องเบื้องต้น
+            if (pass !== confirmPass) {
+                alert(" รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน");
+                return;
+            }
+
+            // ส่งข้อมูลไปที่ main.js เพื่อค้นหาอีเมลและอัปเดต
+            ipcRenderer.send('reset-password-attempt', { 
+                email: email, 
+                newPassword: pass 
+            });
+        }
+
+        // รอรับผลลัพธ์จาก Backend เพื่อแจ้งเตือนผู้ใช้
+       ipcRenderer.on('reset-password-response', (event, response) => {
+         alert(response.message);
+          if (response.success) {
+        
+           window.location.href = 'Login.html'; 
+        }
+        });
+        
+function loadData() {
+    //  1. ล้างตัวดักฟังเก่าออกให้หมดก่อน 
+    ipcRenderer.removeAllListeners('render-employees');
+    ipcRenderer.removeAllListeners('render-products');
+
+    //  2. ส่งคำสั่งดึงข้อมูล
+    ipcRenderer.send('load-data-request');
+}
+
+// เรียกใช้งานเมื่อโหลดหน้า
+document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

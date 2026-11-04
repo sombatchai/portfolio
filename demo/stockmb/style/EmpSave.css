@@ -1,0 +1,214 @@
+:root {
+    --primary-color: #2c3e50; /* สีน้ำเงินเข้มสำหรับ Sidebar text/Logo */
+    --secondary-color: #3498db; /* สีฟ้าอ่อนสำหรับ Active/Header/Title */
+    --background-light: #f4f7f6; /* พื้นหลังโดยรวม */
+    --panel-background: #ffffff; /* พื้นหลังกล่องเนื้อหาและ Sidebar */
+    --border-color: #e0e0e0; /* สีขอบ/เส้นแบ่ง */
+    --text-dark: #333333;
+    --text-light: #ffffff;
+    --sidebar-active-bg: #eaf3ff; /* สีพื้นหลัง Active ใน Sidebar (ฟ้าอ่อนมากๆ) */
+    --sidebar-active-text: #3498db; /* สีตัวอักษร Active ใน Sidebar */
+}
+
+/* Base Reset & Typography */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+}
+
+body {
+    background-color: var(--background-light);
+    color: var(--text-dark);
+}
+
+/* 1. App Container (Flexbox for Layout) */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* 2. Sidebar Styling */
+.sidebar {
+    width: 250px;
+    background-color: var(--panel-background);
+    color: var(--primary-color);
+    padding: 10px 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+    position: fixed; 
+    height: 100vh;
+}
+
+.sidebar-header {
+    /* Logo StockMB */
+    text-align: left; 
+    padding: 15px 20px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.sidebar-menu ul {
+    list-style: none;
+}
+
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: var(--text-dark);
+    transition: background-color 0.2s, color 0.2s;
+    font-size: 1.05rem;
+}
+
+.sidebar-menu li a i {
+    margin-right: 15px;
+    font-size: 1.1rem;
+    width: 20px; 
+}
+
+/* Active Menu Item (Employee Data) - ปรับตาม UI ที่ถูกต้อง */
+.sidebar-menu li.active {
+    background-color: var(--sidebar-active-bg); 
+    border-right: 5px solid var(--secondary-color); /* เส้นสีฟ้าด้านขวา (สังเกตจากภาพ) */
+}
+
+.sidebar-menu li.active a {
+    color: var(--sidebar-active-text); /* ตัวอักษรสีฟ้า */
+    font-weight: 600;
+}
+
+.sidebar-menu li:not(.active) a:hover {
+    background-color: var(--background-light);
+    color: var(--secondary-color);
+}
+
+/* 3. Main Content Area */
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 250px; /* ชดเชยความกว้าง Sidebar */
+}
+
+/* 3.1 Top Bar */
+.top-bar {
+    height: 60px;
+    background-color: var(--secondary-color); 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: flex-end; 
+    align-items: center;
+    padding: 0 20px;
+    flex-shrink: 0;
+    position: fixed; 
+    top: 0;
+    right: 0;
+    left: 250px; /* เริ่มต้นหลัง Sidebar */
+    z-index: 500;
+}
+
+.menu-toggle {
+    display: none; 
+}
+
+.user-profile i {
+    font-size: 2rem;
+    color: var(--text-light); 
+    cursor: pointer;
+}
+
+/* 3.2 Content Panel (พื้นที่ทั้งหมดที่บรรจุข้อมูล) */
+.content-panel {
+    padding: 30px;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-top: 90px; /* ชดเชย Header */
+}
+
+/* 4. Panel Title และ Box Style */
+.panel-title {
+    font-size: 1.8rem;
+    color: var(--secondary-color); /* สีฟ้าอ่อน */
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 10px 0;
+    font-weight: 300; 
+    /* สร้างกรอบสีฟ้าอ่อนรอบๆ Title ตามภาพ */
+    border-bottom: 1px solid rgba(52, 152, 219, 0.4); 
+    padding-bottom: 20px;
+}
+
+.employee-data-box {
+    background-color: var(--panel-background);
+    padding: 30px;
+    border-radius: 8px;
+    /* เงาและขอบที่ชัดเจนตาม UI */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+    border: 1px solid var(--border-color); 
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.data-heading {
+    /* รายละเอียดพนักงานที่กำลังดูคุณวุฒิ */
+    font-size: 1.0rem; 
+    font-weight: 600; 
+    margin-bottom: 15px;
+    padding-bottom: 5px; 
+    color: var(--primary-color);
+}
+
+.data-item {
+    display: flex;
+    padding: 5px 0; 
+    line-height: 1.6;
+}
+
+.data-item .label {
+    /* ปรับ Label ให้ชิดขวา และกำหนดความกว้างคงที่ */
+    font-weight: 500;
+    color: #555;
+    text-align: right;
+    width: 200px; /* เพิ่มความกว้างให้ Label จัดแนว */
+    margin-right: 15px;
+}
+
+.data-item .value {
+    /* ค่าที่แสดงจะเริ่มต้นจากจุดเดียวกัน */
+    color: var(--text-dark);
+    flex-grow: 1;
+}
+
+/* Responsive Design (สำหรับมือถือ/แท็บเล็ต) */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: static;
+        height: auto;
+        box-shadow: none;
+    }
+    .main-content {
+        margin-left: 0;
+    }
+    .top-bar {
+        position: static;
+        left: 0;
+    }
+    .data-item {
+        flex-direction: column;
+    }
+    .data-item .label {
+        width: 100%;
+        text-align: left;
+        font-weight: bold;
+        margin-bottom: 0;
+    }
+    .data-item .value {
+        padding-left: 10px;
+    }
+}

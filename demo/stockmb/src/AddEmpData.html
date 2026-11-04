@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <script src="../demo-runtime/sql-wasm.js"></script>
+    <script src="../demo-runtime/runtime.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMB | Employee Data Form</title>
+    <link rel="stylesheet" href="../style/AddEmpData.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+    <div class="header-logo">StockMB</div> 
+    <div class="header-user">
+        <span id="display-staff-name" style="color: white; font-weight: bold; margin-right: 10px; font-size: 0.9rem;"></span>
+        <i class="fa-solid fa-user-circle"></i>
+        <button onclick="logout()" style="background: none; border: none; color: white; cursor: pointer; margin-left: 15px;">
+            <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+        </button>
+    </div>
+</header>
+
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <ul>
+                <li><a href="Index.html"><i class="fas fa-th-large"></i> dashboard</a></li>
+                <li><a href="ProductSales.html"><i class="fas fa-shopping-cart"></i> Product Sales</a></li>
+                <li><a href="Productmanagement.html"><i class="fas fa-box-open"></i> Product Management</a></li>
+                <li><a href="Employee.html"><i class="fas fa-users"></i> Employee Data</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content" id="mainContent">
+            <div class="form-data-wrapper"> 
+                <div class="form-header-box">
+                    <h1 class="page-title">ข้อมูลพนักงาน</h1>
+                    <p class="page-description">จัดการข้อมูลหลักของพนักงาน รวมลิงก์รหัส, ชื่อ, อายุ, โทรศัพท์, เพศ, ตำแหน่ง และเงินเดือน</p>
+                </div>
+
+                <div class="employee-form-section">
+                    <h2 class="form-section-title">เพิ่มพนักงานใหม่</h2>
+                    
+                    <form class="employee-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employee-id">รหัสพนักงาน</label>
+                                <input type="text" id="employee-id" name="employee-id" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="employee-name">ชื่อ</label>
+                                <input type="text" id="employee-name" name="employee-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="employee-age">อายุ</label>
+                                <input type="number" id="employee-age" name="employee-age">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employee-phone">โทรศัพท์</label>
+                                <input type="tel" id="employee-phone" name="employee-phone">
+                            </div>
+                            <div class="form-group">
+                                <label for="employee-gender">เพศ</label>
+                                <input type="text" id="employee-gender" name="employee-gender">
+                            </div>
+                            <div class="form-group">
+                                <label for="employee-position">ตำแหน่ง</label>
+                                <input type="text" id="employee-position" name="employee-position">
+                            </div>
+                        </div>
+
+                        <div class="form-row single-input-row">
+                            <div class="form-group salary-group">
+                                <label for="employee-salary">เงินเดือน</label>
+                                <input type="number" id="employee-salary" name="employee-salary">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="education">วุฒิการศึกษา</label>
+                                <input type="text" id="education">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="employee-email">อีเมล (Email)</label>
+                                <input type="email" id="employee-email" name="employee-email" placeholder="name@email.com">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>สถานะพนักงาน</label>
+                                <select id="emp-role" class="filter-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background-color: #f9f9f9;">
+                                    <option value="Staff">พนักงานทั่วไป (Staff)</option>
+                                    <option value="Admin">ผู้ดูแลระบบ (Admin)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username" placeholder="ตั้งชื่อผู้ใช้งาน">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" name="password" placeholder="ตั้งรหัสผ่าน">
+                            </div>
+                        </div> 
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-save">ตรวจสอบและบันทึก</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+   <script>
+    const { ipcRenderer } = require('electron');
+
+    document.querySelector('.employee-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        document.addEventListener('DOMContentLoaded', () => {
+        // ดึงชื่อพนักงานที่ถูกบันทึกไว้ตั้งแต่หน้า Login
+        const name = localStorage.getItem('employeeName');
+
+        if (name) {
+            // หากพบชื่อ ให้ส่งไปแสดงผลที่ id="display-staff-name"
+            const nameElement = document.getElementById('display-staff-name');
+            if (nameElement) {
+                nameElement.innerText = name;
+            }
+        } else {
+            // ระบบความปลอดภัย: หากแอบเข้าหน้าอื่นโดยไม่ผ่านการ Login ให้เด้งกลับไปหน้าแรก
+            window.location.href = 'Login.html';
+        }
+    });
+        const employeeData = {
+            emp_id: document.getElementById('employee-id').value,
+            emp_name: document.getElementById('employee-name').value,
+            age: document.getElementById('employee-age').value,
+            sex: document.getElementById('employee-gender').value,
+            phone: document.getElementById('employee-phone').value,
+            position: document.getElementById('employee-position').value,
+            salary: document.getElementById('employee-salary').value,
+            qualification: document.getElementById('education').value,
+            email: document.getElementById('employee-email').value,
+            role: document.getElementById('emp-role').value,
+            username: document.getElementById('username').value, 
+            password: document.getElementById('password').value,
+            year_qual: 0
+        };
+        console.log("กำลังส่งข้อมูลไปบันทึก:", employeeData);
+        ipcRenderer.send('add-employee', employeeData);
+    });
+
+    ipcRenderer.on('add-employee-response', (event, response) => {
+        if (response.success) {
+            alert('บันทึกข้อมูลพนักงานเรียบร้อย!');
+            localStorage.setItem('lastEmployee', JSON.stringify(response.data));
+            window.location.href = 'EmpSave.html'; 
+        } else {
+            alert('บันทึกไม่สำเร็จ: ' + response.message);
+        }
+    });
+   function logout() {
+    localStorage.clear();
+    window.location.href = 'Login.html'; 
+}
+
+
+// ตรวจสอบสิทธิ์การเข้าใช้งานในทุกหน้าที่โหลด
+document.addEventListener('DOMContentLoaded', () => {
+    const name = localStorage.getItem('employeeName');
+    const nameElement = document.getElementById('display-staff-name');
+    
+    if (name) {
+        if (nameElement) nameElement.innerText = name;
+    } else {
+        // หากไม่มีชื่อในเครื่อง (ไม่ได้ Login) ให้ดีดกลับหน้า Login ทันที
+        window.location.href = 'Login.html';
+    }
+});
+
+
+// ในทุกหน้า (เช่น Employee.js, Product.js)
+function loadData() {
+    // 1. ล้างตัวดักฟังเก่าออกให้หมดก่อน (เพื่อไม่ให้ทำงานซ้อนกันจนอืด)
+    ipcRenderer.removeAllListeners('render-employees');
+    ipcRenderer.removeAllListeners('render-products');
+
+    //  2. ส่งคำสั่งดึงข้อมูล
+    ipcRenderer.send('load-data-request');
+}
+
+// เรียกใช้งานเมื่อโหลดหน้า
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
+
+    <script src="../js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1025 @@
+/* ============================================================
+   1. การตั้งค่าพื้นฐานและ Layout หลัก
+   ============================================================ */
+:root {
+    --primary-blue: #007bff;
+    --stockmb-blue: #007bff; /* สีฟ้าหลักของ StockMB */
+    --dark-blue: #01579b;
+    --background-grey: #f4f7f6;
+    --sidebar-width: 250px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Tahoma', sans-serif; /* เปลี่ยนฟอนต์ให้เข้ากับภาษาไทย */
+}
+
+body {
+    background-color: var(--background-grey);
+    color: #333;
+    min-height: 100vh;
+}
+
+.header {
+    background-color: var(--stockmb-blue);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-logo {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.header-user i {
+    font-size: 1.5em;
+}
+
+.menu-toggle {
+    display: none; 
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.app-container {
+    display: flex;
+    padding-top: 60px; 
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    height: calc(100vh - 60px);
+    background-color: white;
+    padding: 20px 0;
+    position: fixed;
+    left: 0;
+    top: 60px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar li {
+    margin: 5px 0;
+}
+
+.sidebar a {
+    display: block;
+    padding: 12px 20px;
+    color: #555;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
+    border-left: 5px solid transparent;
+}
+
+.sidebar a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 20px;
+    padding-top: 4px; /* เว้นระยะ Header */
+}
+
+/* วันที่ชิดซ้าย */
+.time-header-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+/* ฟอร์มกรอกข้อมูลทรงมนสีเทา */
+.sales-form-container {
+    background: white;
+    padding: 25px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.form-group input {
+    background-color: #e8e8e8;
+    border-radius: 25px;
+    border: none;
+    padding: 12px 20px;
+    width: 100%;
+}
+
+/* ตะกร้า Fixed ด้านขวา */
+.cart-and-checkout {
+    position: fixed;
+    right: 20px; top: 80px;
+    width: 340px; height: calc(100vh - 100px);
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    z-index: 100;
+}
+
+/* การจัดตารางสินค้ากลาง */
+.sales-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr 360px;
+    gap: 20px;
+}
+body {
+    background-color: var(--background-grey);
+    color: #333;
+    min-height: 100vh;
+}
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 10px;
+    padding-top: 80px; 
+    display: flex;
+    flex-direction: column;
+}
+
+/* วันที่ชิดซ้าย */
+.time-header-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    padding: 10px 0 20px 0;
+}
+
+.date-header {
+    font-size: 1.1rem;
+    color: #333;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+/* Layout แบ่ง 3 ส่วน */
+.sales-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr 350px; /* ฟอร์ม | สินค้า | ตะกร้า */
+    gap: 20px;
+    align-items: start;
+}
+
+/* ============================================================
+   2. ส่วนแก้ไข: การ์ดสินค้าแบบคลิกได้ (ไม่มีปุ่ม)
+   ============================================================ */
+.product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.product-card {
+    display: grid;
+    grid-template-columns: 100px 1fr; /* รูปภาพ | รายละเอียดสินค้า */
+    gap: 20px;
+    align-items: center;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    min-height: 140px;
+    
+    /* เพิ่มส่วนที่นายต้องการแก้ไข */
+    cursor: pointer;           /* เปลี่ยนเมาส์เป็นรูปมือเมื่อชี้ */
+    transition: background-color 0.2s, transform 0.2s, border-color 0.2s;
+    border: 1px solid transparent; /* เตรียมขอบไว้สำหรับ Hover */
+}
+
+/* เอฟเฟกต์เมื่อวางเมาส์เหนือการ์ดสินค้า */
+.product-card:hover {
+    background-color: #f0f7ff;  /* เปลี่ยนสีพื้นหลังเล็กน้อยเป็นฟ้าอ่อน */
+    transform: translateY(-3px); /* ยกตัวขึ้นเล็กน้อยเพื่อให้ดูมีมิติ */
+    border-color: var(--primary-blue); /* เปลี่ยนสีขอบเป็นสีฟ้าตามธีมแอป */
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.product-image-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f0f0f0;
+}
+
+.product-image-placeholder img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+}
+
+.product-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+}
+
+.product-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #2b2b2b;
+}
+
+.product-price {
+    font-size: 1rem;
+    color: var(--primary-blue);
+    font-weight: bold;
+}
+
+/* ============================================================
+   3. ฟอร์มซ้ายมือและตะกร้าขวามือ (ฉบับสมบูรณ์)
+   ============================================================ */
+.sales-form-container {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    background-color: #e8e8e8; /* พื้นหลังสีเทาตามแบบ */
+    border-radius: 25px; /* ทรงมน */
+    font-size: 1rem;
+}
+
+.cart-and-checkout {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 330px;
+    height: calc(100vh - 100px);
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.total-amount {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #d9534f; /* สีแดงยอดสุทธิ */
+    border-top: 2px dashed #eee;
+    padding-top: 15px;
+    margin-top: 10px;
+}
+
+.checkout-button {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: auto;
+}
+/* การ์ดสินค้าให้ดูนุ่มนวลและมีมิติ */
+.product-card {
+    background: #ffffff;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); /* เงาบางๆ ให้ดูพรีเมียม */
+    transition: all 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* ปรับฟอนต์ราคาให้เด่นกว่าสต็อก */
+.product-price {
+    font-size: 1.1rem;
+    color: #007bff; /* ใช้สีหลักของระบบ */
+    font-weight: bold;
+}
+
+.product-info {
+    font-size: 0.8rem;
+    color: #888;
+    background: #f8f9fa;
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+/* ส่วนตะกร้าสินค้า (Fixed) */
+.cart-and-checkout {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden; /* เพื่อให้มุมโค้งตัดส่วนหัว */
+}
+
+.cart-header {
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    border-bottom: 2px solid #eee;
+}
+
+.total-amount {
+    font-size: 1.4rem;
+    color: #d9534f; /* สีแดงให้เห็นยอดสุทธิชัดๆ */
+    border-top: 2px dashed #eee;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+/* ปุ่มชำระเงินแบบ Modern */
+.checkout-button {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-radius: 8px;
+    letter-spacing: 1px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+/* --- ส่วนของรูปภาพสินค้า --- */
+.product-image-placeholder {
+    width: 120px;            /* ขยายขนาดรูปให้ใหญ่ขึ้นเล็กน้อย */
+    height: 120px;           /* ปรับให้เป็นสี่เหลี่ยมจัตุรัส */
+    border-radius: 12px;
+    overflow: hidden;        /* ตัดส่วนที่ล้นออก */
+    background: #f8f9fa;
+    border: 1px solid #eee;
+}
+
+.product-image-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;       /* บังคับให้ภาพขยายเต็มกรอบโดยไม่เสียสัดส่วน */
+    object-position: center;
+}
+
+/* --- ส่วนของการ์ดสินค้า --- */
+.product-card {
+    display: flex;           /* เปลี่ยนเป็น flex เพื่อให้จัดวางง่ายขึ้น */
+    flex-direction: column;  /* จัดเรียงจากบนลงล่าง */
+    padding: 12px;
+    gap: 10px;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-blue);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* --- ส่วนตะกร้าสินค้า (Fixed ขวามือ) --- */
+.cart-and-checkout {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 360px;            /* เพิ่มความกว้างเพื่อให้ดูเต็มพื้นที่ขวา */
+    height: calc(100vh - 100px);
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 25px;           /* เพิ่มพื้นที่ว่างภายในให้ดูโปร่ง */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #f0f0f0;
+}
+
+.total-amount {
+    font-size: 1.6rem;       /* ขยายขนาดยอดเงินรวมให้เด่นชัด */
+    font-weight: 800;
+    color: #e63946;          /* สีแดงสดสำหรับยอดเงิน */
+    text-align: right;
+    margin-top: 20px;
+}
+/* --- การจัดวาง Grid สินค้าให้ดูสมดุลและอยู่กึ่งกลาง --- */
+.product-list {
+    display: grid;
+    /* ปรับจำนวนคอลัมน์อัตโนมัติตามความกว้างหน้าจอ */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 25px;
+    padding: 20px;
+    justify-items: center; /* จัดการ์ดให้อยู่กึ่งกลางในแต่ละช่อง Grid */
+}
+
+/* --- ดีไซน์การ์ดสินค้าใหม่ --- */
+.product-card {
+    background: #ffffff;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 240px; /* จำกัดขนาดการ์ดให้ไม่ใหญ่เกินไป */
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05); /* เงาฟุ้งแบบพรีเมียม */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid #f0f0f0;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-8px); /* ยกตัวขึ้นเมื่อ hover */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    border-color: var(--primary-blue);
+}
+
+/* --- ปรับปรุงรูปภาพให้เต็มกรอบและสวยงาม --- */
+.product-image-container {
+    width: 100%;
+    height: 160px;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+}
+
+.product-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* บังคับภาพให้เต็มกรอบโดยไม่เบี้ยว */
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover img {
+    transform: scale(1.1); /* ซูมรูปภาพเล็กน้อยเมื่อชี้ */
+}
+
+/* --- ป้ายบอกสต็อก (Stock Badge) --- */
+.stock-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #666;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* --- รายละเอียดข้อความ --- */
+.product-details {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.product-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.product-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-blue); /* ใช้สีฟ้าหลักของระบบ */
+}
+
+/* --- ปุ่มกดแบบ Minimal --- */
+.product-actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.action-btn {
+    flex: 1;
+    border: none;
+    padding: 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-btn { background-color: #e8f5e9; color: #2e7d32; } /* สีเขียวอ่อนสะอาดตา */
+.minus-btn { background-color: #ffebee; color: #c62828; } /* สีแดงอ่อนสะอาดตา */
+
+.action-btn:hover { opacity: 0.8; }
+@media (min-width: 768px) {
+    .sales-grid {
+        display: grid;
+        /* เว้นพื้นที่ด้านขวาไว้สำหรับตะกร้าที่ถูก Fix ไว้ */
+        grid-template-columns: 1fr 370px; 
+        gap: 20px;
+        width: 100%;
+    }
+}
+
+/* ทำให้รายการสินค้าข้างในตะกร้าเลื่อนได้เองถ้ามีเยอะ */
+.cart-items {
+    flex-grow: 1;
+    overflow-y: auto; 
+    margin-bottom: 10px;
+}
+.empty-cart-message {
+    padding: 10px 0;
+    color: #888;
+}
+
+.cart-summary {
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+    font-size: 0.9em;
+}
+
+.cart-summary p {
+    margin: 3px 0;
+    display: flex;
+    justify-content: space-between;
+}
+.total-amount {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.checkout-actions {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #ddd;
+    text-align: right;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.payment-due, .payment-change {
+    margin: 5px 0;
+}
+
+.thanks-message {
+    color: #999;
+}
+
+.checkout-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+    margin-top: 15px;
+}
+/* จัดการ Layout ใหญ่ให้สมดุล */
+.sales-layout-container {
+    display: flex;
+    gap: 30px;
+    justify-content: center; /* จัดทุกส่วนให้อยู่กึ่งกลางหน้าจอ */
+    align-items: flex-start;
+}
+
+/* ส่วนกลาง: สินค้า (ขยายพื้นที่เต็มที่) */
+.product-catalog-section {
+    flex: 1; /* กินพื้นที่ว่างที่เหลือทั้งหมด */
+    max-width: 1000px; /* จำกัดความกว้างสูงสุดเพื่อให้ดูไม่กระจายเกินไป */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* จัดหัวข้อและ Search อยู่กึ่งกลาง */
+}
+
+.product-list {
+    display: grid;
+    /* ปรับจำนวนการ์ดอัตโนมัติ และขยายขนาดการ์ดให้เต็มพื้นที่ */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 25px;
+    width: 100%; /* ขยาย Grid ให้เต็มพื้นที่คอนเทนเนอร์ */
+    padding: 10px;
+}
+
+/* ดีไซน์การ์ดให้ใหญ่และชัดเจน */
+.product-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column; /* เรียงเป็นแนวตั้ง */
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05); /* เงาพรีเมียม */
+    transition: all 0.3s ease;
+    border: 1px solid #eee;
+}
+
+.product-card:hover {
+    transform: translateY(-10px); /* ยกตัวขึ้นเมื่อ Hover */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.product-image-container {
+    width: 100%;
+    height: 180px; /* เพิ่มความสูงรูปภาพให้เด่น */
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+}
+
+.product-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* ภาพเต็มกรอบ */
+}
+/* จัดการ Layout ใหญ่ให้สมดุล */
+.sales-layout-container {
+    display: flex;
+    gap: 30px;
+    justify-content: center; /* จัดทุกส่วนให้อยู่กึ่งกลางหน้าจอ */
+    align-items: flex-start;
+}
+
+/* ส่วนกลาง: สินค้า (ขยายพื้นที่เต็มที่) */
+.product-catalog-section {
+    flex: 1; /* กินพื้นที่ว่างที่เหลือทั้งหมด */
+    max-width: 1800px; /* จำกัดความกว้างสูงสุดเพื่อให้ดูไม่กระจายเกินไป */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* จัดหัวข้อและ Search อยู่กึ่งกลาง */
+}
+
+.product-list {
+    display: grid;
+    /* ปรับจำนวนการ์ดอัตโนมัติ และขยายขนาดการ์ดให้เต็มพื้นที่ */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 25px;
+    width: 100%; /* ขยาย Grid ให้เต็มพื้นที่คอนเทนเนอร์ */
+    padding: 10px;
+}
+
+/* ดีไซน์การ์ดให้ใหญ่และชัดเจน */
+.product-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column; /* เรียงเป็นแนวตั้ง */
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05); /* เงาพรีเมียม */
+    transition: all 0.3s ease;
+    border: 1px solid #eee;
+}
+
+.product-card:hover {
+    transform: translateY(-10px); /* ยกตัวขึ้นเมื่อ Hover */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.product-image-container {
+    width: 100%;
+    height: 180px; /* เพิ่มความสูงรูปภาพให้เด่น */
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+}
+
+.product-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* ภาพเต็มกรอบ */
+}
+/* --- 1. จัด Layout ให้สินค้าอยู่ตรงกลาง --- */
+.sales-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px; /* แบ่งพื้นที่ให้สินค้ากว้างๆ และตะกร้าคงที่ */
+    gap: 20px;
+    padding: 20px;
+    align-items: start;
+}
+
+.product-list {
+    display: grid;
+    /* จัดการ์ดให้วางเรียงกึ่งกลางพื้นที่ฝั่งซ้าย */
+    grid-template-columns: repeat(auto-fit, 250px); 
+    gap: 20px;
+    justify-content: center; 
+}
+
+/* --- 2. แก้ไขภาพให้เต็มกรอบและเป็นการ์ดแนวตั้ง --- */
+.product-card {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column; /* จัดเรียงเป็นแนวตั้ง */
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    height: 100%; /* ให้การ์ดทุกใบสูงเท่ากัน */
+}
+
+.product-image-placeholder {
+    width: 220px;   /* กำหนดความกว้างรูป */
+    height: 180px;  /* กำหนดความสูงรูป */
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: #eee;
+}
+
+.product-image-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* บังคับภาพเต็มกรอบแน่นอน */
+}
+/* ใส่ไว้ล่างสุดของไฟล์ */
+.product-list {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, 240px) !important; /* คุมขนาดการ์ด */
+    justify-content: center !important; /* นี่คือตัวที่ทำให้มาอยู่ตรงกลาง */
+    gap: 20px !important;
+    width: 100% !important;
+}
+/* ใส่ไว้ล่างสุดของไฟล์ */
+.product-list {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, 240px) !important; /* คุมขนาดการ์ด */
+    justify-content: center !important; /* นี่คือตัวที่ทำให้มาอยู่ตรงกลาง */
+    gap: 20px !important;
+    width: 100% !important;
+}
+/* บังคับให้พื้นที่แสดงผลหลักยืดหยุ่นและจัดกึ่งกลาง */
+
+
+.sales-grid {
+    display: flex !important; /* เปลี่ยนจาก grid เป็น flex เพื่อคุมความกว้างง่ายขึ้น */
+    justify-content: center !important; 
+    gap: 30px !important;
+    width: 100% !important;
+    max-width: 1200px !important; /* ไม่ให้มันบานออกข้างมากเกินไป */
+}
+/* ล็อคขนาดกล่องภาพให้เป็นแนวตั้งสวยๆ */
+.product-image-placeholder, 
+.product-card div[class*="image"] {
+    width: 100% !important;
+    height: 180px !important; /* ล็อคความสูงรูปภาพ */
+    display: block !important;
+}
+
+.product-image-placeholder img, 
+.product-card img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important; /* ภาพจะเต็มกรอบแน่นอน ไม่เหลือขอบขาว */
+}
+.product-catalog {
+    width: 100% !important;
+    max-width: none !important; /* ปลดล็อคความกว้าง */
+}
+
+.product-list {
+    display: grid !important;
+    /* เปลี่ยนจาก 240px เป็น 1fr เพื่อให้การ์ดขยายเต็มพื้นที่ช่องว่าง */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    width: 100% !important;
+    gap: 20px !important;
+}
+.product-card {
+    width: 100% !important; /* บังคับยืดให้เต็มช่อง Grid */
+    max-width: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
+/* ปรับรูปให้ยืดตามการ์ดไปด้วย */
+.product-image-placeholder, 
+.product-image-container {
+    width: 100% !important;
+    height: 250px !important; /* เพิ่มความสูงรูปนิดนึงให้สมดุลกับการ์ดที่กว้างขึ้น */
+}
+
+.product-image-placeholder img,
+.product-image-container img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* ส่วนแสดงการ์ดสินค้า (ให้ยาวออกไปปิดช่องว่างขวา) */
+.product-catalog {
+    width: 100% !important;
+}
+
+.product-list {
+    display: grid !important;
+    /* การ์ดจะยาวและเรียงกันสวยๆ จนปิดช่องว่างด้านขวา */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 10px !important;
+    width: 100% !important;
+}
+
+/* ปรับการ์ดและรูปให้ขยายตามพื้นที่ใหม่ */
+.product-card {
+    width: 100% !important;
+    display:inline !important;
+    flex-direction: column !important;
+}
+
+.product-image-placeholder img {
+    width: 100% !important;
+    height: 200px !important; /* ปรับรูปให้ใหญ่ขึ้นตามการ์ด */
+    object-fit: cover !important;
+}
+/* --- คลาสสำหรับหัวข้อสินค้าหน้าร้าน --- */
+.section-title {
+    width: 100% !important;        /* ให้กินพื้นที่เต็มความกว้างคอลัมน์ */
+    text-align: center !important;  /* สั่งให้ตัวหนังสืออยู่ตรงกลาง */
+    font-size: 2rem !important;     /* ปรับขนาดตัวอักษรให้เด่น */
+    font-weight: bold !important;
+    color: #333 !important;         /* สีเทาเข้มดูสะอาดตา */
+    margin-bottom: 30px !important; /* เว้นระยะห่างจากตัวการ์ดสินค้าด้านล่าง */
+    margin-top: 10px !important;
+    display: block !important;
+}
+/* --- จัดกลุ่มค้นหาและตัวเลือกประเภทให้อยู่ตรงกลาง --- */
+.controls-area {
+    display: flex !important;
+    justify-content: center !important; /* จัดให้อยู่กึ่งกลางแนวนอน */
+    align-items: center !important;     /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+    gap: 15px !important;               /* ระยะห่างระหว่างช่องค้นหากับ dropdown */
+    margin-bottom: 25px !important;     /* เว้นระยะห่างก่อนถึงตัวสินค้า */
+    width: 100% !important;
+}
+
+/* แถม: แต่งช่องค้นหาให้ดูดีขึ้น (ทรงเดียวกับที่นายทำฝั่งซ้าย) */
+.controls-area input, 
+.controls-area select {
+    padding: 10px 15px !important;
+    border-radius: 20px !important;
+    border: 1px solid #ddd !important;
+    outline: none !important;
+    background-color: #fff !important;
+}
+
+.controls-area input {
+    width: 250px !important; /* กำหนดความกว้างช่องค้นหา */
+}
+.product-card {
+    width: 100% !important;
+    /* เปลี่ยนจาก inline เป็น flex เพื่อให้จัดกลางได้ */
+    display: flex !important; 
+    flex-direction: column !important;
+    /* จัดของข้างใน (รูป, ข้อความ) ให้อยู่กึ่งกลางการ์ด */
+    align-items:center !important; 
+    justify-content: center !important;
+    
+    /* เพิ่มเติม: ให้การ์ดดูสมดุล */
+    padding: 20px !important;
+    text-align: center !important;
+    background: white !important;
+    border-radius: 15px !important;
+}
+.product-list {
+    display: grid !important;
+    /* จัดกลุ่มการ์ดทั้งหมดให้อยู่กึ่งกลางพื้นที่ว่าง */
+    justify-content: center !important; 
+    /* กำหนดขนาดการ์ดให้พอดี ไม่ให้บานจนล้น */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 20px !important;
+    width: 100% !important;
+}
+.employee-data-container {
+    display: flex;
+    justify-content: space-between; /* แยกกลุ่มซ้ายกับกลุ่มขวาออกจากกัน */
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 10px 0;
+}
+
+.left-section {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* ระยะห่างระหว่างช่องค้นหากับหัวข้อ */
+}
+
+/* ปรับแต่งช่องค้นหาให้ดูดีขึ้น */
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 250px; /* ปรับความกว้างได้ตามชอบ */
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: #999;
+    font-size: 14px;
+}
+
+#search-input {
+    width: 100%;
+    padding: 10px 35px 10px 35px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+#search-input:focus {
+    background-color: #fff;
+    border-color: #4a90e2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.employee-data-title {
+    margin: 0;
+    font-size: 22px;
+    color: #333;
+    white-space: nowrap; /* ไม่ให้หัวข้อตัดบรรทัด */
+}
+
+.clear-btn {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    display: none;
+}
+/* 1. ลดระยะห่าง (Gap) ระหว่างคอลัมน์ และปรับการวางคอลัมน์ใหม่ */
+.sales-grid {
+    display: grid !important;
+    /* ลดขนาดพื้นที่ว่างตรงกลาง โดยกำหนดขนาดคอลัมน์ให้กระชับขึ้น */
+    grid-template-columns: 320px 1fr 350px !important; 
+    gap: 15px !important; /* ลดระยะห่างระหว่างฟอร์ม การ์ด และตะกร้า */
+    justify-content: start !important; /* ดึงเนื้อหาทั้งหมดให้เริ่มจากฝั่งซ้าย */
+}
+
+/* 2. ดันส่วน Catalog ให้ชิดซ้ายของคอลัมน์ตัวเอง */
+.product-catalog {
+    margin-left: 0 !important; /* มั่นใจว่าไม่มี margin ดันไว้ */
+    padding-left: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important; /* ปรับหัวข้อและปุ่มควบคุมให้ชิดซ้ายตามการ์ด */
+}
+
+/* 3. ปรับให้ Grid สินค้าเริ่มวางจากซ้าย */
+.product-list {
+    justify-content: flex-start !important; /* เปลี่ยนจาก center เป็น flex-start */
+    gap: 15px !important;
+}
+/* --- ตั้งค่าให้ Sidebar Menu เปลี่ยนสีเวลากด/เลือก --- */
+
+/* 1. เมื่อเมนูนั้นถูกเลือก (มีคลาส active) */
+.sidebar ul li.active a {
+    background-color: var(--primary-blue) !important; /* ใช้สีฟ้าหลักจาก :root */
+    color: white !important; /* เปลี่ยนตัวอักษรเป็นสีขาวให้ตัดกับสีน้ำเงิน */
+    border-radius: 10px; /* เพิ่มความมนให้แถบสี */
+    margin: 0 10px; /* เว้นระยะจากขอบ sidebar นิดหน่อย */
+}
+
+/* 2. เมื่อเอาเมาส์ไปชี้ (Hover) */
+.sidebar ul li a:hover {
+    background-color: rgba(0, 123, 255, 0.1) !important; /* สีน้ำเงินจางๆ เวลาชี้ */
+    color: var(--primary-blue) !important;
+    border-radius: 10px;
+}
+
+/* 3. ปรับสี Icon ในเมนูที่ถูกเลือกให้เป็นสีขาวด้วย */
+.sidebar ul li.active a i {
+    color: white !important;
+}

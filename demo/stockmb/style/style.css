@@ -1,0 +1,166 @@
+/* --- Global Styles --- */
+:root {
+    --primary-blue: #4dc4d3;
+    --sidebar-width: 250px;
+}
+
+body {
+    font-family: 'Kanit', Arial, sans-serif; /* แนะนำให้ใช้ Kanit เพื่อความสวยงาม */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+/* --- Login Section (ปรับปรุงให้สมมาตรตามดีไซน์ใหม่) --- */
+.login-container {
+    background-color: #f7f7f7; 
+    border-radius: 20px; /* เพิ่มความโค้งมนให้เหมือนในรูป */
+    padding: 40px;
+    width: 350px; /* ปรับความกว้างให้พอดีกับดีไซน์ */
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    box-shadow: none; 
+}
+
+.title {
+    color: var(--primary-blue);
+    font-size: 1.5em;
+    margin-bottom: 30px;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px; 
+    border: 1px solid #4dc4d3; /* สีขอบฟ้าตามดีไซน์ของคุณ */
+    border-radius: 8px;
+    box-sizing: border-box; /* สำคัญ: เพื่อให้ขนาดช่องไม่ล้นเมื่อเพิ่ม padding */
+    font-size: 1em;
+    outline: none;
+    background-color: white;
+}
+
+.input-group .icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 1.1em;
+    pointer-events: none; 
+}
+
+.forgot-password {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.forgot-password a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.login-button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: background-color 0.3s;
+}
+
+.login-button:hover {
+    background-color: #3aa6b3;
+}
+
+/* --- Layout & Dashboard Components --- */
+.date-header {
+    width: 100%;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-content {
+    flex-direction: column;
+    display: flex;
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+/* --- Sidebar System --- */
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    height: calc(100vh - 60px);
+    background-color: white;
+    padding: 20px 0;
+    position: fixed;
+    left: 0;
+    top: 60px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin: 5px 0;
+}
+
+.sidebar a {
+    display: block;
+    padding: 12px 20px;
+    color: #555;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-left: 5px solid transparent;
+}
+
+.sidebar a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* --- Sidebar Active & Hover States --- */
+.sidebar ul li.active a {
+    background-color: var(--primary-blue) !important;
+    color: white !important;
+    border-radius: 10px;
+    margin: 0 10px;
+}
+
+.sidebar ul li.active a i {
+    color: white !important;
+}
+
+.sidebar ul li a:hover {
+    background-color: rgba(0, 123, 255, 0.1) !important;
+    color: var(--primary-blue) !important;
+    border-radius: 10px;
+}
