@@ -4,6 +4,8 @@ Personal portfolio of **Sombatchai Khamkhao (สมบัติชัย คำ�
 
 The site tells my story as a cinematic scroll: each project is a chapter with real screenshots, followed by a detailed case study page.
 
+**🔗 Live site: https://sombatchai.github.io/portfolio/**
+
 ![Home page](assets/img/readme/home.jpg)
 
 ## Projects featured
