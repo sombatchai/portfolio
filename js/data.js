@@ -28,8 +28,9 @@ const PROFILE = {
     },
   ],
   coursework: [
-    "Database Design and Development", "Advanced Database Design and Development", "Project in Database Administration",
-    "Foundation in Information and Network Security", "Cryptographic Protocols", "Project in Cyber Security",
+    { g: "Core Programming & Software Engineering", items: ["Object-Oriented Programming", "Scripting Language Programming", "Cross-Platform Application Development with Scripting Language", "Software Engineering", "Software Testing", "Virtual Community"] },
+    { g: "Data & Analytics", items: ["Database Design and Development", "Advanced Database Design", "Database Administration", "Business Intelligence", "Information Visualization"] },
+    { g: "Security & Infrastructure", items: ["Foundation in Information and Network Security", "Cryptographic Protocols"] },
   ],
   softSkills: [
     { t: "Problem-Solving & Analytical", d: "Break down system structure and application logic, and debug problems methodically." },
