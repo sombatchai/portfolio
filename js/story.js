@@ -98,6 +98,11 @@
   $("#summary").textContent = PROFILE.summary;
   $("#edu").innerHTML = PROFILE.education.map((e) => `<li><small>${e.years}</small><b>${e.school}</b><span>${e.degree}</span></li>`).join("");
   $("#courses").innerHTML = PROFILE.coursework.map((c) => `<span>${c}</span>`).join("");
+  $("#certs").innerHTML = (PROFILE.certificates || []).map((c) => `
+    <a class="cert" href="${c.pdf}" target="_blank" rel="noopener" title="Open certificate (PDF)">
+      <img src="${c.img}" alt="Certificate: ${c.title}" loading="lazy">
+      <div><small>${c.date}</small><b>${c.title}</b><span>${c.issuer}</span><p>${c.detail}</p></div>
+    </a>`).join("");
   const tel = PROFILE.phone ? `tel:+66${PROFILE.phone.replace(/\D/g, "").replace(/^0/, "")}` : "";
   $("#contactRow").innerHTML = [
     tel && `<a class="pill" href="${tel}">${IC.phone}${PROFILE.phone}</a>`,

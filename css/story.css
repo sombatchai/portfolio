@@ -337,3 +337,14 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
 /* chapter buttons: case study + live demo */
 .ch-cta { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* certificates (About) */
+.certs { display: grid; gap: 12px; }
+.cert { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: center; padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.02); transition: border-color .3s, transform .3s var(--ease); }
+.cert:hover { border-color: var(--accent-2); transform: translateY(-2px); }
+.cert img { width: 100%; aspect-ratio: 1200 / 849; object-fit: contain; border-radius: 8px; background: #fff; }
+.cert small { font-family: var(--mono); color: var(--accent-2); font-size: 12px; }
+.cert b { display: block; font-size: 16px; line-height: 1.3; margin: 2px 0; }
+.cert span { color: var(--muted); font-size: 13.5px; }
+.cert p { margin: 6px 0 0; color: var(--dim); font-size: 13px; line-height: 1.5; }
+@media (max-width: 520px) { .cert { grid-template-columns: 1fr; } }

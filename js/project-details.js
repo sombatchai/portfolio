@@ -341,7 +341,6 @@ const DETAILS = {
     ],
     certificate: {
       src: `${IMG}chainpass/certificate.jpg`,
-      pdf: "assets/docs/sut-digital-hackathon-certificate.pdf",
       t: "Certificate of Achievement",
       d: "Awarded for successfully completing the SUT-Digital Hackathon, 1–4 June 2026, Suranaree University of Technology. Signed by the Dean of the Institute of Digital Arts and Science.",
     },
