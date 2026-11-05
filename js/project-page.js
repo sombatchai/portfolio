@@ -127,6 +127,15 @@
   if (d.dashboards) html += section("Power BI Dashboard", "Three report pages with year and faculty slicers. Click to enlarge.", `
     <div class="shots dash" data-stagger>${d.dashboards.map((s) => shot(s)).join("")}</div>`);
 
+  if (d.infographic) {
+    const g = d.infographic;
+    html += section("Infographic", null, `
+    <div class="cs-two info-row">
+      <figure class="shot info" data-reveal><div class="frame"><img src="${g.src}" alt="${g.t}" loading="lazy"></div><figcaption><small>Click to enlarge</small></figcaption></figure>
+      <div class="card spot cs-pad" data-reveal style="--d:.1s"><h3>${ic("bulb")}${g.t}</h3><p class="muted">${g.d}</p><ul class="checklist">${g.points.map((p) => `<li>${tick}${p}</li>`).join("")}</ul></div>
+    </div>`);
+  }
+
   if (d.certificate) {
     const c = d.certificate;
     html += section("Certificate", null, `

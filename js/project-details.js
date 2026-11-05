@@ -415,6 +415,19 @@ const DETAILS = {
       { src: `${IMG}bi/dashboard-patterns-risk.jpg`, t: "Page 2 · Gaming patterns & risk", d: "Attitudes on 5 dimensions, grade level by daily play time, playing during class vs GPAX, GPAX by online / offline games, and grade groups by time of day." },
       { src: `${IMG}bi/dashboard-factors.jpg`, t: "Page 3 · Factors & impact", d: "GPA by subject group, which genres link to the lowest grades, GPAX by reason for playing in class, by who students live with, and by type of accommodation." },
     ],
+    infographic: {
+      src: `${IMG}bi/infographic.jpg`,
+      t: "Gaming behaviour & grades",
+      d: "One-page summary of the study for students and staff.",
+      points: [
+        "243 students · average GPAX 2.72 · 103 students (42.4%) at risk, and 77% still game during class.",
+        "The more they play, the lower the GPAX: 2.77 (never) → 2.74 (sometimes) → 2.57 (regularly).",
+        "16:00–19:00 is the riskiest time slot, with 40.23% of players there getting D or F.",
+        "Rhythm (3.10) and sandbox (3.09) players do best; MOBA / FPS players do worst (2.72–2.73).",
+        "Where students live matters: on-campus dorms 2.79 vs living with relatives 2.28.",
+        "Attitudes: 56.38% say online classes make them game more; 47.33% don't see losing track of time as a problem.",
+      ],
+    },
     goalsTitle: "Business Questions",
     objectivesLabel: "What the dashboard had to answer",
     objectives: [
@@ -445,7 +458,6 @@ const DETAILS = {
       ],
     },
     screens: [
-      { src: `${IMG}bi/infographic.jpg`, t: "Infographic", d: "Gaming behaviour and grades: risk groups, attitudes, play time, genres and living environment." },
       { src: `${IMG}bi/analytics-canvas.jpg`, t: "Analytics Canvas", d: "Stakeholders, data, business problems, unit of analysis, techniques, deployment, evaluation and actions." },
       { src: `${IMG}bi/slide-questions.jpg`, t: "Business questions", d: "The questions the analysis set out to answer." },
       { src: `${IMG}bi/slide-kpis.jpg`, t: "KPIs", d: "The indicators tracked on the dashboard." },
