@@ -14,7 +14,7 @@ const PROFILE = {
   location: "Nakhon Ratchasima, Thailand",
   summary: "Third-year Digital Technology student at Suranaree University of Technology with a strong passion for software development. Hands-on experience building full-stack web, mobile and database applications with JavaScript, React, Node.js and relational databases. Eager to bring problem-solving, adaptability and cross-functional teamwork to a software developer internship.",
   education: [
-    { school: "Suranaree University of Technology", years: "2024 – Present", degree: "B.Sc. Digital Technology — Institute of Digital Arts and Science" },
+    { school: "Suranaree University of Technology", years: "2024 – Present", degree: "Bachelor of Science in Digital Technology — Institute of Digital Arts and Science" },
     { school: "Phraibung Wittayakom School", years: "2018 – 2023", degree: "High School Diploma (Science–Mathematics Program)" },
   ],
   certificates: [
