@@ -16,6 +16,7 @@
 | **MissionLife** – Gamified Habit Tracker | แอปมือถือที่เปลี่ยนเป้าหมายในชีวิตจริงให้เป็นเควส ได้ XP ถ้วยรางวัล และสู้บอส · [▶ ลองเดโม](https://sombatchai.github.io/portfolio/demo/missionlife/) | React Native, Expo, Firebase, Figma |
 | **Retail Insight** – Retail Sales Analytics | เว็บแอปให้ทีม Data Analytics: นำเข้าไฟล์ยอดขายแล้วดู Dashboard แนวโน้ม พยากรณ์ด้วย Linear Regression และสินค้าค้างสต๊อก · [▶ ลองเดโม](https://sombatchai.github.io/retail-insight/) | React 19, Vite, Tailwind CSS, Recharts, Firebase Firestore |
 | **StockMB** – Inventory Management System | โปรแกรมเดสก์ท็อปจัดการสต๊อกและขายหน้าร้านสำหรับร้านค้าขนาดเล็ก พร้อมเอกสาร SRS ครบ · [▶ ลองเดโม](https://sombatchai.github.io/portfolio/demo/stockmb/) | Electron, JavaScript, SQLite |
+| **Gaming Behaviour vs. Grades** – Power BI Dashboard | โปรเจควิชา Business Intelligence: วิเคราะห์แบบสอบถามนักศึกษา มทส. 243 คน ว่าพฤติกรรมการเล่นเกมสัมพันธ์กับ GPAX อย่างไร พร้อม Dashboard 3 หน้า, Analytics Canvas และ Infographic | Power BI, Power Query, DAX |
 | **ChainPass** – Blockchain Ticketing (Hackathon) | ไอเดียและ Prototype จากการแข่งขัน SUT-Digital Hackathon (1–4 มิ.ย. 2026, ได้รับเกียรติบัตร Certificate of Achievement): ตั๋วบน Smart Contract, กระเป๋าเงินแบบ Escrow และขายต่อแบบล็อกเพดานราคา | Figma, แนวคิด Blockchain |
 | **Wi-Fi Security Pentest** | ทดลองในห้องแล็บว่าความซับซ้อนของรหัสผ่านมีผลต่อความปลอดภัยของ WEP / WPA / WPA2 อย่างไร | Kali Linux, Aircrack-ng, Wifite, Wireshark |
 

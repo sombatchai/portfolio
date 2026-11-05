@@ -50,6 +50,10 @@
         <div class="win a"><img src="${IMG}projects/chainpass/seats.jpg" alt="ChainPass zone and seat map"></div>
         <div class="win b"><img src="${IMG}projects/chainpass/home.jpg" alt="ChainPass event listing" style="object-position:0 32%"></div>
       </div>`,
+    bi: () => `<div class="v-windows">
+        <div class="win a"><img src="${IMG}projects/bi/analytics-canvas.jpg" alt="Analytics Canvas for the gaming behaviour study"></div>
+        <div class="win b"><img src="${IMG}projects/bi/cover.jpg" alt="Gaming behaviour and academic performance presentation"></div>
+      </div>`,
     wifi: () => {
       const lines = [
         ["$ sudo airmon-ng start wlan0", ""], ["$ sudo airodump-ng -c 11 --bssid 8C:90:… wlan0", ""],
@@ -66,7 +70,7 @@
     },
   };
 
-  const ORDER = ["aecverse", "mission", "retail", "stockmb", "chainpass", "wifi"].filter(P);
+  const ORDER = ["aecverse", "mission", "retail", "stockmb", "bi", "chainpass", "wifi"].filter(P);
   $("#work").innerHTML = ORDER.map((id, i) => {
     const p = P(id), d = D(id);
     const n = String(i + 1).padStart(2, "0");

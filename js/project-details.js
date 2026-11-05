@@ -396,6 +396,72 @@ const DETAILS = {
   },
 
   /* ------------------------------------------------------ */
+  bi: {
+    cover: `${IMG}bi/cover.jpg`,
+    coverPos: "50% 50%",
+    coverFit: true,
+    tagline: "Does gaming really hurt grades? A Power BI dashboard built from a survey of 243 SUT students.",
+    stats: [
+      { n: "243", l: "Students surveyed" },
+      { n: "2.72", l: "Average GPAX" },
+      { n: "42.4%", l: "High-risk gaming behaviour" },
+      { n: "3", l: "Dashboard pages" },
+    ],
+    overview: [
+      "Universities usually find out a student is struggling only when the grades come out, which is often too late to help. There is also a common assumption that \"gaming = bad grades\", but no one had the data to show which behaviours actually matter.",
+      "Our team surveyed 243 students at Suranaree University of Technology about their gaming habits (hours, genres, playing in class, time of day), attitudes, living situation and grades, then analysed how these relate to GPAX. We planned the work with an Analytics Canvas, built an interactive Power BI dashboard, and summarised the results in an infographic and a presentation.",
+    ],
+    goalsTitle: "Business Questions",
+    objectivesLabel: "What the dashboard had to answer",
+    objectives: [
+      "Does playing more than 7 hours a day, or playing after midnight, clearly lower GPAX?",
+      "Do students who prefer strategy or puzzle games really get better grades than other genres?",
+      "Which behaviours (such as playing in class) are early warning signs of a GPAX below 2.00?",
+      "Do students' attitudes to gaming affect their studies, and does their living environment affect how they play?",
+    ],
+    features: [
+      { icon: "layout", t: "Page 1 · Overview", d: "KPI cards (respondents, average GPAX, average hours a day, students and % playing in class, risk rate), grade distribution, GPAX by faculty, and weekday vs weekend play time." },
+      { icon: "target", t: "Page 2 · Gaming patterns & risk", d: "Attitudes on 5 dimensions, risk level by hours played, playing in class vs GPAX, grade groups by time of day, and GPAX for online vs offline games." },
+      { icon: "zap", t: "Page 3 · Factors & impact", d: "GPA by subject group, GPAX by reason for playing in class, by who students live with, by type of accommodation, and which genre links to the lowest grades." },
+      { icon: "tool", t: "Data modelling", d: "Cleaned the survey in Power Query and unpivoted multi-answer questions into long tables (play hours, attitudes, time slots, genres, subject GPAs) so each could be filtered and charted." },
+      { icon: "server", t: "DAX measures", d: "Measures for % of students playing in class, % high-risk, and a risk level that groups students by how much and when they play." },
+      { icon: "users", t: "Interactive filters", d: "Year and faculty slicers on every page, so advisors can focus on their own students." },
+    ],
+    findings: [
+      { t: "The more they play, the lower the GPAX", d: "Average GPAX drops from 2.77 for students who don't play, to 2.74 for occasional players, to 2.57 for regular players. A 0.20 gap is the difference between passing and failing several courses." },
+      { t: "The risk is in the afternoon, not only late at night", d: "Students who play between 16:00 and 19:00 have the highest share of D/F grades at 40.2%. 77% still play during class." },
+      { t: "Genre matters", d: "MOBA and FPS players have the lowest GPAX (2.72–2.73), while rhythm (3.10) and sandbox (3.09) players have the highest." },
+      { t: "Belief vs reality", d: "47.33% think losing track of time while gaming isn't a problem, yet the data shows grades falling with play time. Living environment matters too: on-campus dorms average 2.79, living with relatives 2.28." },
+    ],
+    highlight: {
+      title: "From dashboard to action",
+      text: [
+        "The dashboard lets advisors pull a list of high-risk students before their GPAX hits a crisis, compare faculties, and see when students game the most so workshops on time management and sleep target the right groups.",
+        "We recommended short group activities or quizzes every 15–20 minutes instead of only banning phones in class, extra engagement in 16:00–19:00 classes, and a weekly stress check so teachers can spot students who game to cope with stress.",
+      ],
+    },
+    screens: [
+      { src: `${IMG}bi/infographic.jpg`, t: "Infographic", d: "Gaming behaviour and grades: risk groups, attitudes, play time, genres and living environment." },
+      { src: `${IMG}bi/analytics-canvas.jpg`, t: "Analytics Canvas", d: "Stakeholders, data, business problems, unit of analysis, techniques, deployment, evaluation and actions." },
+      { src: `${IMG}bi/slide-questions.jpg`, t: "Business questions", d: "The questions the analysis set out to answer." },
+      { src: `${IMG}bi/slide-kpis.jpg`, t: "KPIs", d: "The indicators tracked on the dashboard." },
+      { src: `${IMG}bi/slide-benefits-2.jpg`, t: "What the dashboard shows", d: "Belief vs reality, faculty comparison, and the genres linked to lower grades." },
+      { src: `${IMG}bi/slide-actions-1.jpg`, t: "Recommended actions", d: "Turning insights into actions for advisors and teachers." },
+    ],
+    stack: [
+      { g: "BI & modelling", items: ["Power BI Desktop", "Power Query (cleaning, unpivot)", "DAX measures", "Star-style model with long tables"] },
+      { g: "Visuals", items: ["KPI cards & slicers", "Bar / 100% stacked / area / donut charts", "Inforiver & histogram custom visuals"] },
+      { g: "Analysis", items: ["Descriptive statistics (mean GPAX)", "Frequency distribution", "Risk segmentation"] },
+      { g: "Communication", items: ["Analytics Canvas", "Infographic", "Canva presentation"] },
+    ],
+    learnings: [
+      "Starting from business questions and stakeholders (Analytics Canvas) before touching the data.",
+      "Reshaping survey data with multi-answer questions into a model Power BI can filter cleanly.",
+      "Telling a story with data: one infographic and a few clear actions instead of many charts.",
+    ],
+  },
+
+  /* ------------------------------------------------------ */
   wifi: {
     tagline: "How strong is your Wi-Fi password, really? We measured it.",
     stats: [
