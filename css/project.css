@@ -171,3 +171,9 @@
 .shots.dash .frame { aspect-ratio: 1729 / 973; background: #eaf3fb; }
 .shots.dash .frame img { object-fit: contain; }
 @media (max-width: 760px) { .shots.dash { grid-template-columns: 1fr; } }
+
+/* infographic: tall poster shown whole, takeaways beside it */
+.info-row { grid-template-columns: minmax(0, 420px) 1fr; align-items: start; }
+.shot.info .frame { aspect-ratio: 943 / 2000; }
+.shot.info .frame img { object-fit: contain; }
+@media (max-width: 760px) { .info-row { grid-template-columns: 1fr; } }
