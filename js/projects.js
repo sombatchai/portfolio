@@ -142,7 +142,7 @@ const PROJECTS = [
     short: "Business Intelligence project: a Power BI dashboard on how SUT students' gaming habits relate to their GPAX.",
     long: "A Business Intelligence project analysing a survey of 243 Suranaree University of Technology students to see how gaming habits relate to academic performance (GPAX). We designed the analysis with an Analytics Canvas, modelled the survey in Power BI, built a three-page interactive dashboard, and turned the findings into an infographic and recommendations for advisors and student support.",
     category: "data",
-    thumb: `<img src="assets/img/projects/bi/cover.jpg" alt="Gaming behaviour and academic performance" loading="lazy" style="width:100%;height:100%;object-fit:cover">`,
+    thumb: `<img src="assets/img/projects/bi/dashboard-overview.jpg" alt="Power BI dashboard: gaming behaviour and grades" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:0 0">`,
     tags: ["Power BI", "Power Query", "DAX", "Data Modeling", "Data Visualization", "Survey Analysis"],
     role: "Team member (data analysis & dashboard)",
     type: "Course project · Business Intelligence",
@@ -150,7 +150,7 @@ const PROJECTS = [
     highlights: [
       "Analysed survey data from 243 students across faculties and years",
       "Three-page Power BI dashboard with KPI cards and year / faculty slicers",
-      "Found GPAX falls from 2.77 to 2.57 as play becomes routine; 42.4% of students are high-risk",
+      "Found GPAX falls from 2.77 to 2.57 as play becomes routine; 42.4% of students are below GPAX 2.50",
       "Turned insights into actions for advisors: risk lists, workshops and class activities",
     ],
     link: "#",

@@ -164,3 +164,10 @@
 .cert-row { align-items: center; }
 .shot .frame.cert { aspect-ratio: 2000 / 1414; }
 .shot .frame.cert img { object-fit: contain; }
+
+/* dashboards: first page full width, the others side by side, never cropped */
+.shots.dash { grid-template-columns: 1fr 1fr; }
+.shots.dash .shot:first-child { grid-column: 1 / -1; }
+.shots.dash .frame { aspect-ratio: 1729 / 973; background: #eaf3fb; }
+.shots.dash .frame img { object-fit: contain; }
+@media (max-width: 760px) { .shots.dash { grid-template-columns: 1fr; } }

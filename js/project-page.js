@@ -124,6 +124,9 @@
       </div>` : ""}
     </div>`);
 
+  if (d.dashboards) html += section("Power BI Dashboard", "Three report pages with year and faculty slicers. Click to enlarge.", `
+    <div class="shots dash" data-stagger>${d.dashboards.map((s) => shot(s)).join("")}</div>`);
+
   if (d.certificate) {
     const c = d.certificate;
     html += section("Certificate", null, `
