@@ -397,19 +397,23 @@ const DETAILS = {
 
   /* ------------------------------------------------------ */
   bi: {
-    cover: `${IMG}bi/cover.jpg`,
-    coverPos: "50% 50%",
-    coverFit: true,
+    cover: `${IMG}bi/dashboard-overview.jpg`,
+    coverPos: "0 0",
     tagline: "Does gaming really hurt grades? A Power BI dashboard built from a survey of 243 SUT students.",
     stats: [
       { n: "243", l: "Students surveyed" },
       { n: "2.72", l: "Average GPAX" },
-      { n: "42.4%", l: "High-risk gaming behaviour" },
-      { n: "3", l: "Dashboard pages" },
+      { n: "3.08 h", l: "Average gaming per day" },
+      { n: "42.4%", l: "Risk rate (GPAX below 2.50)" },
     ],
     overview: [
       "Universities usually find out a student is struggling only when the grades come out, which is often too late to help. There is also a common assumption that \"gaming = bad grades\", but no one had the data to show which behaviours actually matter.",
       "Our team surveyed 243 students at Suranaree University of Technology about their gaming habits (hours, genres, playing in class, time of day), attitudes, living situation and grades, then analysed how these relate to GPAX. We planned the work with an Analytics Canvas, built an interactive Power BI dashboard, and summarised the results in an infographic and a presentation.",
+    ],
+    dashboards: [
+      { src: `${IMG}bi/dashboard-overview.jpg`, t: "Page 1 · Overview", d: "KPI cards (243 respondents, GPAX 2.72, 3.08 h a day, 187 students / 77% playing in class, 42.4% risk rate), the GPAX grading scale, grade distribution, GPAX by faculty, and weekday vs weekend play time." },
+      { src: `${IMG}bi/dashboard-patterns-risk.jpg`, t: "Page 2 · Gaming patterns & risk", d: "Attitudes on 5 dimensions, grade level by daily play time, playing during class vs GPAX, GPAX by online / offline games, and grade groups by time of day." },
+      { src: `${IMG}bi/dashboard-factors.jpg`, t: "Page 3 · Factors & impact", d: "GPA by subject group, which genres link to the lowest grades, GPAX by reason for playing in class, by who students live with, and by type of accommodation." },
     ],
     goalsTitle: "Business Questions",
     objectivesLabel: "What the dashboard had to answer",
@@ -424,7 +428,7 @@ const DETAILS = {
       { icon: "target", t: "Page 2 · Gaming patterns & risk", d: "Attitudes on 5 dimensions, risk level by hours played, playing in class vs GPAX, grade groups by time of day, and GPAX for online vs offline games." },
       { icon: "zap", t: "Page 3 · Factors & impact", d: "GPA by subject group, GPAX by reason for playing in class, by who students live with, by type of accommodation, and which genre links to the lowest grades." },
       { icon: "tool", t: "Data modelling", d: "Cleaned the survey in Power Query and unpivoted multi-answer questions into long tables (play hours, attitudes, time slots, genres, subject GPAs) so each could be filtered and charted." },
-      { icon: "server", t: "DAX measures", d: "Measures for % of students playing in class, % high-risk, and a risk level that groups students by how much and when they play." },
+      { icon: "server", t: "DAX measures", d: "Measures for the KPI cards: respondents, average GPAX, average daily play time, % of students playing in class, and the risk rate (share of students with GPAX below 2.50)." },
       { icon: "users", t: "Interactive filters", d: "Year and faculty slicers on every page, so advisors can focus on their own students." },
     ],
     findings: [

@@ -51,8 +51,8 @@
         <div class="win b"><img src="${IMG}projects/chainpass/home.jpg" alt="ChainPass event listing" style="object-position:0 32%"></div>
       </div>`,
     bi: () => `<div class="v-windows">
-        <div class="win a"><img src="${IMG}projects/bi/analytics-canvas.jpg" alt="Analytics Canvas for the gaming behaviour study"></div>
-        <div class="win b"><img src="${IMG}projects/bi/cover.jpg" alt="Gaming behaviour and academic performance presentation"></div>
+        <div class="win a"><img src="${IMG}projects/bi/dashboard-overview.jpg" alt="Power BI overview dashboard"></div>
+        <div class="win b"><img src="${IMG}projects/bi/dashboard-patterns-risk.jpg" alt="Power BI gaming patterns and risk dashboard"></div>
       </div>`,
     wifi: () => {
       const lines = [
