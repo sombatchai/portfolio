@@ -19,7 +19,6 @@
     phone: svg('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'),
     download: svg('<path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/>'),
     external: svg('<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>'),
-    linkedin: svg('<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/>'),
   };
 
   /* ---------- profile bits ---------- */
@@ -111,7 +110,6 @@
   $("#contactRow").innerHTML = [
     tel && `<a class="pill" href="${tel}">${IC.phone}${PROFILE.phone}</a>`,
     `<a class="pill" href="${PROFILE.github}" target="_blank" rel="noopener">${IC.github}GitHub</a>`,
-    PROFILE.linkedin && `<a class="pill" href="${PROFILE.linkedin}" target="_blank" rel="noopener">${IC.linkedin}LinkedIn</a>`,
     `<a class="pill fill" href="${PROFILE.resume}" download="Sombatchai-Khamkhao-CV.pdf">${IC.download}Download CV</a>`,
   ].filter(Boolean).join("");
 
