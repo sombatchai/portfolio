@@ -75,11 +75,12 @@
     </svg>`;
   };
   const seqSvg = (sq) => {
-    const xs = sq.actors.map((_, i) => 110 + i * 230), top = 30, gap = 56, h = top + 60 + sq.steps.length * gap + 70;
-    const head = (y) => sq.actors.map((a, i) => `<g><rect x="${xs[i] - 85}" y="${y}" width="170" height="40" rx="10" fill="${i === 1 ? "#2e7d12" : "#ffffff"}" stroke="${i === 1 ? "#2e7d12" : "#7cc35a"}" stroke-width="1.5"/><text x="${xs[i]}" y="${y + 25}" text-anchor="middle" class="dg-t sm${i === 1 ? " inv" : ""}">${a}</text></g>`).join("");
-    const lines = xs.map((x) => `<line x1="${x}" y1="${top + 40}" x2="${x}" y2="${h - 70}" stroke="#9ccf84" stroke-dasharray="4 6"/>`).join("");
+    // one header row, lifelines, then one row per step (no repeated footer row)
+    const xs = sq.actors.map((_, i) => 110 + i * 230), top = 12, gap = 42, first = top + 72, h = first + (sq.steps.length - 1) * gap + 30;
+    const head = (y) => sq.actors.map((a, i) => `<g><rect x="${xs[i] - 85}" y="${y}" width="170" height="36" rx="10" fill="${i === 1 ? "#2e7d12" : "#ffffff"}" stroke="${i === 1 ? "#2e7d12" : "#7cc35a"}" stroke-width="1.5"/><text x="${xs[i]}" y="${y + 23}" text-anchor="middle" class="dg-t sm${i === 1 ? " inv" : ""}">${a}</text></g>`).join("");
+    const lines = xs.map((x) => `<line x1="${x}" y1="${top + 36}" x2="${x}" y2="${h - 8}" stroke="#9ccf84" stroke-dasharray="4 6"/>`).join("");
     const steps = sq.steps.map((st, i) => {
-      const y = top + 80 + i * gap, x1 = xs[st.from], x2 = xs[st.to];
+      const y = first + i * gap, x1 = xs[st.from], x2 = xs[st.to];
       if (st.from === st.to) {
         // loop toward the inside of the diagram so the label never runs off the edge
         const left = st.from === xs.length - 1, d = left ? -1 : 1;
@@ -89,7 +90,7 @@
     }).join("");
     return `<svg class="dg" viewBox="0 0 920 ${h}" role="img" aria-label="${sq.title}">
       <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3f9a1f"/></marker></defs>
-      ${lines}${head(top)}${steps}${head(h - 60)}
+      ${lines}${head(top)}${steps}
     </svg>`;
   };
 
