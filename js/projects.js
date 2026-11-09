@@ -39,14 +39,14 @@ const PROJECTS = [
   {
     id: "aecverse",
     title: "AEC VERSE – Smart Biogas Digital Twin",
-    short: "Capstone project for a real company: a 3D digital twin for biogas plant safety training.",
-    long: "AEC VERSE is our capstone project, built for a real client: Accepted Engineering & Consultant Co., Ltd. (AE&C), with support from TITON Engineering & Consultant. It is a smart biogas digital twin where trainees explore a 3D model of the plant in the browser and learn its safety procedures. I built the web application structure — 26 pages with five types of interactive modal pop-ups used in the training — and designed the safety assessment quizzes that score each trainee and issue an electronic certificate.",
+    short: "Capstone project for a real company: a multiplayer 3D twin of a biogas plant for safety training.",
+    long: "AEC VERSE is our capstone project for Accepted Engineering & Consultant Co., Ltd. (AE&C). Trainees walk a 3D model of a biogas plant together in the browser, learn its safety procedures and rehearse emergencies. I built the 26-page web app structure and the safety quizzes that score each trainee and issue a certificate. Plant sensor data is simulated in this prototype.",
     category: "web",
     thumb: `<img src="assets/img/projects/aecverse/cover.jpg" alt="AEC VERSE biogas plant digital twin" style="object-position:30% 60%">`,
-    tags: ["JavaScript", "HTML5", "CSS3", "3D Simulation"],
+    tags: ["JavaScript", "Three.js", "Node.js", "Socket.IO", "Supabase"],
     role: "Software Developer (team of 3)",
     type: "Capstone · real client (AE&C)",
-    year: "2025",
+    year: "2026",
     highlights: [
       "Built the web application structure: 26 pages for the training platform",
       "Created 5 types of interactive modal pop-ups for safety training content",

@@ -12,7 +12,7 @@
 
 | โปรเจค | รายละเอียด | เทคโนโลยี |
 | --- | --- | --- |
-| **AEC VERSE** – Smart Biogas Digital Twin | โปรเจคจบที่พัฒนาให้บริษัทจริง: Digital Twin และ Metaverse ของโรงงานไบโอแก๊สสำหรับฝึกอบรมความปลอดภัย (26 หน้า, 32 API endpoints, Real-time socket) · [▶ ลองเดโม](https://aecverse.up.railway.app/) | JavaScript, Three.js, Node.js, Express, Socket.IO, Supabase |
+| **AEC VERSE** – Smart Biogas Digital Twin | โปรเจคจบที่พัฒนาให้บริษัทจริง: โลก 3D แบบผู้ใช้หลายคนของโรงงานก๊าซชีวภาพสำหรับฝึกอบรมความปลอดภัย (26 หน้า, 31 API routes, ข้อมูลเซนเซอร์จำลอง) · [▶ ลองเดโม](https://aecverse.up.railway.app/) | JavaScript, Three.js, Node.js, Express, Socket.IO, Supabase |
 | **MissionLife** – Gamified Habit Tracker | แอปมือถือที่เปลี่ยนเป้าหมายในชีวิตจริงให้เป็นเควส ได้ XP ถ้วยรางวัล และสู้บอส · [▶ ลองเดโม](https://sombatchai.github.io/portfolio/demo/missionlife/) | React Native, Expo, Firebase, Figma |
 | **Retail Insight** – Retail Sales Analytics | เว็บแอปให้ทีม Data Analytics: นำเข้าไฟล์ยอดขายแล้วดู Dashboard แนวโน้ม พยากรณ์ด้วย Linear Regression และสินค้าค้างสต๊อก · [▶ ลองเดโม](https://sombatchai.github.io/retail-insight/) | React 19, Vite, Tailwind CSS, Recharts, Firebase Firestore |
 | **StockMB** – Inventory Management System | โปรแกรมเดสก์ท็อปจัดการสต๊อกและขายหน้าร้านสำหรับร้านค้าขนาดเล็ก พร้อมเอกสาร SRS ครบ · [▶ ลองเดโม](https://sombatchai.github.io/portfolio/demo/stockmb/) | Electron, JavaScript, SQLite |

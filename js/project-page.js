@@ -150,7 +150,7 @@
     <div class="values" data-stagger>${d.concepts.map((c, i) => `<div class="card spot value"><div class="icon-box"><b>0${i + 1}</b></div><h4>${c.t}</h4><p>${c.d}</p></div>`).join("")}</div>`);
 
   if (d.objectives || d.myRole) html += section(d.goalsTitle || "Goals & My Role", null, `
-    <div class="cs-two">
+    <div class="cs-two"${d.objectives && d.myRole ? "" : ` style="grid-template-columns:1fr"`}>
       ${d.objectives ? `<div class="card spot cs-pad" data-reveal><h3>${ic("target")}${d.objectivesLabel || "Objectives"}</h3><ul class="checklist">${d.objectives.map((o) => `<li>${tick}${o}</li>`).join("")}</ul></div>` : ""}
       ${d.myRole ? `<div class="card spot cs-pad role-card" data-reveal style="--d:.1s"><h3>${ic("user")}${d.myRole.title}</h3><p class="muted">The parts I owned:</p><div class="role-pills">${d.myRole.items.map((r) => `<span>${r}</span>`).join("")}</div></div>` : ""}
     </div>`);
