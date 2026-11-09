@@ -39,21 +39,39 @@
       <text x="${x + w / 2}" y="${y + h / 2 - (sub ? 4 : -5)}" text-anchor="middle" class="dg-t${accent ? " inv" : ""}">${title}</text>
       ${sub ? `<text x="${x + w / 2}" y="${y + h / 2 + 16}" text-anchor="middle" class="dg-s${accent ? " inv" : ""}">${sub}</text>` : ""}</g>`;
     const tag = (x, y, t) => `<g><rect x="${x - t.length * 3.6 - 10}" y="${y - 13}" width="${t.length * 7.2 + 20}" height="24" rx="12" fill="#ffffff" stroke="#7cc35a"/><text x="${x}" y="${y + 4}" text-anchor="middle" class="dg-l">${t}</text></g>`;
-    return `<svg class="dg" viewBox="0 0 900 360" role="img" aria-label="AEC VERSE architecture diagram">
+    // box with a title and several short lines; `dashed` marks simulated parts
+    const card = (x, y, w, h, title, lines, o = {}) => `
+      <g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="${o.accent ? "#2e7d12" : "#ffffff"}" stroke="${o.accent ? "#2e7d12" : "#7cc35a"}" stroke-width="1.5"${o.dashed ? ` stroke-dasharray="6 5"` : ""}/>
+      <text x="${x + w / 2}" y="${y + 27}" text-anchor="middle" class="dg-t${o.accent ? " inv" : ""}">${title}</text>
+      ${lines.map((l, i) => `<text x="${x + w / 2}" y="${y + 49 + i * 18}" text-anchor="middle" class="dg-s${o.accent ? " inv" : ""}">${l}</text>`).join("")}</g>`;
+    const panel = (x, y, w, h, label) => `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="#f6fbf2" stroke="#b9dca6" stroke-dasharray="4 6"/><text x="${x + 16}" y="${y + 24}" class="dg-l">${label}</text></g>`;
+    return `<svg class="dg" viewBox="0 0 1040 640" style="min-width:760px" role="img" aria-label="AEC VERSE architecture: browser clients, Node.js server on Railway with a simulated plant, and Supabase">
       <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3f9a1f"/></marker></defs>
+      ${panel(20, 40, 260, 520, "BROWSER · ANY DEVICE")}
+      ${panel(400, 40, 280, 520, "SERVER · NODE.JS ON RAILWAY")}
+      ${panel(800, 40, 220, 520, "SUPABASE")}
+      ${card(40, 75, 220, 70, "Public portal", ["home, process, virtual tour"])}
+      ${card(40, 160, 220, 70, "Staff web app", ["dashboard, work orders, reports"])}
+      ${card(40, 245, 220, 70, "3D Digital Twin", ["Three.js · avatars · chat"], { accent: true })}
+      ${card(40, 330, 220, 70, "AR & VR", ["QR on phone · WebXR headset"])}
+      ${card(40, 455, 220, 70, "Voice chat", ["WebRTC · set up via Socket.IO"])}
+      ${card(420, 75, 240, 140, "Express REST API · 31", ["users & roles · quiz & certificate", "emergency · work orders", "notifications · avatars · settings", "role check: admin · engineer · user"], { accent: true })}
+      ${card(420, 235, 240, 90, "Socket.IO · 21 events", ["movement, chat, model sync,", "markers, emergency"])}
+      ${card(420, 365, 240, 90, "Plant simulator", ["47 instruments · every 4 s", "simulated sensor data"], { dashed: true })}
+      ${card(820, 75, 180, 105, "Auth", ["email + Google", "sign-in token (JWT)"])}
+      ${card(820, 290, 180, 160, "Storage", ["bucket: models", "3D models (.glb)", "scene & settings", "quiz, work orders,", "notifications (JSON)"])}
       <g fill="none" stroke="#3f9a1f" stroke-width="2">
-        <path d="M240 180 H356" marker-start="url(#ah)" marker-end="url(#ah)"/>
-        <path d="M560 165 C 620 150, 630 85, 676 80" marker-end="url(#ah)"/>
-        <path d="M560 195 C 620 210, 630 275, 676 280" marker-end="url(#ah)"/>
-        <path d="M140 145 V40 H676" stroke-dasharray="6 6" marker-end="url(#ah)"/>
-        <path d="M140 215 V325 H676" stroke-dasharray="6 6" marker-end="url(#ah)"/>
+        <path d="M280 120 H416" marker-end="url(#ah)"/>
+        <path d="M280 280 H416" marker-start="url(#ah)" marker-end="url(#ah)"/>
+        <path d="M540 365 V329" marker-end="url(#ah)"/>
+        <path d="M660 105 H816" marker-end="url(#ah)"/>
+        <path d="M660 185 C 740 185, 740 340, 816 340" marker-start="url(#ah)" marker-end="url(#ah)"/>
+        <path d="M150 40 V18 H910 V71" stroke-dasharray="6 6" marker-end="url(#ah)"/>
+        <path d="M150 560 V600 H910 V454" stroke-dasharray="6 6" marker-start="url(#ah)" marker-end="url(#ah)"/>
       </g>
-      ${box(40, 145, 200, 70, "Browser", "Three.js 3D client")}
-      ${box(360, 140, 200, 80, "Server", "Node.js + Express", true)}
-      ${box(680, 50, 190, 60, "Supabase Storage", "")}
-      ${box(680, 250, 190, 60, "Supabase Auth", "")}
-      ${tag(298, 160, "Socket.IO")}${tag(410, 40, "download 3D models")}${tag(410, 325, "login")}
-      ${tag(625, 112, "save JSON files")}${tag(625, 252, "verify token")}
+      ${tag(340, 120, "REST + token")}${tag(340, 280, "WebSocket")}${tag(600, 347, "plant_update")}
+      ${tag(738, 105, "verify token")}${tag(738, 262, "save / load")}
+      ${tag(530, 18, "sign in (email / Google)")}${tag(530, 600, "upload / download 3D models")}
     </svg>`;
   };
   const seqSvg = (sq) => {

@@ -43,7 +43,7 @@ const DETAILS = {
     ],
     archDiagram: {
       title: "System architecture",
-      sub: "How the browser, server and Supabase talk to each other.",
+      sub: "Every part of the running system: the pages people open, the Node.js server with its simulated plant, and Supabase for sign-in and files. The plant simulator has a dashed border because its sensor readings are simulated, not from real sensors.",
     },
     sequence: {
       title: "Emergency flow",
@@ -67,7 +67,7 @@ const DETAILS = {
       { icon: "book", t: "Remote plant visits", d: "Partners and experts can tour the plant in 3D without travelling to the site." },
     ],
     stack: [
-      { g: "Frontend & 3D", items: ["JavaScript", "HTML5", "CSS3", "Three.js", "WebXR"] },
+      { g: "Frontend & 3D", items: ["JavaScript", "HTML5", "CSS3", "Three.js", "WebXR", "WebRTC (voice)"] },
       { g: "Server", items: ["Node.js", "Express", "Socket.IO"] },
       { g: "Data & auth", items: ["Supabase Auth", "Supabase Storage"] },
       { g: "Hosting", items: ["Railway"] },
