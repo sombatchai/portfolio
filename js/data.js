@@ -97,7 +97,6 @@ const SKILLS = [
     title: "Languages & Core", sub: "Core programming", icon: "code",
     items: [
       { name: "JavaScript (ES6+)", icon: "javascript/javascript-original.svg", level: 82 },
-      { name: "Java", icon: "java/java-original.svg", level: 75 },
       { name: "SQL", icon: "azuresqldatabase/azuresqldatabase-original.svg", level: 78 },
       { name: "HTML5", icon: "html5/html5-original.svg", level: 85 },
       { name: "CSS3", icon: "css3/css3-original.svg", level: 80 },
@@ -134,7 +133,7 @@ const SKILLS = [
 ];
 
 const MARQUEE = [
-  ["Java", "java/java-original.svg"], ["Python", "python/python-original.svg"],
+  ["Python", "python/python-original.svg"],
   ["JavaScript", "javascript/javascript-original.svg"], ["TypeScript", "typescript/typescript-original.svg"],
   ["React", "react/react-original.svg"], ["Next.js", "nextjs/nextjs-original.svg", true],
   ["Node.js", "nodejs/nodejs-original.svg"], ["Tailwind", "tailwindcss/tailwindcss-original.svg"],
