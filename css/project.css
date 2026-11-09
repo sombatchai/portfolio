@@ -144,7 +144,7 @@
 .dg-t.sm { font-size: 15px; }
 .dg-s { fill: #4c6b3f; font: 500 13px "Barlow", sans-serif; }
 .dg-s.inv { fill: #e3f4d8; }
-.dg-l { fill: #1f5a0d; font: 600 13px "JetBrains Mono", monospace; }
+.dg-l { fill: #1f5a0d; font: 600 13px "JetBrains Mono", monospace; paint-order: stroke; stroke: #f7fbf3; stroke-width: 5px; stroke-linejoin: round; }
 @media (max-width: 800px) {
   .client-banner { grid-template-columns: 1fr; padding: 24px; }
   .req-list { grid-template-columns: 1fr; }

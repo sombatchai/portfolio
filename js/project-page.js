@@ -85,7 +85,7 @@
         const left = st.from === xs.length - 1, d = left ? -1 : 1;
         return `<path d="M${x1} ${y - 10} h${36 * d} v22 h${-32 * d}" fill="none" stroke="#3f9a1f" stroke-width="2" marker-end="url(#ah2)"/><text x="${x1 + 46 * d}" y="${y + 6}" text-anchor="${left ? "end" : "start"}" class="dg-l">${st.t}</text>`;
       }
-      return `<line x1="${x1}" y1="${y}" x2="${x2 - 6}" y2="${y}" stroke="#3f9a1f" stroke-width="2" marker-end="url(#ah2)"/><text x="${(x1 + x2) / 2}" y="${y - 9}" text-anchor="middle" class="dg-l">${st.t}</text>`;
+      return `<line x1="${x1}" y1="${y}" x2="${x2 - 6 * Math.sign(x2 - x1)}" y2="${y}" stroke="#3f9a1f" stroke-width="2" marker-end="url(#ah2)"/><text x="${(x1 + x2) / 2}" y="${y - 9}" text-anchor="middle" class="dg-l">${st.t}</text>`;
     }).join("");
     return `<svg class="dg" viewBox="0 0 920 ${h}" role="img" aria-label="${sq.title}">
       <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3f9a1f"/></marker></defs>
@@ -180,7 +180,7 @@
     <ol class="req-list" data-stagger>${d.clientReqs.items.map((r, i) => `<li class="card spot"><span>${String(i + 1).padStart(2, "0")}</span>${r}</li>`).join("")}</ol>`);
 
   if (d.archDiagram) html += section(d.archDiagram.title, d.archDiagram.sub, `<div class="card dg-card" data-reveal>${archSvg()}</div>`);
-  if (d.sequence) html += section(d.sequence.title, d.sequence.sub, `<div class="card dg-card" data-reveal>${seqSvg(d.sequence)}</div>`);
+  for (const sq of d.sequences || (d.sequence ? [d.sequence] : [])) html += section(sq.title, sq.sub, `<div class="card dg-card" data-reveal>${seqSvg(sq)}</div>`);
 
   if (d.features) html += section("Key Features", null, `
     <div class="soft-grid feat-grid" data-stagger>${d.features.map((f) => `<div class="card spot soft"><div class="icon-box">${ic(f.icon)}</div><h4>${f.t}</h4><p>${f.d}</p></div>`).join("")}</div>`);
