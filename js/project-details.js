@@ -34,7 +34,7 @@ const DETAILS = {
     problem: "Hands-on safety training at a biogas plant is dangerous and expensive, and on-site drills are limited by safety rules and machine downtime.",
     solution: "A browser-based 3D twin of the plant where trainees explore and rehearse emergencies together, with real-time alerts, safety quizzes and certificates.",
     goalsTitle: "My Role",
-    myRole: { title: "My part (web development)", items: ["26-page web app structure", "5 interactive modal types", "Safety Assessment Quizzes", "E-Certificate generation"] },
+    myRole: { title: "My part (trainee-side frontend)", items: ["13 trainee-facing pages", "Sign-in · sign-up · password reset", "Public portal", "Safety quiz page", "E-certificate page", "Avatar & settings", "Testing parts of the admin side"] },
     screens: [
       { src: `${IMG}aecverse/login.jpg`, t: "Sign in", d: "Login page with Google sign-in and a system-status panel (tanks, pumps, sensors, alarms) fed by the simulated plant data." },
       { src: `${IMG}aecverse/metaverse.jpg`, t: "Metaverse – 3D plant overview", d: "Walk the plant as an avatar, see plant risk and KPIs from the simulated sensor readings, browse 336 structure parts, and adjust models with admin-locked transform tools." },
@@ -59,7 +59,7 @@ const DETAILS = {
       ],
     }, {
       title: "Safety quiz & certificate flow",
-      sub: "My part. The server keeps the answer key: the browser only ever gets the questions, sends back the choices, and the server decides the score and whether a certificate can be issued.",
+      sub: "I built the quiz and certificate pages on the trainee side; the team's server does the checking. The server keeps the answer key: the browser only ever gets the questions, sends back the choices, and the server decides the score and whether a certificate can be issued.",
       actors: ["Trainee", "Server", "Supabase Auth", "Certificate page"],
       steps: [
         { from: 0, to: 1, t: "start quiz + token" },
